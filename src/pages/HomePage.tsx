@@ -1,8 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, RefreshCw } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import CategoryFilter from '../components/CategoryFilter';
 import { TableData, Category } from '../types';
+import { useProductStore } from '../stores/productStore';
+import { useAuthStore } from '../stores/authStore';
 
 interface HomePageProps {
   products: TableData[];
@@ -11,52 +13,45 @@ interface HomePageProps {
 const HomePage: React.FC<HomePageProps> = ({ products }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
+  const { fetchProducts, isLoading } = useProductStore();
+  const { isAuthenticated } = useAuthStore();
 
-  // Add categories to products if not present
-  const productsWithCategories = useMemo(() => {
-    return products.map(product => ({
-      ...product,
-      category: product.category || getProductCategory(product.description)
-    }));
-  }, [products]);
-
-  // Simple category detection based on product description
-  const getProductCategory = (description: string): Category => {
-    const desc = description.toLowerCase();
-    if (desc.includes('gold')) return 'Gold';
-    if (desc.includes('silver')) return 'Silver';
-    if (desc.includes('platinum')) return 'Platinum';
-    if (desc.includes('diamond')) return 'Diamond';
-    return 'Gold'; // Default category
+  // Refresh products when user logs in
+  const handleRefresh = () => {
+    if (isAuthenticated) {
+      fetchProducts();
+    }
   };
 
   // Filter products
   const filteredProducts = useMemo(() => {
-    return productsWithCategories.filter(product => {
-      const matchesSearch = product.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+    return products.filter(product => {
+      const matchesSearch = 
+        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = selectedCategory === 'All' || 
+        product.category?.toLowerCase() === selectedCategory.toLowerCase();
+      
       return matchesSearch && matchesCategory;
     });
-  }, [productsWithCategories, searchTerm, selectedCategory]);
+  }, [products, searchTerm, selectedCategory]);
 
   // Calculate product counts by category
   const productCounts = useMemo(() => {
-    const counts: Record<Category, number> = {
-      'All': productsWithCategories.length,
-      'Gold': 0,
-      'Silver': 0,
-      'Platinum': 0,
-      'Diamond': 0
+    const counts: Record<string, number> = {
+      'All': products.length
     };
 
-    productsWithCategories.forEach(product => {
-      if (product.category && product.category !== 'All') {
-        counts[product.category as Category]++;
+    products.forEach(product => {
+      if (product.category) {
+        const category = product.category.toLowerCase();
+        counts[category] = (counts[category] || 0) + 1;
       }
     });
 
     return counts;
-  }, [productsWithCategories]);
+  }, [products]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -70,6 +65,20 @@ const HomePage: React.FC<HomePageProps> = ({ products }) => {
             Discover our stunning collection of handcrafted jewelry pieces, 
             from elegant necklaces to brilliant diamond rings.
           </p>
+          
+          {/* Refresh Button for authenticated users */}
+          {isAuthenticated && (
+            <div className="mt-6">
+              <button
+                onClick={handleRefresh}
+                disabled={isLoading}
+                className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                {isLoading ? 'Loading...' : 'Refresh Products'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Search Bar */}
@@ -93,29 +102,49 @@ const HomePage: React.FC<HomePageProps> = ({ products }) => {
           productCounts={productCounts}
         />
 
-        {/* Products Grid */}
-        {filteredProducts.length === 0 ? (
+        {/* Loading State */}
+        {isLoading && (
           <div className="text-center py-12">
-            <div className="text-gray-500 mb-4">
-              {products.length === 0 ? (
-                <>
-                  <h3 className="text-lg font-semibold mb-2">No Products Available</h3>
-                  <p>Please check back later or contact us for more information.</p>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-lg font-semibold mb-2">No Products Found</h3>
-                  <p>Try adjusting your search or category filter.</p>
-                </>
-              )}
-            </div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading products...</p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+        )}
+
+        {/* Products Grid */}
+        {!isLoading && (
+          <>
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-500 mb-4">
+                  {products.length === 0 ? (
+                    <>
+                      <h3 className="text-lg font-semibold mb-2">No Products Available</h3>
+                      <p>Please check back later or contact us for more information.</p>
+                      {isAuthenticated && (
+                        <button
+                          onClick={handleRefresh}
+                          className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+                        >
+                          Load Products
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-lg font-semibold mb-2">No Products Found</h3>
+                      <p>Try adjusting your search or category filter.</p>
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

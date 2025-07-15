@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { useProductStore } from './stores/productStore';
@@ -19,8 +19,15 @@ import DataPage from './pages/DataPage';
 import RegisterPage from './pages/RegisterPage';
 
 function App() {
-  const { products, addProducts } = useProductStore();
-  const { user } = useAuthStore();
+  const { products, addProducts, fetchProducts } = useProductStore();
+  const { user, isAuthenticated } = useAuthStore();
+
+  // Fetch products on app load if user is authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchProducts();
+    }
+  }, [isAuthenticated, fetchProducts]);
 
   const handleDataParsed = (data: TableData[]) => {
     addProducts(data);

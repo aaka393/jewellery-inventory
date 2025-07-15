@@ -1,10 +1,14 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { TableData } from '../types';
+import { adminService } from '../services/adminService';
 
 interface ProductState {
   products: TableData[];
+  isLoading: boolean;
+  error: string | null;
   addProducts: (newProducts: TableData[]) => void;
+  fetchProducts: () => Promise<void>;
   updateProduct: (id: string, updatedProduct: Partial<TableData>) => void;
   deleteProduct: (id: string) => void;
   clearProducts: () => void;
@@ -17,12 +21,28 @@ export const useProductStore = create<ProductState>()(
   persist(
     (set, get) => ({
       products: [],
+      isLoading: false,
+      error: null,
+
+      fetchProducts: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const products = await adminService.getProducts();
+          set({ products, isLoading: false });
+        } catch (error: any) {
+          set({ 
+            error: error.message || 'Failed to fetch products', 
+            isLoading: false 
+          });
+        }
+      },
 
       addProducts: (newProducts: TableData[]) => {
         const productsWithIds = newProducts.map((product, index) => ({
           ...product,
           id: product.id || `jewelry-${Date.now()}-${index}`,
-          category: product.category || getProductCategory(product.description)
+          category: product.category || getProductCategory(product.description),
+          availability: product.inStock ? 'In Stock' : 'Out of Stock'
         }));
 
         set((state) => ({
@@ -55,7 +75,9 @@ export const useProductStore = create<ProductState>()(
       getProductsByCategory: (category: string) => {
         const products = get().products;
         if (category === 'All') return products;
-        return products.filter(product => product.category === category);
+        return products.filter(product => 
+          product.category?.toLowerCase() === category.toLowerCase()
+        );
       },
 
       searchProducts: (query: string) => {
@@ -63,7 +85,8 @@ export const useProductStore = create<ProductState>()(
         const lowercaseQuery = query.toLowerCase();
         return products.filter(product =>
           product.description.toLowerCase().includes(lowercaseQuery) ||
-          product.price.toLowerCase().includes(lowercaseQuery) ||
+          product.name.toLowerCase().includes(lowercaseQuery) ||
+          product.price.toString().includes(lowercaseQuery) ||
           (product.category && product.category.toLowerCase().includes(lowercaseQuery))
         );
       }
