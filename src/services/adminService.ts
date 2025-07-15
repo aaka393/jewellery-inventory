@@ -52,4 +52,9 @@ export const adminService = {
     
     return [];
   },
+
+   deleteAllProducts: async (): Promise<string> => {
+    const response = await api.delete('/deleteProducts');
+    return response.data.message || 'All products deleted successfully';
+  },
 };

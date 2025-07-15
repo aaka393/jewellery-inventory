@@ -10,6 +10,7 @@ interface AdminStore {
   products: TableData[];
   fetchProducts: () => Promise<void>;
   uploadParsedProductData: (data: TableData[]) => Promise<void>;
+  deleteAllProducts: () => Promise<void>;
   clearMessages: () => void;
 }
 
@@ -38,6 +39,18 @@ export const useAdminStore = create<AdminStore>((set) => ({
         errorMessage: error.message || 'Upload failed',
         isUploading: false,
       });
+    }
+  },
+
+  deleteAllProducts: async () => {
+    try {
+      const msg = await adminService.deleteAllProducts();
+      set({ successMessage: msg });
+      // Refresh product list after deletion
+      const data = await adminService.getProducts();
+      set({ products: data });
+    } catch (error: any) {
+      set({ errorMessage: error.message || 'Failed to delete products' });
     }
   },
 

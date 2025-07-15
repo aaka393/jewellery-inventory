@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Download, Gem, Trash2, RefreshCw } from 'lucide-react';
 import { useProductStore } from '../stores/productStore';
+import { useAdminStore } from '../stores/adminStore'; // ✅ NEW
 import { TableData } from '../types';
 import DataTable from '../components/DataTable';
 
@@ -11,7 +12,8 @@ interface DataPageProps {
 const DataPage: React.FC<DataPageProps> = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAvailability, setFilterAvailability] = useState('');
-  const { clearProducts, fetchProducts, isLoading } = useProductStore();
+  const { fetchProducts, isLoading } = useProductStore();
+  const { deleteAllProducts, fetchProducts: refreshAdminProducts } = useAdminStore(); // ✅ NEW
 
   // Fetch products on component mount
   useEffect(() => {
@@ -32,9 +34,10 @@ const DataPage: React.FC<DataPageProps> = ({ data }) => {
 
   const availabilityOptions = ['In Stock', 'Out of Stock'];
 
-  const handleClearAllProducts = () => {
+  const handleClearAllProducts = async () => {
     if (window.confirm('Are you sure you want to clear all jewelry products? This action cannot be undone.')) {
-      clearProducts();
+      await deleteAllProducts(); // ✅ Call backend to delete products
+      await fetchProducts();     // ✅ Refresh UI after deletion
     }
   };
 
