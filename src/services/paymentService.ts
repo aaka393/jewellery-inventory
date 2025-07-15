@@ -38,17 +38,9 @@ export interface PaymentVerificationResponse {
 
 export const paymentService = {
   createOrder: async (payload: CreateOrderPayload): Promise<CreateOrderResponse> => {
-  const response = await api.post('/order', {
-    ...payload,
-    notes: {
-      ...payload.notes,
-      productIds: JSON.stringify(payload.notes.productIds),
-      productCounts: JSON.stringify(payload.notes.productCounts),
-    },
-  });
-  return response.data.result;
-},
-
+    const response = await api.post('/order', payload);
+    return response.data.result;
+  },
 
   verifyPayment: async (payload: PaymentVerificationPayload): Promise<PaymentVerificationResponse> => {
     const response = await api.post('/payment/verify', payload);
