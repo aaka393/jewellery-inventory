@@ -118,7 +118,7 @@ const CheckoutPage: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-purple-600">
-                        ₹{(parseFloat(item.price.replace(/[^0-9.-]+/g, '')) * item.quantity).toFixed(2)}
+                        ₹{(parseFloat(String(item.price).replace(/[^0-9.-]+/g, '')) * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>

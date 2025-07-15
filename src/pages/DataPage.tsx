@@ -1,34 +1,45 @@
-import React, { useState } from 'react';
-import { Search, Filter, Download, Gem, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Download, Gem, Trash2, RefreshCw } from 'lucide-react';
 import { useProductStore } from '../stores/productStore';
 import { TableData } from '../types';
 import DataTable from '../components/DataTable';
-import { useCartStore } from '../stores/cartStore';
 
-interface DataTableProps {
+interface DataPageProps {
   data: TableData[];
 }
 
-
-const DataPage: React.FC<DataTableProps> = ({ data }) => {
+const DataPage: React.FC<DataPageProps> = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAvailability, setFilterAvailability] = useState('');
-  const { clearProducts } = useProductStore();
-    const addToCart = useCartStore(state => state.addItem);
+  const { clearProducts, fetchProducts, isLoading } = useProductStore();
+
+  // Fetch products on component mount
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const filteredData = data.filter(item => {
-    const matchesSearch = item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.price.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterAvailability === '' || item.availability === filterAvailability;
+    const matchesSearch = 
+      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.price.toString().includes(searchTerm.toLowerCase());
+    
+    const availability = item.inStock ? 'In Stock' : 'Out of Stock';
+    const matchesFilter = filterAvailability === '' || availability === filterAvailability;
+    
     return matchesSearch && matchesFilter;
   });
 
-  const availabilityOptions = [...new Set(data.map(item => item.availability))];
+  const availabilityOptions = ['In Stock', 'Out of Stock'];
 
   const handleClearAllProducts = () => {
     if (window.confirm('Are you sure you want to clear all jewelry products? This action cannot be undone.')) {
       clearProducts();
     }
+  };
+
+  const handleRefresh = () => {
+    fetchProducts();
   };
 
   return (
@@ -41,11 +52,22 @@ const DataPage: React.FC<DataTableProps> = ({ data }) => {
               <Gem className="h-8 w-8 text-white mr-3" />
               <div>
                 <h1 className="text-2xl font-bold text-white">Jewelry Inventory</h1>
-                <p className="text-purple-100 mt-1">{data.length} jewelry items in stock</p>
+                <p className="text-purple-100 mt-1">
+                  {isLoading ? 'Loading...' : `${data.length} jewelry items in stock`}
+                </p>
               </div>
             </div>
             
             <div className="flex space-x-3">
+              <button 
+                onClick={handleRefresh}
+                disabled={isLoading}
+                className="bg-white/20 hover:bg-white/30 disabled:bg-white/10 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+              
               <button className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center">
                 <Download className="h-4 w-4 mr-2" />
                 Export Inventory
@@ -100,14 +122,25 @@ const DataPage: React.FC<DataTableProps> = ({ data }) => {
 
         {/* Data Table */}
         <div className="p-6">
-          {data.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading jewelry inventory...</p>
+            </div>
+          ) : data.length === 0 ? (
             <div className="text-center py-12">
               <Gem className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No Jewelry Items</h3>
-              <p className="text-gray-600">Import jewelry inventory from the admin page to see your items here.</p>
+              <p className="text-gray-600 mb-4">Import jewelry inventory from the admin page to see your items here.</p>
+              <button
+                onClick={handleRefresh}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Refresh Data
+              </button>
             </div>
           ) : (
-            <DataTable data={filteredData} addToCart={addToCart} /> 
+            <DataTable data={filteredData} />
           )}
         </div>
       </div>

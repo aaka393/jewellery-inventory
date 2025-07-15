@@ -24,6 +24,32 @@ export const adminService = {
 
   getProducts: async (): Promise<TableData[]> => {
     const response = await api.get('/auth/products');
-    return response.data;
+    
+    // Transform backend response to match frontend TableData interface
+    if (response.data && response.data.result) {
+      return response.data.result.map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        description: product.description,
+        price: product.price,
+        images: product.images || [],
+        preorderAvailable: product.preorderAvailable || false,
+        inStock: product.inStock || false,
+        specifications: product.specifications || {
+          material: '',
+          weight: '',
+          dimensions: '',
+          gemstone: ''
+        },
+        rating: product.rating || 0,
+        reviews: product.reviews || 0,
+        featured: product.featured || false,
+        // Add availability field for backward compatibility
+        availability: product.inStock ? 'In Stock' : 'Out of Stock'
+      }));
+    }
+    
+    return [];
   },
 };

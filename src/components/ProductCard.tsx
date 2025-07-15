@@ -12,7 +12,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addItem } = useCartStore();
 
   const formatPrice = (price: number | string) => {
-    const numPrice = typeof price === 'string' ? parseFloat(price.replace(/[^0-9.-]+/g, '')) : price;
+    const numPrice = typeof price === 'string' ? parseFloat(price.toString().replace(/[^0-9.-]+/g, '')) : price;
     return `₹${numPrice.toFixed(2)}`;
   };
 
@@ -21,12 +21,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem({ ...product, id: crypto.randomUUID(), quantity: 1 });
+    addItem({ ...product, quantity: 1 });
   };
+
+  const getStockStatus = () => {
+    if (product.inStock) {
+      return { text: 'In Stock', color: 'text-green-600' };
+    } else {
+      return { text: 'Out of Stock', color: 'text-red-600' };
+    }
+  };
+
+  const stockStatus = getStockStatus();
 
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group">
-      <Link to={`/product/${product.name}`} className="block">
+      <Link to={`/product/${product.id}`} className="block">
         {/* Image */}
         <div className="relative overflow-hidden bg-gray-100 aspect-square">
           <img
@@ -44,6 +54,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <Eye className="h-8 w-8 text-white" />
             </div>
           </div>
+
+          {/* Stock Badge */}
+          {!product.inStock && (
+            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+              Out of Stock
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -52,14 +69,32 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.name}
           </h3>
 
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+            {product.description}
+          </p>
+
           <div className="flex items-center justify-between mb-3">
             <span className="text-xl font-bold text-purple-600">
               {formatPrice(product.price)}
             </span>
             {product.category && (
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded capitalize">
                 {product.category}
               </span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between mb-3">
+            <span className={`text-sm font-medium ${stockStatus.color}`}>
+              {stockStatus.text}
+            </span>
+            {product.rating && product.rating > 0 && (
+              <div className="flex items-center">
+                <span className="text-yellow-400">★</span>
+                <span className="text-sm text-gray-600 ml-1">
+                  {product.rating} ({product.reviews || 0})
+                </span>
+              </div>
             )}
           </div>
 
@@ -67,10 +102,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className="flex space-x-2">
             <button
               onClick={handleAddToCart}
-              className="flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white hover:shadow-md transition-all duration-200"
+              disabled={!product.inStock}
+              className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                product.inStock
+                  ? 'bg-purple-600 hover:bg-purple-700 text-white hover:shadow-md'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
             >
               <ShoppingCart className="h-4 w-4 mr-1" />
-              Add to Cart
+              {product.inStock ? 'Add to Cart' : 'Out of Stock'}
             </button>
           </div>
         </div>

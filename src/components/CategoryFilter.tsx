@@ -4,7 +4,7 @@ import { Category } from '../types';
 interface CategoryFilterProps {
   selectedCategory: Category;
   onCategoryChange: (category: Category) => void;
-  productCounts: Record<Category, number>;
+  productCounts: Record<string, number>;
 }
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({ 
@@ -12,7 +12,13 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onCategoryChange, 
   productCounts 
 }) => {
-  const categories: Category[] = ['All', 'Gold', 'Silver', 'Platinum', 'Diamond'];
+  // Get unique categories from productCounts, plus 'All'
+  const categories = ['All', ...Object.keys(productCounts).filter(cat => cat !== 'All')];
+
+  const formatCategoryName = (category: string) => {
+    if (category === 'All') return 'All';
+    return category.charAt(0).toUpperCase() + category.slice(1);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -21,14 +27,14 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
         {categories.map((category) => (
           <button
             key={category}
-            onClick={() => onCategoryChange(category)}
+            onClick={() => onCategoryChange(category as Category)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
               selectedCategory === category
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-purple-50 hover:text-purple-600'
             }`}
           >
-            {category} ({productCounts[category as Category] || 0})
+            {formatCategoryName(category)} ({productCounts[category] || 0})
           </button>
         ))}
       </div>

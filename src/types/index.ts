@@ -20,6 +20,7 @@ export interface Specifications {
 }
 
 export interface TableData {
+  id: string;
   name: string;
   category: string;
   description: string;
@@ -31,11 +32,14 @@ export interface TableData {
   rating?: number;
   reviews?: number;
   featured?: boolean;
+  availability?: string; // For backward compatibility
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
 }
 
 export interface CartItem extends TableData {
   quantity: number;
-  id: string;
   image?: string;
 }
 
@@ -45,4 +49,4 @@ export interface PaymentIntent {
   amount: number;
 }
 
-export type Category = 'Gold' | 'Silver' | 'Platinum' | 'Diamond' | 'All';
+export type Category = 'Gold' | 'Silver' | 'Platinum' | 'Diamond' | 'All' | 'rings' | 'pendants' | 'earrings' | 'bracelets' | 'necklaces';
