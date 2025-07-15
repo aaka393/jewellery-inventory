@@ -57,8 +57,8 @@ const Navigation: React.FC = () => {
               </Link>
 
               {/* Cart Button */}
-              <button
-                onClick={() => setIsCartOpen(true)}
+              <Link
+                to="/cart"
                 className="relative inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-all duration-200"
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
@@ -68,7 +68,7 @@ const Navigation: React.FC = () => {
                     {getTotalItems()}
                   </span>
                 )}
-              </button>
+              </Link>
 
               {/* User Info and Logout */}
               {user && (
@@ -97,8 +97,6 @@ const Navigation: React.FC = () => {
         </div>
       </nav>
 
-      {/* Cart Drawer */}
-      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 };

@@ -17,6 +17,8 @@ import CheckoutPage from './pages/CheckoutPage';
 import AdminPage from './pages/AdminPage';
 import DataPage from './pages/DataPage';
 import RegisterPage from './pages/RegisterPage';
+import CartPage from './pages/CartPage';
+import OrderHistory from './components/OrderHistory';
 
 function App() {
   const { products, addProducts, fetchProducts } = useProductStore();
@@ -58,6 +60,18 @@ function App() {
             element={
               <ProtectedRoute requiredRole="user">
                 <CheckoutPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/cart" 
+            element={<CartPage />} 
+          />
+          <Route 
+            path="/orders" 
+            element={
+              <ProtectedRoute requiredRole="user">
+                <OrderHistory />
               </ProtectedRoute>
             } 
           />

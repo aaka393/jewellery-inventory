@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Gem, ShoppingCart, User, LogIn } from 'lucide-react';
+import { Gem, ShoppingCart, User, LogIn, Package } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useCartStore } from '../stores/cartStore';
 import Cart from './Cart';
@@ -24,8 +24,8 @@ const PublicHeader: React.FC = () => {
             {/* Right side */}
             <div className="flex items-center space-x-4">
               {/* Cart */}
-              <button
-                onClick={() => setIsCartOpen(true)}
+              <Link
+                to="/cart"
                 className="relative p-2 text-gray-600 hover:text-purple-600 transition-colors duration-200"
               >
                 <ShoppingCart className="h-6 w-6" />
@@ -34,11 +34,18 @@ const PublicHeader: React.FC = () => {
                     {getTotalItems()}
                   </span>
                 )}
-              </button>
+              </Link>
 
               {/* Auth */}
               {isAuthenticated && user ? (
                 <div className="flex items-center space-x-3">
+                  <Link
+                    to="/orders"
+                    className="flex items-center space-x-1 text-gray-600 hover:text-purple-600 transition-colors duration-200"
+                  >
+                    <Package className="h-5 w-5" />
+                    <span className="text-sm">Orders</span>
+                  </Link>
                   <div className="flex items-center space-x-2">
                     <User className="h-5 w-5 text-gray-600" />
                     <span className="text-sm text-gray-700">
@@ -74,8 +81,6 @@ const PublicHeader: React.FC = () => {
         </div>
       </header>
 
-      {/* Cart Drawer */}
-      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 };
