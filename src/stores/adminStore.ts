@@ -46,7 +46,6 @@ export const useAdminStore = create<AdminStore>((set) => ({
     try {
       const msg = await adminService.deleteAllProducts();
       set({ successMessage: msg });
-      // Refresh product list after deletion
       const data = await adminService.getProducts();
       set({ products: data });
     } catch (error: any) {
