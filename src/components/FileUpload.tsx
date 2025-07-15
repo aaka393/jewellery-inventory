@@ -87,18 +87,28 @@ const FileUpload: React.FC = () => {
       description: row['description'] || '',
       price: Number(row['price']) || 0,
       images: [row['image url'] || ''],
-      inStock: row['availability']?.toLowerCase() === 'in stock',
-      preorderAvailable: false,
+      inStock: parseBoolean(row['inStock']),
+      preorderAvailable: parseBoolean(row['preorderAvailable']),
       specifications: {
         material: row['material'] || '',
         weight: row['weight'] || '',
         dimensions: row['dimensions'] || '',
         gemstone: row['gemstone'] || '',
       },
-      rating: 0,
-      reviews: 0,
+      rating: Number(row['rating']) || 0,
+      reviews: Number(row['reviews']) || 0,
       featured: false,
     })).filter(item => item.name && item.description && item.price);
+  };
+
+  // Helper function to parse boolean values from CSV
+  const parseBoolean = (value: any): boolean => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      const lowerValue = value.toLowerCase().trim();
+      return lowerValue === 'true' || lowerValue === '1' || lowerValue === 'yes';
+    }
+    return Boolean(value);
   };
 
   const uploadAndRedirect = async (data: TableData[]) => {
