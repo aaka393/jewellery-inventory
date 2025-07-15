@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { paymentService, CreateOrderPayload, PaymentVerificationPayload } from '../services/paymentService';
+import { paymentService } from '../services/paymentService';
+import { CreateOrderPayload, PaymentVerificationPayload } from '../types/paymentTypes';
 
 interface PaymentState {
   isProcessing: boolean;
@@ -10,6 +11,7 @@ interface PaymentState {
   success: boolean;
   createOrder: (payload: CreateOrderPayload) => Promise<any>;
   verifyPayment: (payload: PaymentVerificationPayload) => Promise<boolean>;
+  getOrderPayments: (orderId: string) => Promise<any[]>; 
   clearPaymentState: () => void;
   setProcessing: (processing: boolean) => void;
 }
@@ -62,6 +64,15 @@ export const usePaymentStore = create<PaymentState>()(
             isProcessing: false 
           });
           return false;
+        }
+      },
+
+      getOrderPayments: async (orderId: string) => {
+        try {
+          return await paymentService.getOrderPayments(orderId);
+        } catch (error: any) {
+          set({ error: error.message || 'Failed to fetch payments' });
+          return [];
         }
       },
 
