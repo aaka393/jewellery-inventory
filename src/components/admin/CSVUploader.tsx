@@ -38,11 +38,11 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
     const fetchData = async () => {
       try {
         const [categoryRes, tagRes] = await Promise.all([
-          categoryService.getCategories(),
-          tagService.getTags(),
+          apiService.getCategories(),
+          apiService.getTags(),
         ]);
-        if (categoryRes.success) setCategories(categoryRes.data);
-        if (tagRes.success) setTags(tagRes.data);
+        setTags(tagRes || []);
+        setCategories(categoryRes || []);
       } catch (error) {
         console.error('Error fetching categories or tags:', error);
       }
