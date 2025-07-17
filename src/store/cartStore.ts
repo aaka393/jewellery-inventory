@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { CartItem, Product } from '../types';
 import { useAuthStore } from './authStore';
+import { userService } from '../services/userService';
 
 interface CartState {
   items: CartItem[];
@@ -13,6 +14,7 @@ interface CartState {
   mergeGuestCart: () => void;
   getTotalPrice: () => number;
   getItemCount: () => number;
+  syncWithServer: () => Promise<void>;
 }
 
 export const useCartStore = create<CartState>()(
@@ -22,9 +24,9 @@ export const useCartStore = create<CartState>()(
       guestItems: [],
       addItem: (product, quantity) => {
         const { isAuthenticated } = useAuthStore.getState();
-        const items = get().items;
-        const targetItems = isAuthenticated ? items : get().guestItems;
-        const existingItem = items.find(item => item.productId === product.id);
+        const state = get();
+        const targetItems = isAuthenticated ? state.items : state.guestItems;
+        const existingItem = targetItems.find(item => item.productId === product.id);
         
         if (existingItem) {
           const updatedItems = targetItems.map(item =>
@@ -35,6 +37,7 @@ export const useCartStore = create<CartState>()(
           
           if (isAuthenticated) {
             set({ items: updatedItems });
+            userService.updateCartItem(product.id, existingItem.quantity + quantity).catch(console.error);
           } else {
             set({ guestItems: updatedItems });
           }
@@ -47,9 +50,10 @@ export const useCartStore = create<CartState>()(
             };
           
           if (isAuthenticated) {
-            set({ items: [...items, newItem] });
+            set({ items: [...state.items, newItem] });
+            userService.addToCart(product.id, quantity).catch(console.error);
           } else {
-            set({ guestItems: [...get().guestItems, newItem] });
+            set({ guestItems: [...state.guestItems, newItem] });
           }
         }
       },
@@ -60,6 +64,7 @@ export const useCartStore = create<CartState>()(
           set({
             items: get().items.filter(item => item.productId !== productId),
           });
+          userService.removeFromCart(productId).catch(console.error);
         } else {
           set({
             guestItems: get().guestItems.filter(item => item.productId !== productId),
@@ -82,6 +87,7 @@ export const useCartStore = create<CartState>()(
                 : item
             ),
           });
+          userService.updateCartItem(productId, quantity).catch(console.error);
         } else {
           set({
             guestItems: get().guestItems.map(item =>
@@ -105,6 +111,9 @@ export const useCartStore = create<CartState>()(
         const { guestItems, items } = get();
         
         if (guestItems.length === 0) return;
+        
+        // Sync with server
+        userService.mergeCart(guestItems).catch(console.error);
         
         const mergedItems = [...items];
         
@@ -141,6 +150,18 @@ export const useCartStore = create<CartState>()(
         const targetItems = isAuthenticated ? get().items : get().guestItems;
         
         return (targetItems || []).reduce((count, item) => count + (item?.quantity || 0), 0);
+      },
+      syncWithServer: async () => {
+        const { isAuthenticated } = useAuthStore.getState();
+        if (!isAuthenticated) return;
+        
+        try {
+          const serverCart = await userService.getUserCart();
+          // Update local cart with server data
+          set({ items: serverCart.result || [] });
+        } catch (error) {
+          console.error('Failed to sync cart with server:', error);
+        }
       },
     }),
     {

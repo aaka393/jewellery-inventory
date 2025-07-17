@@ -8,6 +8,8 @@ import { useWishlistStore } from '../store/wishlistStore';
 import { useAuthStore } from '../store/authStore';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
+import { useAnalytics } from '../hooks/useAnalytics';
+import { SITE_CONFIG } from '../../constants/siteConfig';
 
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -26,6 +28,7 @@ const ProductDetailPage: React.FC = () => {
   const { addItem } = useCartStore();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
   const { isAuthenticated } = useAuthStore();
+  const { trackProductView, trackAddToCart, trackAddToWishlist } = useAnalytics();
 
   useEffect(() => {
     if (slug) {
@@ -33,6 +36,12 @@ const ProductDetailPage: React.FC = () => {
       loadReviews();
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (product) {
+      trackProductView(product.id);
+    }
+  }, [product, trackProductView]);
 
   const loadProduct = async () => {
     try {
@@ -68,6 +77,7 @@ const ProductDetailPage: React.FC = () => {
   const handleAddToCart = () => {
     if (product) {
       addItem(product, quantity);
+      trackAddToCart(product.id);
     }
   };
 
@@ -77,6 +87,7 @@ const ProductDetailPage: React.FC = () => {
         removeFromWishlist(product.id);
       } else {
         addToWishlist(product);
+        trackAddToWishlist(product.id);
       }
     }
   };
@@ -257,11 +268,11 @@ const ProductDetailPage: React.FC = () => {
                 <h1 className="text-2xl font-light text-gray-800 mb-4">{product.name}</h1>
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="text-2xl font-medium text-gray-900">
-                    Rs. {product.price.toLocaleString()}
+                    {SITE_CONFIG.currencySymbol} {product.price.toLocaleString()}
                   </div>
                   {product.comparePrice && product.comparePrice > product.price && (
                     <div className="text-lg text-gray-500 line-through">
-                      Rs. {product.comparePrice.toLocaleString()}
+                      {SITE_CONFIG.currencySymbol} {product.comparePrice.toLocaleString()}
                     </div>
                   )}
                 </div>

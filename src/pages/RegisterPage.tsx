@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { SITE_CONFIG } from '../constants/siteConfig';
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -50,11 +51,11 @@ const RegisterPage: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="mx-auto h-12 w-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-lg">CL</span>
+            <span className="text-white font-bold text-lg">{SITE_CONFIG.shortName}</span>
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Create Account</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Join JewelleryInventory and discover exclusive jewelry collections
+            Join {SITE_CONFIG.name} and discover exclusive jewelry collections
           </p>
         </div>
 

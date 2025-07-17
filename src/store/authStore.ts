@@ -4,6 +4,7 @@ import { User } from '../types';
 import { authService } from '../services';
 import { RESPONSE_CODES } from '../constants/appConstants';
 import { useCartStore } from './cartStore';
+import { useWishlistStore } from './wishlistStore';
 
 interface AuthState {
   user: User | null;
@@ -48,7 +49,10 @@ export const useAuthStore = create<AuthState>()(
             
             // Merge guest cart when user logs in
             const cartStore = useCartStore.getState();
+            const wishlistStore = useWishlistStore.getState();
             cartStore.mergeGuestCart();
+            cartStore.syncWithServer();
+            wishlistStore.syncWithServer();
             
             return true;
           }
@@ -86,7 +90,10 @@ export const useAuthStore = create<AuthState>()(
             
             // Merge guest cart when user registers
             const cartStore = useCartStore.getState();
+            const wishlistStore = useWishlistStore.getState();
             cartStore.mergeGuestCart();
+            cartStore.syncWithServer();
+            wishlistStore.syncWithServer();
             
             return true;
           }

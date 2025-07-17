@@ -7,6 +7,8 @@ import { useCategoryStore } from '../store/categoryStore';
 import ProductCard from '../components/common/ProductCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
+import { searchService } from '../services/searchService';
+import { SITE_CONFIG } from '../constants/siteConfig';
 
 const HomePage: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -26,16 +28,18 @@ const HomePage: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const [productsRes, categoriesRes] = await Promise.all([
-        apiService.getProducts(),
+      const [productsRes, categoriesRes, featuredRes] = await Promise.all([
+        searchService.getFeaturedProducts(),
         apiService.getCategories(),
+        searchService.getProductsByTag('mostLoved'),
       ]);
       
-      const allProducts = productsRes || [];
+      const allProducts = productsRes?.result || [];
+      const featuredProducts = featuredRes?.result || [];
       
       // Filter products by tags
-      setFeaturedProducts(allProducts.filter(p => p.featured).slice(0, 8));
-      setMostLovedProducts(allProducts.filter(p => (p.tags || []).includes('mostLoved')).slice(0, 8));
+      setFeaturedProducts(allProducts.slice(0, 8));
+      setMostLovedProducts(featuredProducts.slice(0, 8));
       setTrendingProducts(allProducts.filter(p => (p.tags || []).includes('trendingNow')).slice(0, 8));
       setNewProducts(allProducts.filter(p => (p.tags || []).includes('newLaunch')).slice(0, 8));
       
@@ -77,9 +81,9 @@ const HomePage: React.FC = () => {
   return (
     <>
       <SEOHead
-        title="JI Jewelry - Handcrafted Pure Silver Jewelry | Necklaces, Earrings, Bangles"
-        description="Discover exquisite handcrafted pure silver jewelry at JI. Shop necklaces, earrings, bangles, anklets and more. Free shipping within India."
-        keywords="silver jewelry, handcrafted jewelry, necklaces, earrings, bangles, anklets, rings, Indian jewelry, JI jewelry, pure silver, 925 silver"
+        title={`${SITE_CONFIG.name} - ${SITE_CONFIG.description} | Necklaces, Earrings, Bangles`}
+        description={`Discover exquisite handcrafted pure silver jewelry at ${SITE_CONFIG.name}. Shop necklaces, earrings, bangles, anklets and more. Free shipping within India.`}
+        keywords={`silver jewelry, handcrafted jewelry, necklaces, earrings, bangles, anklets, rings, Indian jewelry, ${SITE_CONFIG.name}, pure silver, 925 silver`}
       />
       
       <div className="min-h-screen bg-white">
@@ -195,13 +199,13 @@ const HomePage: React.FC = () => {
               <div className="relative overflow-hidden rounded-lg bg-black">
                 <img
                   src="https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=800"
-                  alt="Silver Dholki Wax Necklaces by JI Jewelry"
+                  alt={`Silver Dholki Wax Necklaces by ${SITE_CONFIG.name}`}
                   className="w-full h-96 object-cover"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
                   <div className="p-8 text-white">
                     <h3 className="text-2xl font-light mb-2">SILVER DHOLKI WAX NECKLACES</h3>
-                    <p className="text-sm opacity-90">BY JIJEWELRY</p>
+                    <p className="text-sm opacity-90">BY {SITE_CONFIG.shortName}</p>
                   </div>
                 </div>
               </div>
@@ -304,7 +308,7 @@ const HomePage: React.FC = () => {
                   <span className="text-white text-2xl">🚚</span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Free Shipping</h3>
-                <p className="text-gray-600">Free shipping within India for orders above Rs. 500</p>
+                <p className="text-gray-600">Free shipping within India for orders above {SITE_CONFIG.currencySymbol} {SITE_CONFIG.freeShippingThreshold}</p>
               </div>
               
               <div className="text-center">

@@ -8,6 +8,11 @@ export { reviewService } from './reviewService';
 export { cartService } from './cartService';
 export { wishlistService } from './wishlistService';
 export { orderService } from './orderService';
+export { searchService } from './searchService';
+export { userService } from './userService';
+export { analyticsService } from './analyticsService';
+export { stockService } from './stockService';
+export { uploadService } from './uploadService';
 
 // Export base service for extending
 export { default as BaseService } from './baseService';

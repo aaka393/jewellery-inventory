@@ -2,6 +2,8 @@ import React from 'react';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { apiService } from '../../services/api';
+import { useAnalytics } from '../../hooks/useAnalytics';
+import { SITE_CONFIG } from '../../constants/siteConfig';
 
 declare global {
   interface Window {
@@ -17,6 +19,7 @@ interface PaymentHandlerProps {
 const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) => {
   const { getTotalPrice, clearCart } = useCartStore();
   const { user } = useAuthStore();
+  const { trackPurchase } = useAnalytics();
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -70,7 +73,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
         key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_key',
         amount: orderData.amount,
         currency: orderData.currency,
-        name: 'JI',
+        name: SITE_CONFIG.name,
         description: 'Jewelry Purchase',
         order_id: orderData.id,
         handler: async (response: any) => {
@@ -88,6 +91,8 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
             });
 
             if (verificationResult?.status === 'success') {
+              // Track successful purchase
+              trackPurchase(orderData.id, totalAmount);
               clearCart();
               onSuccess();
             } else {

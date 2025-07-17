@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { SITE_CONFIG } from '../constants/siteConfig';
 
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -46,9 +47,9 @@ const LoginPage: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="mx-auto h-12 w-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-lg">CL</span>
+            <span className="text-white font-bold text-lg">{SITE_CONFIG.shortName}</span>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Login to JewelleryInventory</h2>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">Login to {SITE_CONFIG.name}</h2>
           <p className="mt-2 text-sm text-gray-600">
             Login to unlock best prices and become an insider for our exclusive launches & offers.
           </p>
@@ -118,7 +119,7 @@ const LoginPage: React.FC = () => {
 
           <div className="text-center">
             <span className="text-sm text-gray-600">
-              New to JewelleryInventory?{' '}
+              New to {SITE_CONFIG.name}?{' '}
               <Link to="/register" className="font-medium text-purple-600 hover:text-purple-500">
                 Create an Account
               </Link>

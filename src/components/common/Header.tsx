@@ -6,10 +6,15 @@ import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
 import { useCategoryStore } from '../../store/categoryStore';
 import SEOHead from '../seo/SEOHead';
+import { SITE_CONFIG } from '../../constants/siteConfig';
+import { searchService } from '../../services/searchService';
+import { useAnalytics } from '../../hooks/useAnalytics';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [showCartSidebar, setShowCartSidebar] = useState(false);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -17,15 +22,36 @@ const Header: React.FC = () => {
   const { items: wishlistItems } = useWishlistStore();
   const { categories, loadCategories, setSelectedCategory } = useCategoryStore();
   const navigate = useNavigate();
+  const { trackSearch } = useAnalytics();
 
   useEffect(() => {
     loadCategories().catch(console.error);
   }, [loadCategories]);
 
+  useEffect(() => {
+    const delayedSearch = setTimeout(async () => {
+      if (searchQuery.length > 2) {
+        try {
+          const response = await searchService.getSearchSuggestions(searchQuery);
+          setSearchSuggestions(response.result || []);
+          setShowSuggestions(true);
+        } catch (error) {
+          console.error('Error fetching suggestions:', error);
+        }
+      } else {
+        setShowSuggestions(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchQuery]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      trackSearch(searchQuery, 0); // Will be updated with actual result count
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setShowSuggestions(false);
     }
   };
 
@@ -70,24 +96,45 @@ const Header: React.FC = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center">
               <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">JI</span>
+                <span className="text-white font-bold text-sm">{SITE_CONFIG.shortName}</span>
               </div>
             </Link>
 
             {/* Search bar - Hidden on mobile */}
-            <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <div className="hidden md:flex flex-1 max-w-md mx-8 relative">
               <form onSubmit={handleSearch} className="relative w-full">
                 <input
                   type="text"
                   placeholder="Search for jewelry..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery.length > 2 && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
                 />
                 <button type="submit" className="absolute right-3 top-2.5">
                   <Search className="h-5 w-5 text-gray-400" />
                 </button>
               </form>
+              
+              {/* Search Suggestions */}
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 mt-1">
+                  {searchSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setSearchQuery(suggestion.query);
+                        handleSearch(new Event('submit') as any);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between"
+                    >
+                      <span>{suggestion.query}</span>
+                      <span className="text-xs text-gray-500">{suggestion.count} results</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Right side actions */}
@@ -176,12 +223,12 @@ const Header: React.FC = () => {
 
               {/* Mobile menu button */}
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+            <span>🚚 Shipping is free within India for orders above {SITE_CONFIG.currencySymbol}{SITE_CONFIG.freeShippingThreshold}. International Shipping is {SITE_CONFIG.currencySymbol}{SITE_CONFIG.internationalShippingCost}</span>
                 className="md:hidden"
-              >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <span>{SITE_CONFIG.features.codEnabled ? '💰 COD Available' : '🚫 No COD'}</span>
+            <span>🚚 Shipping is free within India for orders above {SITE_CONFIG.currencySymbol}{SITE_CONFIG.freeShippingThreshold}. International Shipping is {SITE_CONFIG.currencySymbol}{SITE_CONFIG.internationalShippingCost}</span>
               </button>
-            </div>
+            <span>{SITE_CONFIG.features.codEnabled ? '💰 COD Available' : '🚫 No COD'}</span>
           </div>
         </div>
 

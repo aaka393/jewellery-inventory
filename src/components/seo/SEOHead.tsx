@@ -1,5 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { SITE_CONFIG } from '../../constants/siteConfig';
 
 interface SEOHeadProps {
   title?: string;
@@ -19,9 +20,9 @@ interface SEOHeadProps {
 }
 
 const SEOHead: React.FC<SEOHeadProps> = ({
-  title = 'JI Jewelry - Handcrafted Pure Silver Jewelry',
-  description = 'Discover exquisite handcrafted pure silver jewelry at JI. Shop necklaces, earrings, bangles, anklets and more. Free shipping within India.',
-  keywords = 'silver jewelry, handcrafted jewelry, necklaces, earrings, bangles, anklets, rings, Indian jewelry, JI jewelry',
+  title = `${SITE_CONFIG.name} - ${SITE_CONFIG.description}`,
+  description = `Discover exquisite handcrafted pure silver jewelry at ${SITE_CONFIG.name}. Shop necklaces, earrings, bangles, anklets and more. Free shipping within India.`,
+  keywords = `silver jewelry, handcrafted jewelry, necklaces, earrings, bangles, anklets, rings, Indian jewelry, ${SITE_CONFIG.name}`,
   image = '/images/ji-logo.png',
   url = window.location.href,
   type = 'website',
@@ -45,15 +46,15 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       "availability": `https://schema.org/${productData.availability}`,
       "seller": {
         "@type": "Organization",
-        "name": "JI Jewelry"
+        "name": SITE_CONFIG.name
       }
     },
     "category": productData.category
   } : {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "JI Jewelry",
-    "url": "https://JIjewelry.com",
+    "name": SITE_CONFIG.name,
+    "url": `https://${SITE_CONFIG.domain}`,
     "logo": image,
     "description": description
   };
@@ -70,7 +71,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       <meta property="og:image" content={image} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content={type} />
-      <meta property="og:site_name" content="JI Jewelry" />
+      <meta property="og:site_name" content={SITE_CONFIG.name} />
       
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />

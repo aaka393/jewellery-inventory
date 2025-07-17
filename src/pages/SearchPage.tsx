@@ -5,12 +5,16 @@ import { Product } from '../types';
 import { apiService } from '../services/api';
 import ProductCard from '../components/common/ProductCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { searchService } from '../services/searchService';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 const SearchPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
   const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
+  const { trackSearch } = useAnalytics();
 
   useEffect(() => {
     if (query) {
@@ -21,16 +25,19 @@ const SearchPage: React.FC = () => {
   const searchProducts = async () => {
     try {
       setLoading(true);
-      const allProducts = await apiService.getProducts();
-      const filteredProducts = allProducts.filter(product => 
-        product.name.toLowerCase().includes(query.toLowerCase()) ||
-        product.description.toLowerCase().includes(query.toLowerCase()) ||
-        product.category.toLowerCase().includes(query.toLowerCase()) ||
-        product.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
-      );
-      setProducts(filteredProducts);
+      
+      const response = await searchService.searchProducts({ q: query });
+      const searchResults = response.result;
+      
+      setProducts(searchResults.products || []);
+      setTotalResults(searchResults.total || 0);
+      
+      // Track search analytics
+      trackSearch(query, searchResults.total || 0);
     } catch (error) {
       console.error('Error searching products:', error);
+      setProducts([]);
+      setTotalResults(0);
     } finally {
       setLoading(false);
     }
@@ -44,7 +51,7 @@ const SearchPage: React.FC = () => {
             Search Results for "{query}"
           </h1>
           <p className="text-gray-600">
-            {loading ? 'Searching...' : `${products.length} products found`}
+            {loading ? 'Searching...' : `${totalResults} products found`}
           </p>
         </div>
 

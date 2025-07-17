@@ -19,6 +19,9 @@ import EditProductDialog from '../components/admin/EditProductDialog';
 import NotificationToast from '../components/admin/NotificationToast';
 import CreateItemDialog from '../components/common/CreateItemDialog';
 import SEOHead from '../components/seo/SEOHead';
+import StockManagement from '../components/admin/StockManagement';
+import { SITE_CONFIG } from '../constants/siteConfig';
+import OrderManagement from '../components/admin/OrderManagement';
 
 interface NotificationState {
   message: string;
@@ -157,6 +160,7 @@ const AdminPage: React.FC = () => {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'products', label: 'Products', icon: Package },
+    { id: 'stock', label: 'Stock Management', icon: Package },
     { id: 'upload', label: 'Bulk Upload', icon: Upload },
     { id: 'categories', label: 'Categories', icon: FileText },
     { id: 'tags', label: 'Tags', icon: Tag },
@@ -175,7 +179,7 @@ const AdminPage: React.FC = () => {
   return (
     <>
       <SEOHead
-        title="Admin Dashboard - JI Jewelry"
+        title={`Admin Dashboard - ${SITE_CONFIG.name}`}
         description="Manage your jewelry store inventory, orders, and settings"
       />
       
@@ -185,7 +189,7 @@ const AdminPage: React.FC = () => {
           <div className="w-64 bg-white shadow-sm min-h-screen">
             <div className="p-6">
               <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
-              <p className="text-sm text-gray-600">JI Jewelry</p>
+              <p className="text-sm text-gray-600">{SITE_CONFIG.name}</p>
             </div>
             
             <nav className="mt-6">
@@ -284,7 +288,7 @@ const AdminPage: React.FC = () => {
                               {product.category}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              ₹{(product.price || 0).toLocaleString()}
+                              {SITE_CONFIG.currencySymbol}{(product.price || 0).toLocaleString()}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -331,6 +335,8 @@ const AdminPage: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {activeTab === 'stock' && <StockManagement />}
 
             {activeTab === 'upload' && (
               <div className="space-y-6">
@@ -406,12 +412,7 @@ const AdminPage: React.FC = () => {
             )}
 
             {activeTab === 'orders' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-800">Orders</h2>
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <p className="text-gray-600">Order management coming soon...</p>
-                </div>
-              </div>
+              <OrderManagement />
             )}
 
             {activeTab === 'users' && (

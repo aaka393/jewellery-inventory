@@ -4,6 +4,8 @@ import { Heart, ShoppingCart, Star, Eye, ChevronLeft, ChevronRight } from 'lucid
 import { Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
+import { useAnalytics } from '../../hooks/useAnalytics';
+import { SITE_CONFIG } from '../../constants/siteConfig';
 
 interface ProductCardProps {
   product: Product;
@@ -15,11 +17,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
   const [isHovered, setIsHovered] = useState(false);
   const { addItem } = useCartStore();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
+  const { trackAddToCart, trackAddToWishlist, trackProductView } = useAnalytics();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product, 1);
+    trackAddToCart(product.id);
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -29,6 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
       removeFromWishlist(product.id);
     } else {
       addToWishlist(product);
+      trackAddToWishlist(product.id);
     }
   };
 
@@ -135,11 +140,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
         
         <div className="flex items-center justify-center space-x-2 mb-3">
           <span className="text-lg font-medium text-gray-900">
-            Rs. {(product.price || 0).toLocaleString()}
+            {SITE_CONFIG.currencySymbol} {(product.price || 0).toLocaleString()}
           </span>
           {product.comparePrice && product.comparePrice > product.price && (
             <span className="text-sm text-gray-500 line-through">
-              Rs. {product.comparePrice.toLocaleString()}
+              {SITE_CONFIG.currencySymbol} {product.comparePrice.toLocaleString()}
             </span>
           )}
         </div>
