@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Product, Specifications } from '../../types';
 import Dialog from '../common/Dialog';
+import { productService } from '../../services';
 
-interface EditProductDialogProps {
+interface ProductDialogProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (product: Partial<Product>) => void;
@@ -10,16 +11,19 @@ interface EditProductDialogProps {
     categories: string[];
     tags: string[];
     loading?: boolean;
+    mode?: 'add' | 'edit';
+    uploadProductImage?: (file: File) => Promise<string | null>;
 }
 
-const EditProductDialog: React.FC<EditProductDialogProps> = ({
+const ProductDialog: React.FC<ProductDialogProps> = ({
     isOpen,
     onClose,
     onSave,
     product,
     categories,
     tags,
-    loading = false
+    loading = false,
+    mode = 'edit',
 }) => {
     const [formData, setFormData] = useState<Partial<Product>>({
         name: '',
@@ -58,6 +62,26 @@ const EditProductDialog: React.FC<EditProductDialogProps> = ({
             setTagInput((product.tags || []).join(', '));
         }
     }, [product]);
+
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const url = await productService.uploadProductImage(file);
+
+        // 🛠 Ensure only string is pushed
+        if (typeof url === 'string') {
+            setFormData((prev) => ({
+                ...prev,
+                images: [url, ...(prev.images || [])]
+            }));
+        } else {
+            console.error('Upload did not return a string URL:', url);
+        }
+    };
+
+
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -121,7 +145,7 @@ const EditProductDialog: React.FC<EditProductDialogProps> = ({
     };
 
     return (
-        <Dialog isOpen={isOpen} onClose={onClose} title="Edit Product" maxWidth="2xl">
+        <Dialog isOpen={isOpen} onClose={onClose} title={mode === 'add' ? 'Add Product' : 'Edit Product'} maxWidth="2xl">
             <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto max-h-[75vh]"> {/* Add max height and scroll */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -202,16 +226,39 @@ const EditProductDialog: React.FC<EditProductDialogProps> = ({
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Images (one URL per line)
+                        Upload Image
                     </label>
-                    <textarea
-                        value={imageInput}
-                        onChange={(e) => handleImagesChange(e.target.value)}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="https://example.com/image1.jpg"
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="block w-full text-sm text-gray-500"
                     />
+                    <div className="grid grid-cols-3 gap-3 mt-3">
+                        {(formData.images || []).map((img, index) => (
+                            <div key={index} className="relative group border rounded overflow-hidden">
+                                <img
+                                    src={img}
+                                    alt={`Product Image ${index + 1}`}
+                                    className="w-full h-24 object-cover"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            images: (prev.images || []).filter((_, i) => i !== index),
+                                        }));
+                                    }}
+                                    className="absolute top-1 right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded opacity-80 hover:opacity-100"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -301,12 +348,8 @@ const EditProductDialog: React.FC<EditProductDialogProps> = ({
                     >
                         Cancel
                     </button>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Saving...' : 'Save Changes'}
+                    <button type="submit" disabled={loading}>
+                        {loading ? (mode === 'add' ? 'Adding...' : 'Saving...') : (mode === 'add' ? 'Add Product' : 'Save Changes')}
                     </button>
                 </div>
             </form>
@@ -314,4 +357,4 @@ const EditProductDialog: React.FC<EditProductDialogProps> = ({
     );
 };
 
-export default EditProductDialog;
+export default ProductDialog;

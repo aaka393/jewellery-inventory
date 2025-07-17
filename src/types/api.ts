@@ -1,7 +1,10 @@
 export interface ApiResponse<T = any> {
   code: number;
   message: string;
+  success: boolean;
   result: T;
+  url?: string;
+  data: T;
 }
 
 export interface LoginResponse {

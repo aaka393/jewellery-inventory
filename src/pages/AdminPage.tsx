@@ -18,7 +18,7 @@ import { adminService } from '../services/adminService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import AdminDashboard from '../components/admin/AdminDashboard';
 import CSVUploader from '../components/admin/CSVUploader';
-import EditProductDialog from '../components/admin/EditProductDialog';
+import ProductDialog from '../components/admin/ProductDialog';
 import NotificationToast from '../components/admin/NotificationToast';
 import CreateItemDialog from '../components/common/CreateItemDialog';
 import SEOHead from '../components/seo/SEOHead';
@@ -95,7 +95,21 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  const handleEditProduct = async (productData: Partial<Product>) => {
+  const handleUploadImage = async (file: File): Promise<string | null> => {
+    try {
+      const res = await apiService.uploadProductImage(file);
+      if (!res || !res.url) {
+        throw new Error('Image upload failed');
+      }
+      return res?.url || null;
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      showNotification('Failed to upload image', 'error');
+      return null;
+    }
+  };
+
+  const handleProductDialog = async (productData: Partial<Product>) => {
     if (!productData.id) {
       showNotification('Missing product ID', 'error');
       return;
@@ -451,14 +465,15 @@ const AdminPage: React.FC = () => {
         </div>
 
         {/* Edit Product Dialog */}
-        <EditProductDialog
+        <ProductDialog
           isOpen={editDialog.isOpen}
           onClose={() => setEditDialog({ isOpen: false, product: null })}
-          onSave={handleEditProduct}
+          onSave={handleProductDialog}
           product={editDialog.product}
           categories={categoryNames}
           tags={tagNames}
           loading={actionLoading}
+          uploadProductImage={handleUploadImage}
         />
 
         {/* Create Category Dialog */}

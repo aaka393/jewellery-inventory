@@ -4,19 +4,19 @@ import { ApiResponse } from '../types/api';
 
 class ProductService extends BaseService {
   async getProducts(): Promise<ApiResponse<Product[]>> {
-    return this.get<Product[]>('/auth/products');
+    return this.get<Product[]>('/public/products');
   }
 
   async getFeaturedProducts(): Promise<ApiResponse<Product[]>> {
-    return this.get<Product[]>('/products/featured');
+    return this.get<Product[]>('/public/products/featured');
   }
 
   async getProductsByTag(tag: string): Promise<ApiResponse<Product[]>> {
-    return this.get<Product[]>(`/products/by-tag/${encodeURIComponent(tag)}`);
+    return this.get<Product[]>(`/public/products/by-tag/${encodeURIComponent(tag)}`);
   }
 
   async getProductBySlug(slug: string): Promise<ApiResponse<Product>> {
-    return this.get<Product>(`/auth/products/${slug}`);
+    return this.get<Product>(`/public/products/${slug}`);
   }
 
   async filterProducts(filters: ProductFilters): Promise<ApiResponse<Product[]>> {
@@ -33,7 +33,7 @@ class ProductService extends BaseService {
     if (filters.page) queryParams.append('page', filters.page.toString());
     if (filters.limit) queryParams.append('limit', filters.limit.toString());
 
-    const endpoint = `/auth/products/filter?${queryParams.toString()}`;
+    const endpoint = `/public/products/filter?${queryParams.toString()}`;
     return this.get<Product[]>(endpoint);
   }
 
@@ -42,23 +42,23 @@ class ProductService extends BaseService {
   }
 
   async getSearchSuggestions(query: string): Promise<ApiResponse<any[]>> {
-    return this.get<any[]>(`/products/suggestions?q=${encodeURIComponent(query)}`);
+    return this.get<any[]>(`/public/products/suggestions?q=${encodeURIComponent(query)}`);
   }
 
   async importProducts(products: ProductImport[]): Promise<ApiResponse<void>> {
-    return this.post<void>('/importproducts', products, true);
+    return this.post<void>('/admin/product/importProducts', products, true);
   }
 
   async uploadProductImage(file: File): Promise<ApiResponse<{ url: string }>> {
-    return this.uploadFile<{ url: string }>('/auth/products/image-upload', file, true);
+    return this.uploadFile<{ url: string }>('/auth/upload-file', file, true);
   }
 
   async updateProduct(productId: string, productData: Partial<Product>): Promise<ApiResponse<Product>> {
-    return this.put<Product>(`/product/id/${productId}`, productData, true);
+    return this.put<Product>(`/admin/product/id/${productId}`, productData, true);
   }
 
   async updateProductStock(productId: string, quantity: number): Promise<ApiResponse<void>> {
-    return this.put<void>(`/products/${productId}/stock`, { quantity }, true);
+    return this.put<void>(`/admin/product/${productId}/stock`, { quantity }, true);
   }
 
   async updateProductRating(productId: string, rating: number): Promise<ApiResponse<void>> {
@@ -66,16 +66,16 @@ class ProductService extends BaseService {
   }
 
   async deleteProductById(productId: string): Promise<ApiResponse<void>> {
-    return this.delete<void>(`/products/${productId}`, true);
+    return this.delete<void>(`/admin/product/${productId}`, true);
   }
 
   async deleteProducts(): Promise<ApiResponse<void>> {
-    return this.delete<void>('/deleteProducts', true);
+    return this.delete<void>('/admin/product/deleteProducts', true);
   }
 
   // Product Reviews
   async getProductReviews(productId: string): Promise<ApiResponse<Review[]>> {
-    return this.get<Review[]>(`/products/${productId}/reviews`);
+    return this.get<Review[]>(`/public/products/${productId}/reviews`);
   }
 
   async addProductReview(productId: string, review: Omit<Review, 'id' | 'productId' | 'createdAt'>): Promise<ApiResponse<Review>> {

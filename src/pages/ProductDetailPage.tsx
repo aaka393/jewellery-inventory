@@ -9,7 +9,7 @@ import { useAuthStore } from '../store/authStore';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { SITE_CONFIG } from '../../constants/siteConfig';
+import { SITE_CONFIG } from '../constants/siteConfig';
 import ProductReviews from '../components/reviews/ProductReviews';
 
 const ProductDetailPage: React.FC = () => {

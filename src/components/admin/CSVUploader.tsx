@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, FileText, AlertCircle, CheckCircle, X } from 'lucide-react';
 import { uploadService } from '../../services/uploadService';
 import { apiService } from '../../services/api';
-import { Product } from '../../types';
+import { Category, Product, Tag } from '../../types';
+import ProductDialog from './ProductDialog';
+import { categoryService, tagService } from '../../services';
+
 
 interface CSVUploaderProps {
   onSuccess: () => void;
@@ -27,6 +30,28 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
   });
   const [showPreview, setShowPreview] = useState(false);
   const [parsedProducts, setParsedProducts] = useState<Partial<Product>[]>([]);
+  const [addDialogOpen, stAddDialogOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [categoryRes, tagRes] = await Promise.all([
+          categoryService.getCategories(),
+          tagService.getTags(),
+        ]);
+        if (categoryRes.success) setCategories(categoryRes.data);
+        if (tagRes.success) setTags(tagRes.data);
+      } catch (error) {
+        console.error('Error fetching categories or tags:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+
+
 
   const handleCSVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,7 +75,7 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
           const text = e.target?.result as string;
           const lines = text.split('\n').filter(line => line.trim());
           const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-          
+
           const products: Partial<Product>[] = lines.slice(1).map((line, index) => {
             const values = line.split(',').map(v => v.trim());
             const product: any = {
@@ -60,10 +85,10 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
               tags: [],
               images: []
             };
-            
+
             headers.forEach((header, i) => {
               const value = values[i] || '';
-              
+
               switch (header) {
                 case 'name':
                   product.name = value;
@@ -125,10 +150,10 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
                   }
               }
             });
-            
+
             return product;
           }).filter(p => p.name);
-          
+
           resolve(products);
         } catch (error) {
           reject(error);
@@ -140,16 +165,16 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
 
   const uploadImages = async (imageNames: string[]): Promise<{ [key: string]: string }> => {
     const imageMap: { [key: string]: string } = {};
-    
+
     for (let i = 0; i < imageNames.length; i++) {
       const imageName = imageNames[i];
       const imageFile = imageFiles.find(f => f.name === imageName);
-      
+
       if (imageFile) {
         try {
           const response = await uploadService.uploadFile(imageFile);
           imageMap[imageName] = response.result.url;
-          
+
           setStatus(prev => ({
             ...prev,
             progress: ((i + 1) / imageNames.length) * 50 + 25, // 25-75% for image upload
@@ -162,7 +187,7 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
         }
       }
     }
-    
+
     return imageMap;
   };
 
@@ -207,7 +232,25 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
         message: 'Creating products in database...'
       });
 
-      await apiService.importProducts(productsWithImages);
+      const cleanProducts = productsWithImages.map(p => ({
+        name: p.name || '',
+        category: p.category || '',
+        description: p.description || '',
+        price: p.price || 0,
+        images: p.images || [],
+        inStock: p.inStock ?? true,
+        noOfProducts: p.noOfProducts || 0,
+        specifications: p.specifications || {},
+        tags: p.tags || [],
+        featured: p.featured ?? false,
+        comparePrice: p.comparePrice,
+        slug: p.slug,
+        variants: p.variants,
+        metaDescription: p.metaDescription,
+      }));
+
+      await apiService.importProducts(cleanProducts);
+
 
       setStatus({
         stage: 'complete',
@@ -258,14 +301,23 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-800">Bulk Product Upload</h2>
-        {status.stage !== 'idle' && (
+        <div className="flex items-center gap-3">
+          {status.stage !== 'idle' && (
+            <button
+              onClick={resetUploader}
+              className="text-gray-500 hover:text-gray-700"
+              title="Reset"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
           <button
-            onClick={resetUploader}
-            className="text-gray-500 hover:text-gray-700"
+            onClick={() => stAddDialogOpen(true)}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700"
           >
-            <X className="h-5 w-5" />
+            + Add Product
           </button>
-        )}
+        </div>
       </div>
 
       {/* CSV Format Guide */}
@@ -320,19 +372,18 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
           {getStatusIcon()}
           <span className="text-sm font-medium text-gray-700">{status.message}</span>
         </div>
-        
+
         {status.stage !== 'idle' && (
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className={`h-2 rounded-full transition-all duration-300 ${
-                status.stage === 'error' ? 'bg-red-600' : 
+              className={`h-2 rounded-full transition-all duration-300 ${status.stage === 'error' ? 'bg-red-600' :
                 status.stage === 'complete' ? 'bg-green-600' : 'bg-blue-600'
-              }`}
+                }`}
               style={{ width: `${status.progress}%` }}
             />
           </div>
         )}
-        
+
         {status.processedCount && status.totalCount && (
           <p className="text-xs text-gray-500 mt-2">
             {status.processedCount} of {status.totalCount} processed
@@ -393,7 +444,7 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
           <Upload className="h-4 w-4" />
           <span>Upload Products</span>
         </button>
-        
+
         {status.stage !== 'idle' && status.stage !== 'complete' && (
           <button
             onClick={resetUploader}
@@ -403,6 +454,40 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
           </button>
         )}
       </div>
+      <ProductDialog
+        isOpen={addDialogOpen}
+        onClose={() => stAddDialogOpen(false)}
+        onSave={async (formData) => {
+          try {
+            await apiService.importProducts([{
+              name: formData.name || '',
+              category: formData.category || '',
+              description: formData.description || '',
+              price: formData.price || 0,
+              images: formData.images || [],
+              inStock: formData.inStock ?? true,
+              noOfProducts: formData.noOfProducts || 0,
+              specifications: formData.specifications || {},
+              tags: formData.tags || [],
+              featured: formData.featured ?? false,
+              comparePrice: formData.comparePrice,
+              slug: formData.slug,
+              variants: formData.variants,
+              metaDescription: formData.metaDescription,
+            }]);
+
+            onSuccess(); // refresh UI or list if needed
+            stAddDialogOpen(false);
+          } catch (err) {
+            onError(err instanceof Error ? err.message : 'Failed to add product');
+          }
+        }}
+        product={null}
+        mode="add"
+        categories={categories.map((cat) => cat.name)}
+        tags={tags.map((tag) => tag.name)}
+      />
+
     </div>
   );
 };
