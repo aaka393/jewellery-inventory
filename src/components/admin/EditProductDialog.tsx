@@ -1,0 +1,317 @@
+import React, { useState, useEffect } from 'react';
+import { Product, Specifications } from '../../types';
+import Dialog from '../common/Dialog';
+
+interface EditProductDialogProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSave: (product: Partial<Product>) => void;
+    product: Product | null;
+    categories: string[];
+    tags: string[];
+    loading?: boolean;
+}
+
+const EditProductDialog: React.FC<EditProductDialogProps> = ({
+    isOpen,
+    onClose,
+    onSave,
+    product,
+    categories,
+    tags,
+    loading = false
+}) => {
+    const [formData, setFormData] = useState<Partial<Product>>({
+        name: '',
+        category: '',
+        description: '',
+        price: 0,
+        images: [],
+        tags: [],
+        inStock: true,
+        featured: false,
+        noOfProducts: 0,
+        specifications: {} as any,
+    });
+
+    const [imageInput, setImageInput] = useState('');
+    const [tagInput, setTagInput] = useState('');
+    const [specKey, setSpecKey] = useState('');
+    const [specValue, setSpecValue] = useState('');
+
+    useEffect(() => {
+        if (product) {
+            setFormData({
+                id: product.id,
+                name: product.name || '',
+                category: product.category || '',
+                description: product.description || '',
+                price: product.price || 0,
+                images: product.images || [],
+                tags: product.tags || [],
+                inStock: product.inStock ?? true,
+                featured: product.featured ?? false,
+                noOfProducts: product.noOfProducts || 0,
+                specifications: product.specifications || {}
+            });
+            setImageInput((product.images || []).join('\n'));
+            setTagInput((product.tags || []).join(', '));
+        }
+    }, [product]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'number' ? parseFloat(value) || 0 : value
+        }));
+    };
+
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: checked
+        }));
+    };
+
+    const handleImagesChange = (value: string) => {
+        setImageInput(value);
+        setFormData(prev => ({
+            ...prev,
+            images: value.split('\n').filter(url => url.trim())
+        }));
+    };
+
+    const handleTagsChange = (value: string) => {
+        setTagInput(value);
+        setFormData(prev => ({
+            ...prev,
+            tags: value.split(',').map(tag => tag.trim()).filter(tag => tag)
+        }));
+    };
+
+    const handleAddSpecification = () => {
+        if (specKey && specValue) {
+            setFormData(prev => ({
+                ...prev,
+                specifications: {
+                    ...(prev.specifications || {}),
+                    [specKey]: specValue,
+                } as any, // ✅ fixes the type conflict
+            }));
+
+            setSpecKey('');
+            setSpecValue('');
+        }
+    };
+
+    const handleRemoveSpecification = (key: string) => {
+        setFormData(prev => ({
+            ...prev,
+            specifications: Object.fromEntries(
+                Object.entries(prev.specifications || {}).filter(([k]) => k !== key)
+            ) as any
+        }));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave(formData);
+    };
+
+    return (
+        <Dialog isOpen={isOpen} onClose={onClose} title="Edit Product" maxWidth="2xl">
+            <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto max-h-[75vh]"> {/* Add max height and scroll */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Product Name *
+                        </label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Category *
+                        </label>
+                        <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        >
+                            <option value="">Select Category</option>
+                            {categories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Price *
+                        </label>
+                        <input
+                            type="number"
+                            name="price"
+                            value={formData.price}
+                            onChange={handleInputChange}
+                            min="0"
+                            step="0.01"
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Stock Quantity
+                        </label>
+                        <input
+                            type="number"
+                            name="noOfProducts"
+                            value={formData.noOfProducts}
+                            onChange={handleInputChange}
+                            min="0"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                    </label>
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Images (one URL per line)
+                    </label>
+                    <textarea
+                        value={imageInput}
+                        onChange={(e) => handleImagesChange(e.target.value)}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="https://example.com/image1.jpg"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tags (comma-separated)
+                    </label>
+                    <input
+                        type="text"
+                        value={tagInput}
+                        onChange={(e) => handleTagsChange(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="tag1, tag2, tag3"
+                    />
+                </div>
+
+                <div className="flex space-x-6">
+                    <label className="flex items-center">
+                        <input
+                            type="checkbox"
+                            name="inStock"
+                            checked={formData.inStock}
+                            onChange={handleCheckboxChange}
+                            className="mr-2"
+                        />
+                        <span className="text-sm text-gray-700">In Stock</span>
+                    </label>
+                    <label className="flex items-center">
+                        <input
+                            type="checkbox"
+                            name="featured"
+                            checked={formData.featured}
+                            onChange={handleCheckboxChange}
+                            className="mr-2"
+                        />
+                        <span className="text-sm text-gray-700">Featured</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Specifications
+                    </label>
+                    <div className="space-y-2">
+                        <div className="flex space-x-2">
+                            <input
+                                type="text"
+                                value={specKey}
+                                onChange={(e) => setSpecKey(e.target.value)}
+                                placeholder="Key (e.g., material)"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            />
+                            <input
+                                type="text"
+                                value={specValue}
+                                onChange={(e) => setSpecValue(e.target.value)}
+                                placeholder="Value (e.g., gold)"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAddSpecification}
+                                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                            >
+                                Add
+                            </button>
+                        </div>
+                        {Object.entries(formData.specifications || {}).map(([key, value]) => (
+                            <div key={key} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                                <span className="text-sm"><strong>{key}:</strong> {value}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveSpecification(key)}
+                                    className="text-red-600 hover:text-red-800 text-sm"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={loading}
+                        className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {loading ? 'Saving...' : 'Save Changes'}
+                    </button>
+                </div>
+            </form>
+        </Dialog>
+    );
+};
+
+export default EditProductDialog;
