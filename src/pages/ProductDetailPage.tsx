@@ -10,6 +10,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { SITE_CONFIG } from '../../constants/siteConfig';
+import ProductReviews from '../components/reviews/ProductReviews';
 
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -512,6 +513,11 @@ const ProductDetailPage: React.FC = () => {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-16">
+        <ProductReviews productId={product.id} productName={product.name} />
       </div>
     </>
   );

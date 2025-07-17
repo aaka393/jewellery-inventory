@@ -20,32 +20,44 @@ export const API_ENDPOINTS = {
   UPLOAD_IMAGE: '/auth/products/image-upload',
   DELETE_PRODUCTS: '/deleteProducts',
   DELETE_PRODUCT: '/products',
+  UPDATE_PRODUCT_STOCK: '/products',
+  UPDATE_PRODUCT_RATING: '/products',
+  PRODUCT_REVIEWS: '/products',
+  ADD_PRODUCT_REVIEW: '/products',
   
   // Category endpoints
   CATEGORIES: '/auth/categories',
   CREATE_CATEGORY: '/categories',
   DELETE_CATEGORY: '/categories',
+  UPDATE_CATEGORY_ORDER: '/admin/categories/order',
   
   // Tag endpoints
   TAGS: '/auth/tags',
   CREATE_TAG: '/tags',
   UPDATE_PRODUCT_TAGS: '/products',
+  TAG_STATS: '/admin/stats/tags',
   
   // Variant endpoints
   VARIANTS: '/auth/variants',
   CREATE_VARIANT: '/variants',
   
   // Review endpoints
-  PRODUCT_REVIEWS: '/auth/products',
+  GET_REVIEWS: '/auth/products',
   ADD_REVIEW: '/products',
+  ADMIN_REVIEWS: '/admin/reviews',
+  MODERATE_REVIEW: '/admin/reviews',
   
   // Cart endpoints
   ADD_TO_CART: '/cart/add',
   GET_CART: '/cart',
+  UPDATE_CART: '/cart/update',
+  REMOVE_FROM_CART: '/cart/remove',
+  MERGE_CART: '/cart/merge',
   
   // Wishlist endpoints
-  ADD_TO_WISHLIST: '/wishlist/add',
-  GET_WISHLIST: '/wishlist',
+  ADD_TO_WISHLIST: '/user/wishlist',
+  GET_WISHLIST: '/user/wishlist',
+  REMOVE_FROM_WISHLIST: '/user/wishlist',
   
   // Order endpoints
   CREATE_ORDER: '/order',
@@ -53,15 +65,26 @@ export const API_ENDPOINTS = {
   GET_ORDER: '/orders',
   GET_ORDER_PAYMENTS: '/orders',
   LIST_ORDERS: '/orderservice',
-  VERIFY_PAYMENT: '/payments/payment/verify',
+  ADMIN_ORDERS: '/admin/orders',
+  
+  // Payment endpoints
+  CREATE_PAYMENT_ORDER: '/payment/create-order',
+  VERIFY_PAYMENT: '/payment/verify',
+  PAYMENT_STATUS: '/payment/status',
   
   // User endpoints
   USER_PROFILE: '/user/profile',
   USER_ORDERS: '/user/orders',
-  USER_CART: '/user/cart',
-  MERGE_CART: '/cart/merge',
-  UPDATE_CART: '/cart/update',
-  REMOVE_FROM_CART: '/cart/remove',
+  USER_CART: '/cart',
+  
+  // Admin endpoints
+  ADMIN_PRODUCT_STATS: '/admin/stats/products',
+  ADMIN_ORDER_STATS: '/admin/stats/orders',
+  ADMIN_USERS: '/admin/users',
+  ADMIN_USER_ROLE: '/admin/users',
+  BULK_CREATE_PRODUCTS: '/admin/products/bulk',
+  UPDATE_PRODUCT_VISIBILITY: '/admin/products',
+  BULK_UPDATE_TAGS: '/admin/products/tags/bulk',
   
   // Stock endpoints
   UPDATE_STOCK: '/products',
@@ -78,6 +101,13 @@ export const API_ENDPOINTS = {
   // File upload
   UPLOAD_FILE: '/upload-file',
   UPLOAD_FILES: '/upload-files',
+  
+  // SEO endpoints
+  SITEMAP: '/sitemap.xml',
+  ROBOTS: '/robots.txt',
+  META_TAGS: '/seo/meta-tags',
+  STRUCTURED_DATA: '/seo/structured-data',
+  REDIRECTS: '/seo/redirects',
 };
 
 export const RESPONSE_CODES = {
@@ -96,4 +126,23 @@ export const STORAGE_KEYS = {
   USER_DATA: 'user_data',
   CART_DATA: 'cart_data',
   WISHLIST_DATA: 'wishlist_data',
+  ANALYTICS_SESSION: 'analytics_session_id',
+};
+
+export const PAGINATION = {
+  DEFAULT_PAGE_SIZE: 20,
+  MAX_PAGE_SIZE: 100,
+};
+
+export const CACHE_KEYS = {
+  PRODUCTS: 'products',
+  CATEGORIES: 'categories',
+  TAGS: 'tags',
+  USER_PROFILE: 'user_profile',
+};
+
+export const CACHE_DURATION = {
+  SHORT: 5 * 60 * 1000, // 5 minutes
+  MEDIUM: 30 * 60 * 1000, // 30 minutes
+  LONG: 60 * 60 * 1000, // 1 hour
 };

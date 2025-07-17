@@ -1,15 +1,22 @@
 import BaseService from './baseService';
-import { API_ENDPOINTS } from '../constants/appConstants';
-import { Product, ProductFilters, ProductImport } from '../types';
+import { Product, ProductFilters, ProductImport, Review } from '../types';
 import { ApiResponse } from '../types/api';
 
 class ProductService extends BaseService {
   async getProducts(): Promise<ApiResponse<Product[]>> {
-    return this.get<Product[]>(API_ENDPOINTS.PRODUCTS);
+    return this.get<Product[]>('/auth/products');
+  }
+
+  async getFeaturedProducts(): Promise<ApiResponse<Product[]>> {
+    return this.get<Product[]>('/products/featured');
+  }
+
+  async getProductsByTag(tag: string): Promise<ApiResponse<Product[]>> {
+    return this.get<Product[]>(`/products/by-tag/${encodeURIComponent(tag)}`);
   }
 
   async getProductBySlug(slug: string): Promise<ApiResponse<Product>> {
-    return this.get<Product>(`${API_ENDPOINTS.PRODUCT_BY_SLUG}/${slug}`);
+    return this.get<Product>(`/auth/products/${slug}`);
   }
 
   async filterProducts(filters: ProductFilters): Promise<ApiResponse<Product[]>> {
@@ -21,31 +28,58 @@ class ProductService extends BaseService {
     if (filters.tags) {
       filters.tags.forEach(tag => queryParams.append('tags', tag));
     }
+    if (filters.q) queryParams.append('q', filters.q);
+    if (filters.sort) queryParams.append('sort', filters.sort);
+    if (filters.page) queryParams.append('page', filters.page.toString());
+    if (filters.limit) queryParams.append('limit', filters.limit.toString());
 
-    const endpoint = `${API_ENDPOINTS.FILTER_PRODUCTS}?${queryParams.toString()}`;
+    const endpoint = `/auth/products/filter?${queryParams.toString()}`;
     return this.get<Product[]>(endpoint);
   }
 
+  async searchProducts(query: string): Promise<ApiResponse<{ products: Product[]; total: number; suggestions?: any[] }>> {
+    return this.get<{ products: Product[]; total: number; suggestions?: any[] }>(`/products/search?q=${encodeURIComponent(query)}`);
+  }
+
+  async getSearchSuggestions(query: string): Promise<ApiResponse<any[]>> {
+    return this.get<any[]>(`/products/suggestions?q=${encodeURIComponent(query)}`);
+  }
+
   async importProducts(products: ProductImport[]): Promise<ApiResponse<void>> {
-    return this.post<void>(API_ENDPOINTS.IMPORT_PRODUCTS, products, true);
+    return this.post<void>('/importproducts', products, true);
   }
 
   async uploadProductImage(file: File): Promise<ApiResponse<{ url: string }>> {
-    return this.uploadFile<{ url: string }>(API_ENDPOINTS.UPLOAD_IMAGE, file, true);
+    return this.uploadFile<{ url: string }>('/auth/products/image-upload', file, true);
   }
 
   async updateProduct(productId: string, productData: Partial<Product>): Promise<ApiResponse<Product>> {
-    const url = `${API_ENDPOINTS.UPDATE_PRODUCT}/${productId}`;
-    return this.put<Product>(url, productData);
+    return this.put<Product>(`/product/id/${productId}`, productData, true);
   }
 
-    async deleteProductById(productId: string): Promise<ApiResponse<void>> {
-    const url = `${API_ENDPOINTS.DELETE_PRODUCT}/${productId}`;
-    return this.delete<void>(url, true);
+  async updateProductStock(productId: string, quantity: number): Promise<ApiResponse<void>> {
+    return this.put<void>(`/products/${productId}/stock`, { quantity }, true);
+  }
+
+  async updateProductRating(productId: string, rating: number): Promise<ApiResponse<void>> {
+    return this.put<void>(`/products/${productId}/rating`, { rating }, true);
+  }
+
+  async deleteProductById(productId: string): Promise<ApiResponse<void>> {
+    return this.delete<void>(`/products/${productId}`, true);
   }
 
   async deleteProducts(): Promise<ApiResponse<void>> {
-    return this.delete<void>(API_ENDPOINTS.DELETE_PRODUCTS, true);
+    return this.delete<void>('/deleteProducts', true);
+  }
+
+  // Product Reviews
+  async getProductReviews(productId: string): Promise<ApiResponse<Review[]>> {
+    return this.get<Review[]>(`/products/${productId}/reviews`);
+  }
+
+  async addProductReview(productId: string, review: Omit<Review, 'id' | 'productId' | 'createdAt'>): Promise<ApiResponse<Review>> {
+    return this.post<Review>(`/products/${productId}/reviews`, review, true);
   }
 }
 

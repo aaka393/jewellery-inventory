@@ -1,6 +1,5 @@
 import BaseService from './baseService';
-import { API_ENDPOINTS } from '../constants/appConstants';
-import { Product, Category, Tag } from '../types';
+import { Product, Category, Tag, Order, User, Review } from '../types';
 import { ApiResponse } from '../types/api';
 
 interface BulkProductData {
@@ -22,6 +21,10 @@ interface OrderStats {
   totalRevenue: number;
 }
 
+interface TagStats {
+  [key: string]: number;
+}
+
 class AdminService extends BaseService {
   // Product Management
   async bulkCreateProducts(products: Partial<Product>[]): Promise<ApiResponse<Product[]>> {
@@ -36,9 +39,17 @@ class AdminService extends BaseService {
     return this.get<ProductStats>('/admin/stats/products', true);
   }
 
+  async bulkUpdateProductTags(updates: { productId: string; tags: string[] }[]): Promise<ApiResponse<void>> {
+    return this.post<void>('/admin/products/tags/bulk', { updates }, true);
+  }
+
+  async getTagUsageStats(): Promise<ApiResponse<TagStats>> {
+    return this.get<TagStats>('/admin/stats/tags', true);
+  }
+
   // Order Management
-  async getAllOrders(): Promise<ApiResponse<any[]>> {
-    return this.get<any[]>('/admin/orders', true);
+  async getAllOrders(): Promise<ApiResponse<Order[]>> {
+    return this.get<Order[]>('/admin/orders', true);
   }
 
   async updateOrderStatus(orderId: string, status: string): Promise<ApiResponse<void>> {
@@ -50,21 +61,12 @@ class AdminService extends BaseService {
   }
 
   // User Management
-  async getAllUsers(): Promise<ApiResponse<any[]>> {
-    return this.get<any[]>('/admin/users', true);
+  async getAllUsers(): Promise<ApiResponse<User[]>> {
+    return this.get<User[]>('/admin/users', true);
   }
 
   async updateUserRole(userId: string, role: string): Promise<ApiResponse<void>> {
     return this.put<void>(`/admin/users/${userId}/role`, { role }, true);
-  }
-
-  // Tag Management
-  async bulkUpdateProductTags(updates: { productId: string; tags: string[] }[]): Promise<ApiResponse<void>> {
-    return this.post<void>('/admin/products/tags/bulk', { updates }, true);
-  }
-
-  async getTagUsageStats(): Promise<ApiResponse<{ [key: string]: number }>> {
-    return this.get<{ [key: string]: number }>('/admin/stats/tags', true);
   }
 
   // Category Management
@@ -73,8 +75,8 @@ class AdminService extends BaseService {
   }
 
   // Reviews Management
-  async getAllReviews(): Promise<ApiResponse<any[]>> {
-    return this.get<any[]>('/admin/reviews', true);
+  async getAllReviews(): Promise<ApiResponse<Review[]>> {
+    return this.get<Review[]>('/admin/reviews', true);
   }
 
   async moderateReview(reviewId: string, approved: boolean): Promise<ApiResponse<void>> {

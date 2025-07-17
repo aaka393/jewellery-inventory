@@ -7,9 +7,14 @@ import {
   reviewService, 
   cartService, 
   wishlistService, 
-  orderService 
+  orderService,
+  userService,
+  analyticsService,
+  fileUploadService,
+  paymentService,
+  adminService
 } from './index';
-import { Product, Category, Tag, Review, CartItem, WishlistItem, ProductFilters, ProductImport } from '../types';
+import { Product, Category, Tag, Review, CartItem, WishlistItem, ProductFilters, ProductImport, Order, User } from '../types';
 
 class ApiService {
   // Auth methods
@@ -42,6 +47,26 @@ class ApiService {
     }
   }
 
+  async getFeaturedProducts(): Promise<Product[]> {
+    try {
+      const response = await productService.getFeaturedProducts();
+      return response?.result || [];
+    } catch (error) {
+      console.error('Error fetching featured products:', error);
+      return [];
+    }
+  }
+
+  async getProductsByTag(tag: string): Promise<Product[]> {
+    try {
+      const response = await productService.getProductsByTag(tag);
+      return response?.result || [];
+    } catch (error) {
+      console.error('Error fetching products by tag:', error);
+      return [];
+    }
+  }
+
   async getProductBySlug(slug: string): Promise<Product> {
     try {
       const response = await productService.getProductBySlug(slug);
@@ -62,6 +87,26 @@ class ApiService {
     }
   }
 
+  async searchProducts(query: string): Promise<{ products: Product[]; total: number; suggestions?: any[] }> {
+    try {
+      const response = await productService.searchProducts(query);
+      return response?.result || { products: [], total: 0 };
+    } catch (error) {
+      console.error('Error searching products:', error);
+      return { products: [], total: 0 };
+    }
+  }
+
+  async getSearchSuggestions(query: string): Promise<any[]> {
+    try {
+      const response = await productService.getSearchSuggestions(query);
+      return response?.result || [];
+    } catch (error) {
+      console.error('Error fetching search suggestions:', error);
+      return [];
+    }
+  }
+
   async importProducts(products: ProductImport[]): Promise<void> {
     await productService.importProducts(products);
   }
@@ -76,12 +121,32 @@ class ApiService {
     return response.result;
   }
 
+  async updateProductStock(productId: string, quantity: number): Promise<void> {
+    await productService.updateProductStock(productId, quantity);
+  }
+
   async deleteProducts(): Promise<void> {
     await productService.deleteProducts();
   }
 
   async deleteProductById(productId: string): Promise<void> {
     await productService.deleteProductById(productId);
+  }
+
+  // Product Reviews
+  async getProductReviews(productId: string): Promise<Review[]> {
+    try {
+      const response = await productService.getProductReviews(productId);
+      return response?.result || [];
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      return [];
+    }
+  }
+
+  async addProductReview(productId: string, review: Omit<Review, 'id' | 'productId' | 'createdAt'>): Promise<Review> {
+    const response = await productService.addProductReview(productId, review);
+    return response.result;
   }
 
   // Category methods
@@ -136,16 +201,6 @@ class ApiService {
   }
 
   // Review methods
-  async getProductReviews(productId: string): Promise<Review[]> {
-    try {
-      const response = await reviewService.getProductReviews(productId);
-      return response?.result || [];
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-      return [];
-    }
-  }
-
   async addReview(productId: string, review: Omit<Review, 'id' | 'productId' | 'createdAt'>): Promise<Review> {
     const response = await reviewService.addReview(productId, review);
     return response.result;
@@ -195,6 +250,92 @@ class ApiService {
   async verifyPayment(paymentData: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
     const response = await orderService.verifyPayment(paymentData);
     return response.result;
+  }
+
+  // User methods
+  async getUserProfile() {
+    const response = await userService.getUserProfile();
+    return response.result;
+  }
+
+  async updateUserProfile(profileData: any) {
+    const response = await userService.updateUserProfile(profileData);
+    return response.result;
+  }
+
+  async getUserOrders(): Promise<Order[]> {
+    const response = await userService.getUserOrders();
+    return response.result;
+  }
+
+  // File upload methods
+  async uploadFile(file: File): Promise<{ url: string }> {
+    const response = await fileUploadService.uploadSingleFile(file);
+    return response.result;
+  }
+
+  async uploadFiles(files: File[]): Promise<{ url: string }[]> {
+    const response = await fileUploadService.uploadMultipleFiles(files);
+    return response.result;
+  }
+
+  // Payment methods
+  async createPaymentOrder(orderData: any) {
+    const response = await paymentService.createPaymentOrder(orderData);
+    return response.result;
+  }
+
+  async verifyPaymentSignature(paymentData: any) {
+    const response = await paymentService.verifyPayment(paymentData);
+    return response.result;
+  }
+
+  // Analytics methods
+  async trackEvent(event: any) {
+    await analyticsService.trackEvent(event);
+  }
+
+  async getPopularProducts() {
+    const response = await analyticsService.getPopularProducts();
+    return response.result;
+  }
+
+  async getSalesSummary() {
+    const response = await analyticsService.getSalesSummary();
+    return response.result;
+  }
+
+  // Admin methods
+  async getProductStats() {
+    const response = await adminService.getProductStats();
+    return response.result;
+  }
+
+  async getOrderStats() {
+    const response = await adminService.getOrderStats();
+    return response.result;
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    const response = await adminService.getAllOrders();
+    return response.result;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const response = await adminService.getAllUsers();
+    return response.result;
+  }
+
+  async updateOrderStatus(orderId: string, status: string) {
+    await adminService.updateOrderStatus(orderId, status);
+  }
+
+  async updateUserRole(userId: string, role: string) {
+    await adminService.updateUserRole(userId, role);
+  }
+
+  async bulkUpdateProductTags(updates: { productId: string; tags: string[] }[]) {
+    await adminService.bulkUpdateProductTags(updates);
   }
 }
 

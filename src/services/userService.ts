@@ -1,10 +1,10 @@
 import BaseService from './baseService';
-import { User } from '../types';
+import { User, Order, Address } from '../types';
 import { ApiResponse } from '../types/api';
 
 interface UserProfile extends User {
   avatar?: string;
-  dateOfBirth?: string;
+  dateOfBirth?: Date;
   gender?: string;
   preferences?: {
     categories: string[];
@@ -14,49 +14,8 @@ interface UserProfile extends User {
     };
   };
   addresses: Address[];
-  lastLogin?: string;
+  lastLogin?: Date;
   isActive: boolean;
-}
-
-interface Address {
-  id: string;
-  type: 'shipping' | 'billing';
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  isDefault: boolean;
-}
-
-interface Order {
-  orderId: string;
-  userId: string;
-  items: OrderItem[];
-  subtotal: number;
-  tax: number;
-  shipping: number;
-  discount: number;
-  total: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  paymentMethod: string;
-  razorpayOrderId?: string;
-  razorpayPaymentId?: string;
-  shippingAddress: Address;
-  billingAddress: Address;
-  trackingNumber?: string;
-  estimatedDelivery?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface OrderItem {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
 }
 
 class UserService extends BaseService {
@@ -85,7 +44,7 @@ class UserService extends BaseService {
   }
 
   async getUserCart(): Promise<ApiResponse<any[]>> {
-    return this.get<any[]>('/user/cart', true);
+    return this.get<any[]>('/cart', true);
   }
 
   async addToCart(productId: string, quantity: number): Promise<ApiResponse<void>> {

@@ -7,7 +7,10 @@ import {
   Users, 
   ShoppingCart,
   Settings,
-  FileText
+  FileText,
+  Globe,
+  Star,
+  TrendingUp
 } from 'lucide-react';
 import { Product, Category, Tag as TagType } from '../types';
 import { apiService } from '../services/api';
@@ -22,6 +25,10 @@ import SEOHead from '../components/seo/SEOHead';
 import StockManagement from '../components/admin/StockManagement';
 import { SITE_CONFIG } from '../constants/siteConfig';
 import OrderManagement from '../components/admin/OrderManagement';
+import ReviewManagement from '../components/admin/ReviewManagement';
+import UserManagement from '../components/admin/UserManagement';
+import SitemapGenerator from '../components/seo/SitemapGenerator';
+import AnalyticsDashboard from '../components/analytics/AnalyticsDashboard';
 
 interface NotificationState {
   message: string;
@@ -159,13 +166,16 @@ const AdminPage: React.FC = () => {
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'products', label: 'Products', icon: Package },
     { id: 'stock', label: 'Stock Management', icon: Package },
     { id: 'upload', label: 'Bulk Upload', icon: Upload },
     { id: 'categories', label: 'Categories', icon: FileText },
     { id: 'tags', label: 'Tags', icon: Tag },
+    { id: 'reviews', label: 'Reviews', icon: Star },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'seo', label: 'SEO & Sitemap', icon: Globe },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -213,6 +223,8 @@ const AdminPage: React.FC = () => {
           {/* Main Content */}
           <div className="flex-1 p-8">
             {activeTab === 'dashboard' && <AdminDashboard />}
+            
+            {activeTab === 'analytics' && <AnalyticsDashboard />}
             
             {activeTab === 'products' && (
               <div className="space-y-6">
@@ -415,13 +427,16 @@ const AdminPage: React.FC = () => {
               <OrderManagement />
             )}
 
+            {activeTab === 'reviews' && (
+              <ReviewManagement />
+            )}
+
             {activeTab === 'users' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-800">Users</h2>
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <p className="text-gray-600">User management coming soon...</p>
-                </div>
-              </div>
+              <UserManagement />
+            )}
+
+            {activeTab === 'seo' && (
+              <SitemapGenerator />
             )}
 
             {activeTab === 'settings' && (
