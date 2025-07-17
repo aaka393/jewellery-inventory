@@ -80,12 +80,12 @@ const Header: React.FC = () => {
       {/* Shipping Banner */}
       <div className="bg-black text-white py-2 px-4 overflow-hidden">
         <div className="animate-marquee whitespace-nowrap text-xs flex items-center space-x-8">
-          <span>🚚 Shipping is free within India for orders above Rs. 500. International Shipping is Rs.3000</span>
+          <span>🚚 Shipping is free within India for orders above {SITE_CONFIG.currencySymbol}{SITE_CONFIG.freeShippingThreshold}. International Shipping is {SITE_CONFIG.currencySymbol}{SITE_CONFIG.internationalShippingCost}</span>
           <span>🌟 We ship worldwide</span>
-          <span>🚫 No COD</span>
-          <span>🚚 Shipping is free within India for orders above Rs. 500. International Shipping is Rs.3000</span>
+          <span>{SITE_CONFIG.features.codEnabled ? '💰 COD Available' : '🚫 No COD'}</span>
+          <span>🚚 Shipping is free within India for orders above {SITE_CONFIG.currencySymbol}{SITE_CONFIG.freeShippingThreshold}. International Shipping is {SITE_CONFIG.currencySymbol}{SITE_CONFIG.internationalShippingCost}</span>
           <span>🌟 We ship worldwide</span>
-          <span>🚫 No COD</span>
+          <span>{SITE_CONFIG.features.codEnabled ? '💰 COD Available' : '🚫 No COD'}</span>
         </div>
       </div>
 
@@ -223,12 +223,12 @@ const Header: React.FC = () => {
 
               {/* Mobile menu button */}
               <button
-            <span>🚚 Shipping is free within India for orders above {SITE_CONFIG.currencySymbol}{SITE_CONFIG.freeShippingThreshold}. International Shipping is {SITE_CONFIG.currencySymbol}{SITE_CONFIG.internationalShippingCost}</span>
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="md:hidden"
-            <span>{SITE_CONFIG.features.codEnabled ? '💰 COD Available' : '🚫 No COD'}</span>
-            <span>🚚 Shipping is free within India for orders above {SITE_CONFIG.currencySymbol}{SITE_CONFIG.freeShippingThreshold}. International Shipping is {SITE_CONFIG.currencySymbol}{SITE_CONFIG.internationalShippingCost}</span>
+              >
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
-            <span>{SITE_CONFIG.features.codEnabled ? '💰 COD Available' : '🚫 No COD'}</span>
+            </div>
           </div>
         </div>
 
