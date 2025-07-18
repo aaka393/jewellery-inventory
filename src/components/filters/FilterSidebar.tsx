@@ -34,8 +34,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFiltersChange,
   const handlePriceChange = (min: number, max: number) => {
     onFiltersChange({
       ...filters,
-      price_min: min,
-      price_max: max === Infinity ? undefined : max,
+      priceMin: min,
+      priceMax: max === Infinity ? undefined : max,
     });
   };
 
@@ -115,7 +115,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFiltersChange,
                     <input
                       type="radio"
                       name="price"
-                      checked={filters.price_min === range.min && filters.price_max === range.max}
+                      checked={filters.priceMin === range.min && filters.priceMax === range.max}
                       onChange={() => handlePriceChange(range.min, range.max)}
                       className="text-purple-600 focus:ring-purple-500"
                     />

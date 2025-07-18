@@ -11,8 +11,8 @@ interface SearchSuggestion {
 interface SearchFilters {
   q?: string;
   category?: string;
-  price_min?: number;
-  price_max?: number;
+  priceMin?: number;
+  priceMax?: number;
   tags?: string[];
   sort?: string;
   page?: number;
@@ -33,8 +33,8 @@ class SearchService extends BaseService {
     
     if (filters.q) queryParams.append('q', filters.q);
     if (filters.category) queryParams.append('category', filters.category);
-    if (filters.price_min) queryParams.append('price_min', filters.price_min.toString());
-    if (filters.price_max) queryParams.append('price_max', filters.price_max.toString());
+    if (filters.priceMin) queryParams.append('priceMin', filters.priceMin.toString());
+    if (filters.priceMax) queryParams.append('priceMax', filters.priceMax.toString());
     if (filters.tags) {
       filters.tags.forEach(tag => queryParams.append('tags', tag));
     }
@@ -42,11 +42,11 @@ class SearchService extends BaseService {
     if (filters.page) queryParams.append('page', filters.page.toString());
     if (filters.limit) queryParams.append('limit', filters.limit.toString());
 
-    return this.get<SearchResponse>(`/products/search?${queryParams.toString()}`);
+    return this.get<SearchResponse>(`/public/products/search?${queryParams.toString()}`);
   }
 
   async getSearchSuggestions(query: string): Promise<ApiResponse<SearchSuggestion[]>> {
-    return this.get<SearchSuggestion[]>(`/products/suggestions?q=${encodeURIComponent(query)}`);
+    return this.get<SearchSuggestion[]>(`/public/products/suggestions?q=${encodeURIComponent(query)}`);
   }
 
   async getFeaturedProducts(): Promise<ApiResponse<Product[]>> {

@@ -145,11 +145,6 @@ const Header: React.FC = () => {
               </button>
               
               <div className="h-6 w-px bg-gray-300 hidden md:block"></div>
-              
-              {/* Help */}
-              <button className="text-gray-600 hover:text-black">
-                <HelpCircle className="h-5 w-5" />
-              </button>
 
               {/* User menu */}
               {isAuthenticated ? (
@@ -200,26 +195,6 @@ const Header: React.FC = () => {
                 )}
               </button>
 
-              {/* Currency */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-black"
-                >
-                  <span>INR(₹)</span>
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                {showCurrencyDropdown && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50">
-                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      INR (₹)
-                    </button>
-                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      USD ($)
-                    </button>
-                  </div>
-                )}
-              </div>
 
               {/* Mobile menu button */}
               <button
@@ -235,7 +210,7 @@ const Header: React.FC = () => {
         {/* Navigation */}
         <nav className="border-t border-gray-200">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-center space-x-8 py-4 overflow-x-auto">
+            <div className="flex items-center justify-center space-x-8 py-4">
               <Link to="/" className="text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
                 HOME
               </Link>

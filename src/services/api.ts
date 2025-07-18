@@ -107,8 +107,8 @@ class ApiService {
     }
   }
 
-  async importProducts(products: ProductImport[]): Promise<void> {
-    await productService.importProducts(products);
+  async createProduct(products: ProductImport[]): Promise<void> {
+    await productService.createProduct(products);
   }
 
   async uploadProductImage(file: File): Promise<{ url: string }> {

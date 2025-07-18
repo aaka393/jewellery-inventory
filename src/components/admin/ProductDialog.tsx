@@ -29,14 +29,36 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         name: '',
         category: '',
         description: '',
-        price: 0,
+        price: undefined,
         images: [],
         tags: [],
         inStock: true,
         featured: false,
-        noOfProducts: 0,
-        specifications: {} as any,
+        noOfProducts: undefined,
+        specifications: {},
+        slug: '',
+        comparePrice: undefined,
+        preorderAvailable: false,
+        rating: undefined,
+        reviews: undefined,
+        variants: {},
+        visibility: true,
+        sortOrder: undefined,
+        viewCount: undefined,
+        salesCount: undefined,
+        stockAlert: undefined,
+        dimensions: {
+            length: undefined,
+            width: undefined,
+            height: undefined,
+            weight: undefined,
+        },
+        seoKeywords: [],
+        relatedProducts: [],
+        metaTitle: '',
+        metaDescription: '',
     });
+
 
     const [imageInput, setImageInput] = useState('');
     const [tagInput, setTagInput] = useState('');
@@ -56,7 +78,29 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                 inStock: product.inStock ?? true,
                 featured: product.featured ?? false,
                 noOfProducts: product.noOfProducts || 0,
-                specifications: product.specifications || {}
+                specifications: product.specifications || {},
+                slug: product.slug || '',
+                comparePrice: product.comparePrice || 0,
+                preorderAvailable: product.preorderAvailable ?? false,
+                rating: product.rating || 0,
+                reviews: product.reviews || 0,
+                variants: product.variants || {},
+                visibility: product.visibility ?? true,
+                sortOrder: product.sortOrder || 0,
+                viewCount: product.viewCount || 0,
+                salesCount: product.salesCount || 0,
+                stockAlert: product.stockAlert || 0,
+                dimensions: product.dimensions || {
+                    length: 0,
+                    width: 0,
+                    height: 0,
+                    weight: 0
+                },
+                seoKeywords: product.seoKeywords || [],
+                relatedProducts: product.relatedProducts || [],
+                metaTitle: product.metaTitle || '',
+                metaDescription: product.metaDescription || '',
+
             });
             setImageInput((product.images || []).join('\n'));
             setTagInput((product.tags || []).join(', '));
@@ -155,6 +199,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         <input
                             type="text"
                             name="name"
+                            placeholder='Enter Product Name'
                             value={formData.name}
                             onChange={handleInputChange}
                             required
@@ -189,6 +234,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             name="price"
                             value={formData.price}
                             onChange={handleInputChange}
+                            placeholder='Enter price'
                             min="0"
                             step="0.01"
                             required
@@ -203,6 +249,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         <input
                             type="number"
                             name="noOfProducts"
+                            placeholder='Available stock quantity'
                             value={formData.noOfProducts}
                             onChange={handleInputChange}
                             min="0"
@@ -338,6 +385,134 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         ))}
                     </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
+                        <input
+                            type="text"
+                            name="slug"
+                            value={formData.slug}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Compare Price</label>
+                        <input
+                            type="number"
+                            name="comparePrice"
+                            placeholder='Enter compare price'
+                            value={formData.comparePrice}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Stock Alert</label>
+                        <input
+                            type="number"
+                            name="stockAlert"
+                            placeholder='Enter stock alert quantity'
+                            value={formData.stockAlert}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
+                        <input
+                            type="number"
+                            name="sortOrder"
+                            placeholder='Display order (e.g. 1, 2, 3)'
+                            value={formData.sortOrder}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap gap-6">
+                    <label className="flex items-center">
+                        <input type="checkbox" name="preorderAvailable" checked={formData.preorderAvailable} onChange={handleCheckboxChange} className="mr-2" />
+                        Preorder Available
+                    </label>
+                    <label className="flex items-center">
+                        <input type="checkbox" name="visibility" checked={formData.visibility} onChange={handleCheckboxChange} className="mr-2" />
+                        Visible
+                    </label>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Dimensions</label>
+                    <div className="grid grid-cols-2 gap-4">
+                        {['length', 'width', 'height', 'weight'].map((field) => (
+                            <div key={field}>
+                                <input
+                                    type="number"
+                                    name={field}
+                                    placeholder={field}
+                                    value={(formData.dimensions as any)?.[field] || 0}
+                                    onChange={(e) =>
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            dimensions: {
+                                                ...prev.dimensions,
+                                                [field]: parseFloat(e.target.value) || 0,
+                                            },
+                                        }))
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">SEO Keywords (comma-separated)</label>
+                    <input
+                        type="text"
+                        value={formData.seoKeywords?.join(', ') || ''}
+                        onChange={(e) =>
+                            setFormData(prev => ({
+                                ...prev,
+                                seoKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean),
+                            }))
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
+                        <input
+                            type="text"
+                            name="metaTitle"
+                            value={formData.metaTitle}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                        <input
+                            type="text"
+                            name="metaDescription"
+                            value={formData.metaDescription}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                    </div>
+                </div>
+
+
+
+
 
                 <div className="flex space-x-3 pt-4">
                     <button

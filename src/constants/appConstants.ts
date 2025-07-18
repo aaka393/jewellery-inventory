@@ -26,13 +26,13 @@ export const API_ENDPOINTS = {
   ADD_PRODUCT_REVIEW: '/products',
   
   // Category endpoints
-  CATEGORIES: '/auth/categories',
+  CATEGORIES: '/public/categories',
   CREATE_CATEGORY: '/categories',
   DELETE_CATEGORY: '/categories',
   UPDATE_CATEGORY_ORDER: '/admin/categories/order',
   
   // Tag endpoints
-  TAGS: '/auth/tags',
+  TAGS: '/public/tags',
   CREATE_TAG: '/tags',
   UPDATE_PRODUCT_TAGS: '/products',
   TAG_STATS: '/admin/stats/tags',

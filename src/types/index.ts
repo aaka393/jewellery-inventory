@@ -202,8 +202,8 @@ export interface PaymentVerificationPayload {
 
 export interface ProductFilters {
   category?: string;
-  price_min?: number;
-  price_max?: number;
+  priceMin?: number;
+  priceMax?: number;
   tags?: string[];
   q?: string; // Search query
   sort?: string;
@@ -212,23 +212,28 @@ export interface ProductFilters {
 }
 
 export interface ProductImport {
-  name: string;
+  name?: string;
   slug?: string;
-  category: string;
+  category?: string;
   description?: string;
-  price: number;
+  price?: number;
   comparePrice?: number;
-  images: string[];
+  images?: string[];
   preorderAvailable?: boolean;
-  inStock: boolean;
+  inStock?: boolean;
   specifications?: Specifications;
   rating?: number;
   reviews?: number;
   featured?: boolean;
-  tags: string[];
+  tags?: string[];
   variants?: ProductVariants;
   noOfProducts?: number;
   visibility?: boolean;
+  sortOrder?: number;
+  viewCount?: number;
+  salesCount?: number;
+  stockAlert?: number;
+  relatedProducts?: string[];
   dimensions?: ProductDimensions;
   seoKeywords?: string[];
   metaTitle?: string;

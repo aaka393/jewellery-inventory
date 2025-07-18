@@ -31,7 +31,7 @@
 
 ### Search & Filtering
 - `GET /products/search?q={query}` - Full-text search
-- `GET /products/filter?category={cat}&price_min={min}&price_max={max}&tags={tags}` - Advanced filtering
+- `GET /products/filter?category={cat}&priceMin={min}&priceMax={max}&tags={tags}` - Advanced filtering
 - `GET /products/suggestions?q={query}` - Search suggestions
 
 ### User Features

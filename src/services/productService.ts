@@ -23,8 +23,8 @@ class ProductService extends BaseService {
     const queryParams = new URLSearchParams();
     
     if (filters.category) queryParams.append('category', filters.category);
-    if (filters.price_min) queryParams.append('price_min', filters.price_min.toString());
-    if (filters.price_max) queryParams.append('price_max', filters.price_max.toString());
+    if (filters.priceMin) queryParams.append('priceMin', filters.priceMin.toString());
+    if (filters.priceMax) queryParams.append('priceMax', filters.priceMax.toString());
     if (filters.tags) {
       filters.tags.forEach(tag => queryParams.append('tags', tag));
     }
@@ -45,8 +45,8 @@ class ProductService extends BaseService {
     return this.get<any[]>(`/public/products/suggestions?q=${encodeURIComponent(query)}`);
   }
 
-  async importProducts(products: ProductImport[]): Promise<ApiResponse<void>> {
-    return this.post<void>('/admin/product/importProducts', products, true);
+  async createProduct(products: ProductImport[]): Promise<ApiResponse<void>> {
+    return this.post<void>('/admin/product/create', products, true);
   }
 
   async uploadProductImage(file: File): Promise<ApiResponse<{ url: string }>> {

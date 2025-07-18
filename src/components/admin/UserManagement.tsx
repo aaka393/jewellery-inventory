@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserCheck, UserX, Crown, Edit, Mail, Phone, Calendar } from 'lucide-react';
+import { Users, UserCheck, UserX, Crown, Edit, Mail, Phone, Calendar, Trash2 } from 'lucide-react';
 import { User } from '../../types';
 import { adminService } from '../../services/adminService';
 import LoadingSpinner from '../common/LoadingSpinner';
+import ConfirmDialog from '../common/ConfirmDialog';
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'admin' | 'user' | 'active' | 'inactive'>('all');
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    type: 'single' | 'bulk';
+    userId?: string;
+    userName?: string;
+  }>({
+    isOpen: false,
+    type: 'single'
+  });
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -17,9 +29,10 @@ const UserManagement: React.FC = () => {
     try {
       setLoading(true);
       const response = await adminService.getAllUsers();
-      setUsers(response || []);
+      setUsers(response.result || []);
     } catch (error) {
       console.error('Error loading users:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -31,6 +44,52 @@ const UserManagement: React.FC = () => {
       await loadUsers(); // Refresh the list
     } catch (error) {
       console.error('Error updating user role:', error);
+    }
+  };
+
+  const handleSelectUser = (userId: string) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    const filteredUserIds = filteredUsers.map(u => u.id);
+    if (selectedUsers.length === filteredUserIds.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUserIds);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      setActionLoading(true);
+      // await adminService.deleteUser(userId);
+      // For now, just remove from local state
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      setDeleteDialog({ isOpen: false, type: 'single' });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      setActionLoading(true);
+      // await Promise.all(selectedUsers.map(id => adminService.deleteUser(id)));
+      // For now, just remove from local state
+      setUsers(prev => prev.filter(u => !selectedUsers.includes(u.id)));
+      setSelectedUsers([]);
+      setDeleteDialog({ isOpen: false, type: 'bulk' });
+    } catch (error) {
+      console.error('Error bulk deleting users:', error);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -127,7 +186,18 @@ const UserManagement: React.FC = () => {
       {/* Users Table */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-800">Users</h2>
+          <div className="flex items-center space-x-4">
+            <h2 className="text-lg font-semibold text-gray-800">Users</h2>
+            {selectedUsers.length > 0 && (
+              <button
+                onClick={() => setDeleteDialog({ isOpen: true, type: 'bulk' })}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center space-x-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Delete Selected ({selectedUsers.length})</span>
+              </button>
+            )}
+          </div>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
@@ -153,6 +223,14 @@ const UserManagement: React.FC = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                      onChange={handleSelectAll}
+                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    />
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     User
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -174,7 +252,15 @@ const UserManagement: React.FC = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id}>
+                  <tr key={user.id} className={selectedUsers.includes(user.id) ? 'bg-purple-50' : ''}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleSelectUser(user.id)}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
@@ -240,16 +326,29 @@ const UserManagement: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-purple-600 hover:text-purple-900 mr-3">
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        className={`${
-                          user.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
-                        }`}
-                      >
-                        {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                      </button>
+                      <div className="flex space-x-2">
+                        <button className="text-purple-600 hover:text-purple-900">
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteDialog({ 
+                            isOpen: true, 
+                            type: 'single', 
+                            userId: user.id,
+                            userName: `${user.firstname} ${user.lastname}` 
+                          })}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          className={`${
+                            user.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
+                          }`}
+                        >
+                          {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -258,6 +357,24 @@ const UserManagement: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, type: 'single' })}
+        onConfirm={deleteDialog.type === 'single' 
+          ? () => handleDeleteUser(deleteDialog.userId!) 
+          : handleBulkDelete
+        }
+        title={deleteDialog.type === 'single' ? 'Delete User' : 'Delete Users'}
+        message={deleteDialog.type === 'single' 
+          ? `Are you sure you want to delete "${deleteDialog.userName}"? This action cannot be undone.`
+          : `Are you sure you want to delete ${selectedUsers.length} selected users? This action cannot be undone.`
+        }
+        confirmText="Delete"
+        type="danger"
+        loading={actionLoading}
+      />
     </div>
   );
 };

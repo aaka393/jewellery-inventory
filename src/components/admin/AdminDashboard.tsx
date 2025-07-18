@@ -9,12 +9,15 @@ import {
   Eye,
   EyeOff,
   Edit,
-  Trash2
+  Trash2,
+  Check,
+  X
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { apiService } from '../../services/api';
 import { Product } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
+import ConfirmDialog from '../common/ConfirmDialog';
 
 interface DashboardStats {
   products: {
@@ -39,6 +42,17 @@ const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    type: 'single' | 'bulk';
+    productId?: string;
+    productName?: string;
+  }>({
+    isOpen: false,
+    type: 'single'
+  });
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -90,6 +104,50 @@ const AdminDashboard: React.FC = () => {
       await loadDashboardData(); // Refresh data
     } catch (error) {
       console.error('Error updating product visibility:', error);
+    }
+  };
+
+  const handleSelectProduct = (productId: string) => {
+    setSelectedProducts(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedProducts.length === recentProducts.length) {
+      setSelectedProducts([]);
+    } else {
+      setSelectedProducts(recentProducts.map(p => p.id));
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      setActionLoading(true);
+      await apiService.deleteProductById(productId);
+      await loadDashboardData();
+      setDeleteDialog({ isOpen: false, type: 'single' });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      setActionLoading(true);
+      // Delete each selected product
+      await Promise.all(selectedProducts.map(id => apiService.deleteProductById(id)));
+      setSelectedProducts([]);
+      await loadDashboardData();
+      setDeleteDialog({ isOpen: false, type: 'bulk' });
+    } catch (error) {
+      console.error('Error bulk deleting products:', error);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -166,13 +224,30 @@ const AdminDashboard: React.FC = () => {
 
       {/* Recent Products */}
       <div className="bg-white rounded-lg shadow-sm">
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-800">Recent Products</h2>
+          {selectedProducts.length > 0 && (
+            <button
+              onClick={() => setDeleteDialog({ isOpen: true, type: 'bulk' })}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center space-x-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>Delete Selected ({selectedProducts.length})</span>
+            </button>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <input
+                    type="checkbox"
+                    checked={selectedProducts.length === recentProducts.length && recentProducts.length > 0}
+                    onChange={handleSelectAll}
+                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  />
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product
                 </th>
@@ -195,7 +270,15 @@ const AdminDashboard: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {recentProducts.map((product) => (
-                <tr key={product.id}>
+                <tr key={product.id} className={selectedProducts.includes(product.id) ? 'bg-purple-50' : ''}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={selectedProducts.includes(product.id)}
+                      onChange={() => handleSelectProduct(product.id)}
+                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <img
@@ -243,7 +326,16 @@ const AdminDashboard: React.FC = () => {
                       <button className="text-purple-600 hover:text-purple-900" title="Edit">
                         <Edit className="h-4 w-4" />
                       </button>
-                      <button className="text-red-600 hover:text-red-900" title="Delete">
+                      <button 
+                        onClick={() => setDeleteDialog({ 
+                          isOpen: true, 
+                          type: 'single', 
+                          productId: product.id,
+                          productName: product.name 
+                        })}
+                        className="text-red-600 hover:text-red-900" 
+                        title="Delete"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -299,6 +391,24 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, type: 'single' })}
+        onConfirm={deleteDialog.type === 'single' 
+          ? () => handleDeleteProduct(deleteDialog.productId!) 
+          : handleBulkDelete
+        }
+        title={deleteDialog.type === 'single' ? 'Delete Product' : 'Delete Products'}
+        message={deleteDialog.type === 'single' 
+          ? `Are you sure you want to delete "${deleteDialog.productName}"? This action cannot be undone.`
+          : `Are you sure you want to delete ${selectedProducts.length} selected products? This action cannot be undone.`
+        }
+        confirmText="Delete"
+        type="danger"
+        loading={actionLoading}
+      />
     </div>
   );
 };

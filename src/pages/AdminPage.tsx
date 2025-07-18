@@ -10,7 +10,8 @@ import {
   FileText,
   Globe,
   Star,
-  TrendingUp
+  TrendingUp,
+  Trash2
 } from 'lucide-react';
 import { Product, Category, Tag as TagType } from '../types';
 import { apiService } from '../services/api';
@@ -20,7 +21,9 @@ import AdminDashboard from '../components/admin/AdminDashboard';
 import CSVUploader from '../components/admin/CSVUploader';
 import ProductDialog from '../components/admin/ProductDialog';
 import NotificationToast from '../components/admin/NotificationToast';
-import CreateItemDialog from '../components/common/CreateItemDialog';
+import CategoryDialog from '../components/common/CategoryDialog';
+import TagDialog from '../components/common/TagDialog';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 import SEOHead from '../components/seo/SEOHead';
 import StockManagement from '../components/admin/StockManagement';
 import { SITE_CONFIG } from '../constants/siteConfig';
@@ -52,14 +55,40 @@ const AdminPage: React.FC = () => {
     product: null
   });
 
+  const [categoryDialog, setCategoryDialog] = useState<{
+    isOpen: boolean;
+    category: Category | null;
+  }>({
+    isOpen: false,
+    category: null
+  });
+
+  const [tagDialog, setTagDialog] = useState<{
+    isOpen: boolean;
+    tag: TagType | null;
+  }>({
+    isOpen: false,
+    tag: null
+  });
+
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    type: 'category' | 'tag';
+    item: Category | TagType | null;
+  }>({
+    isOpen: false,
+    type: 'category',
+    item: null
+  });
+
   const [notification, setNotification] = useState<NotificationState>({
     message: '',
     type: 'info',
     isVisible: false
   });
 
-  const [createCategoryDialog, setCreateCategoryDialog] = useState(false);
-  const [createTagDialog, setCreateTagDialog] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
@@ -129,33 +158,112 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  const handleCreateCategory = async (name: string, description?: string) => {
-    if (name) {
-      try {
-        await apiService.createCategory({ name, description: description || '' });
-        await loadData();
-        showNotification('Category created successfully!', 'success');
-      } catch (error) {
-        console.error('Error creating category:', error);
-        showNotification('Error creating category', 'error');
-      } finally {
-        setCreateCategoryDialog(false);
-      }
+  const handleCreateCategory = async (categoryData: Omit<Category, 'id'>) => {
+    try {
+      setActionLoading(true);
+      await apiService.createCategory(categoryData);
+      await loadData();
+      setCategoryDialog({ isOpen: false, category: null });
+      showNotification('Category created successfully!', 'success');
+    } catch (error) {
+      console.error('Error creating category:', error);
+      showNotification('Error creating category', 'error');
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  const handleCreateTag = async (name: string) => {
-    if (name) {
-      try {
-        await apiService.createTag({ name });
-        await loadData();
-        showNotification('Tag created successfully!', 'success');
-      } catch (error) {
-        console.error('Error creating tag:', error);
-        showNotification('Error creating tag', 'error');
-      } finally {
-        setCreateTagDialog(false);
-      }
+  const handleUpdateCategory = async (categoryData: Omit<Category, 'id'>) => {
+    if (!categoryDialog.category?.id) return;
+    
+    try {
+      setActionLoading(true);
+      // await apiService.updateCategory(categoryDialog.category.id, categoryData);
+      await loadData();
+      setCategoryDialog({ isOpen: false, category: null });
+      showNotification('Category updated successfully!', 'success');
+    } catch (error) {
+      console.error('Error updating category:', error);
+      showNotification('Error updating category', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCreateTag = async (tagData: Omit<TagType, 'id'>) => {
+    try {
+      setActionLoading(true);
+      await apiService.createTag(tagData);
+      await loadData();
+      setTagDialog({ isOpen: false, tag: null });
+      showNotification('Tag created successfully!', 'success');
+    } catch (error) {
+      console.error('Error creating tag:', error);
+      showNotification('Error creating tag', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUpdateTag = async (tagData: Omit<TagType, 'id'>) => {
+    if (!tagDialog.tag?.id) return;
+    
+    try {
+      setActionLoading(true);
+      // await apiService.updateTag(tagDialog.tag.id, tagData);
+      await loadData();
+      setTagDialog({ isOpen: false, tag: null });
+      showNotification('Tag updated successfully!', 'success');
+    } catch (error) {
+      console.error('Error updating tag:', error);
+      showNotification('Error updating tag', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    try {
+      setActionLoading(true);
+      await apiService.deleteCategory(categoryId);
+      await loadData();
+      setDeleteDialog({ isOpen: false, type: 'category', item: null });
+      showNotification('Category deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      showNotification('Error deleting category', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleBulkDeleteCategories = async () => {
+    try {
+      setActionLoading(true);
+      await Promise.all(selectedCategories.map(id => apiService.deleteCategory(id)));
+      setSelectedCategories([]);
+      await loadData();
+      showNotification(`Deleted ${selectedCategories.length} categories`, 'success');
+    } catch (error) {
+      console.error('Error bulk deleting categories:', error);
+      showNotification('Error deleting categories', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleBulkDeleteTags = async () => {
+    try {
+      setActionLoading(true);
+      // await Promise.all(selectedTags.map(id => apiService.deleteTag(id)));
+      setSelectedTags([]);
+      await loadData();
+      showNotification(`Deleted ${selectedTags.length} tags`, 'success');
+    } catch (error) {
+      console.error('Error bulk deleting tags:', error);
+      showNotification('Error deleting tags', 'error');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -381,24 +489,118 @@ const AdminPage: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-800">Categories ({categories.length})</h2>
-                  <button
-                    onClick={() => setCreateCategoryDialog(true)}
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700"
-                  >
-                    Add Category
-                  </button>
+                  <div className="flex space-x-3">
+                    {selectedCategories.length > 0 && (
+                      <button
+                        onClick={handleBulkDeleteCategories}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center space-x-2"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span>Delete Selected ({selectedCategories.length})</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setCategoryDialog({ isOpen: true, category: null })}
+                      className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700"
+                    >
+                      Add Category
+                    </button>
+                  </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categories.map((category) => (
-                    <div key={category.id} className="bg-white rounded-lg shadow-sm p-6">
-                      <h3 className="font-semibold text-gray-800 mb-2">{category.name}</h3>
-                      <p className="text-sm text-gray-600 mb-4">{category.description}</p>
-                      <div className="text-xs text-gray-500">
-                        {products.filter(p => p.category === category.name).length} products
-                      </div>
-                    </div>
-                  ))}
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <input
+                            type="checkbox"
+                            checked={selectedCategories.length === categories.length && categories.length > 0}
+                            onChange={() => {
+                              if (selectedCategories.length === categories.length) {
+                                setSelectedCategories([]);
+                              } else {
+                                setSelectedCategories(categories.map(c => c.id!));
+                              }
+                            }}
+                            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                          />
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Description
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Products
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {categories.map((category) => (
+                        <tr key={category.id} className={selectedCategories.includes(category.id!) ? 'bg-purple-50' : ''}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              checked={selectedCategories.includes(category.id!)}
+                              onChange={() => {
+                                if (selectedCategories.includes(category.id!)) {
+                                  setSelectedCategories(prev => prev.filter(id => id !== category.id));
+                                } else {
+                                  setSelectedCategories(prev => [...prev, category.id!]);
+                                }
+                              }}
+                              className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                            />
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                            {category.slug && (
+                              <div className="text-sm text-gray-500">{category.slug}</div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900 max-w-xs truncate">
+                              {category.description || 'No description'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {products.filter(p => p.category === category.name).length}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              category.isActive !== false
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {category.isActive !== false ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              onClick={() => setCategoryDialog({ isOpen: true, category })}
+                              className="text-purple-600 hover:text-purple-900 mr-3"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => setDeleteDialog({ isOpen: true, type: 'category', item: category })}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
@@ -407,32 +609,123 @@ const AdminPage: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-800">Tags ({tags.length})</h2>
-                  <button
-                    onClick={() => setCreateTagDialog(true)}
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700"
-                  >
-                    Add Tag
-                  </button>
+                  <div className="flex space-x-3">
+                    {selectedTags.length > 0 && (
+                      <button
+                        onClick={handleBulkDeleteTags}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center space-x-2"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span>Delete Selected ({selectedTags.length})</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setTagDialog({ isOpen: true, tag: null })}
+                      className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700"
+                    >
+                      Add Tag
+                    </button>
+                  </div>
                 </div>
                 
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex flex-wrap gap-3">
-                    {tags.map((tag) => {
-                      const productCount = products.filter(p => 
-                        (p.tags || []).includes(tag.name)
-                      ).length;
-                      
-                      return (
-                        <div
-                          key={tag.id}
-                          className="flex items-center bg-purple-100 text-purple-800 px-4 py-2 rounded-full"
-                        >
-                          <span className="font-medium">{tag.name}</span>
-                          <span className="ml-2 text-sm text-purple-600">({productCount})</span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <input
+                            type="checkbox"
+                            checked={selectedTags.length === tags.length && tags.length > 0}
+                            onChange={() => {
+                              if (selectedTags.length === tags.length) {
+                                setSelectedTags([]);
+                              } else {
+                                setSelectedTags(tags.map(t => t.id!));
+                              }
+                            }}
+                            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                          />
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tag
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Products
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {tags.map((tag) => {
+                        const productCount = products.filter(p => 
+                          (p.tags || []).includes(tag.name)
+                        ).length;
+                        
+                        return (
+                          <tr key={tag.id} className={selectedTags.includes(tag.id!) ? 'bg-purple-50' : ''}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <input
+                                type="checkbox"
+                                checked={selectedTags.includes(tag.id!)}
+                                onChange={() => {
+                                  if (selectedTags.includes(tag.id!)) {
+                                    setSelectedTags(prev => prev.filter(id => id !== tag.id));
+                                  } else {
+                                    setSelectedTags(prev => [...prev, tag.id!]);
+                                  }
+                                }}
+                                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                              />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center space-x-3">
+                                <span
+                                  className="inline-flex px-3 py-1 text-sm font-medium rounded-full text-white"
+                                  style={{ backgroundColor: tag.color || '#6366f1' }}
+                                >
+                                  {tag.name}
+                                </span>
+                                {tag.slug && (
+                                  <span className="text-sm text-gray-500">{tag.slug}</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {productCount}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                tag.isActive !== false
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {tag.isActive !== false ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <button
+                                onClick={() => setTagDialog({ isOpen: true, tag })}
+                                className="text-purple-600 hover:text-purple-900 mr-3"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => setDeleteDialog({ isOpen: true, type: 'tag', item: tag })}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
@@ -476,22 +769,39 @@ const AdminPage: React.FC = () => {
           uploadProductImage={handleUploadImage}
         />
 
-        {/* Create Category Dialog */}
-        <CreateItemDialog
-          isOpen={createCategoryDialog}
-          onClose={() => setCreateCategoryDialog(false)}
-          onSave={handleCreateCategory}
-          title="Create Category"
-          type="category"
+        {/* Category Dialog */}
+        <CategoryDialog
+          isOpen={categoryDialog.isOpen}
+          onClose={() => setCategoryDialog({ isOpen: false, category: null })}
+          onSave={categoryDialog.category ? handleUpdateCategory : handleCreateCategory}
+          category={categoryDialog.category}
+          categories={categories}
+          loading={actionLoading}
         />
 
-        {/* Create Tag Dialog */}
-        <CreateItemDialog
-          isOpen={createTagDialog}
-          onClose={() => setCreateTagDialog(false)}
-          onSave={handleCreateTag}
-          title="Create Tag"
-          type="tag"
+        {/* Tag Dialog */}
+        <TagDialog
+          isOpen={tagDialog.isOpen}
+          onClose={() => setTagDialog({ isOpen: false, tag: null })}
+          onSave={tagDialog.tag ? handleUpdateTag : handleCreateTag}
+          tag={tagDialog.tag}
+          loading={actionLoading}
+        />
+
+        {/* Delete Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={deleteDialog.isOpen}
+          onClose={() => setDeleteDialog({ isOpen: false, type: 'category', item: null })}
+          onConfirm={() => {
+            if (deleteDialog.type === 'category' && deleteDialog.item) {
+              handleDeleteCategory(deleteDialog.item.id!);
+            }
+          }}
+          title={`Delete ${deleteDialog.type === 'category' ? 'Category' : 'Tag'}`}
+          message={`Are you sure you want to delete "${deleteDialog.item?.name}"? This action cannot be undone.`}
+          confirmText="Delete"
+          type="danger"
+          loading={actionLoading}
         />
 
         {/* Notification Toast */}
