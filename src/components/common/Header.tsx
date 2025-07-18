@@ -5,10 +5,12 @@ import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
 import { useCategoryStore } from '../../store/categoryStore';
+import { apiService } from '../../services/api';
 import SEOHead from '../seo/SEOHead';
 import { SITE_CONFIG } from '../../constants/siteConfig';
 import { searchService } from '../../services/searchService';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { Category } from '../../types';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,6 +19,7 @@ const Header: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showCartSidebar, setShowCartSidebar] = useState(false);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  const [dynamicCategories, setDynamicCategories] = useState<Category[]>([]);
   const { user, isAuthenticated, logout } = useAuthStore();
   const { getItemCount } = useCartStore();
   const { items: wishlistItems } = useWishlistStore();
@@ -26,7 +29,17 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     loadCategories().catch(console.error);
+    loadDynamicCategories();
   }, [loadCategories]);
+
+  const loadDynamicCategories = async () => {
+    try {
+      const categoriesData = await apiService.getCategories();
+      setDynamicCategories(categoriesData || []);
+    } catch (error) {
+      console.error('Error loading dynamic categories:', error);
+    }
+  };
 
   useEffect(() => {
     const delayedSearch = setTimeout(async () => {
@@ -73,6 +86,9 @@ const Header: React.FC = () => {
   const cartCount = getItemCount() || 0;
   const wishlistCount = wishlistItems?.length || 0;
 
+  // Hide navigation and search for admin users
+  const isAdmin = user?.role === 'Admin';
+
   return (
     <>
       <SEOHead />
@@ -100,49 +116,53 @@ const Header: React.FC = () => {
               </div>
             </Link>
 
-            {/* Search bar - Hidden on mobile */}
-            <div className="hidden md:flex flex-1 max-w-md mx-8 relative">
-              <form onSubmit={handleSearch} className="relative w-full">
-                <input
-                  type="text"
-                  placeholder="Search for jewelry..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => searchQuery.length > 2 && setShowSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
-                />
-                <button type="submit" className="absolute right-3 top-2.5">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </button>
-              </form>
-              
-              {/* Search Suggestions */}
-              {showSuggestions && searchSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 mt-1">
-                  {searchSuggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setSearchQuery(suggestion.query);
-                        handleSearch(new Event('submit') as any);
-                      }}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between"
-                    >
-                      <span>{suggestion.query}</span>
-                      <span className="text-xs text-gray-500">{suggestion.count} results</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Search bar - Hidden on mobile and for admin users */}
+            {!isAdmin && (
+              <div className="hidden md:flex flex-1 max-w-md mx-8 relative">
+                <form onSubmit={handleSearch} className="relative w-full">
+                  <input
+                    type="text"
+                    placeholder="Search for jewelry..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => searchQuery.length > 2 && setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
+                  />
+                  <button type="submit" className="absolute right-3 top-2.5">
+                    <Search className="h-5 w-5 text-gray-400" />
+                  </button>
+                </form>
+                
+                {/* Search Suggestions */}
+                {showSuggestions && searchSuggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 mt-1">
+                    {searchSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setSearchQuery(suggestion.query);
+                          handleSearch(new Event('submit') as any);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between"
+                      >
+                        <span>{suggestion.query}</span>
+                        <span className="text-xs text-gray-500">{suggestion.count} results</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Right side actions */}
             <div className="flex items-center space-x-4">
               {/* Search icon for mobile */}
-              <button className="md:hidden">
-                <Search className="h-6 w-6 text-gray-600" />
-              </button>
+              {!isAdmin && (
+                <button className="md:hidden p-2 hover:bg-gray-100 rounded-full">
+                  <Search className="h-6 w-6 text-gray-600" />
+                </button>
+              )}
               
               <div className="h-6 w-px bg-gray-300 hidden md:block"></div>
 
@@ -207,170 +227,79 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="border-t border-gray-200">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-center space-x-8 py-4">
-              <Link to="/" className="text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
+
+
+
+
+
+
+        {/* Navigation - Hidden for admin users */}
+        {!isAdmin && (
+          <nav className="border-t border-gray-200">
+            <div className="container mx-auto px-4">
+              <div className="hidden md:flex items-center justify-center space-x-8 py-4">
+                <Link to="/" className="text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
+                  HOME
+                </Link>
+                
+                <Link to="/pre-orders" className="text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
+                  PRE-ORDERS
+                </Link>
+
+                {/* Dynamic Categories */}
+                {dynamicCategories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleCategoryClick(category.name)}
+                    className="text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap uppercase"
+                  >
+                    {category.name}
+                  </button>
+                ))}
+
+                {/* Collections with dropdown */}
+                <div className="relative group">
+                  <button className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
+                    <span>🌸 COLLECTIONS</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <Link to="/products?tag=mostLoved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Most Loved
+                    </Link>
+                    <Link to="/products?tag=trendingNow" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Trending Now
+                    </Link>
+                    <Link to="/products?tag=newLaunch" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      New Launch
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </nav>
+        )}
+        {/* Mobile Menu - Hidden for admin users */}
+        {!isAdmin && isMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+            <div className="px-4 py-4 space-y-3 max-h-96 overflow-y-auto">
+              <Link to="/" className="block py-3 text-base font-medium text-gray-700 border-b border-gray-100" onClick={() => setIsMenuOpen(false)}>
                 HOME
               </Link>
-              
-              <div className="relative group">
-                <button className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
-                  <span>NECKLACES</span>
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <button
-                    onClick={() => handleCategoryClick('necklaces')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    All Necklaces
-                  </button>
-                  <button
-                    onClick={() => handleCategoryClick('chokers')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Chokers
-                  </button>
-                  <button
-                    onClick={() => handleCategoryClick('pendants')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Pendants
-                  </button>
-                </div>
-              </div>
-
-              <div className="relative group">
-                <button className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
-                  <span>EARRINGS</span>
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <button
-                    onClick={() => handleCategoryClick('earrings')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    All Earrings
-                  </button>
-                  <button
-                    onClick={() => handleCategoryClick('jhumkas')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Jhumkas
-                  </button>
-                  <button
-                    onClick={() => handleCategoryClick('studs')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Studs
-                  </button>
-                </div>
-              </div>
-
-              <div className="relative group">
-                <button className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
-                  <span>ACCESSORIES</span>
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <button
-                    onClick={() => handleCategoryClick('accessories')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    All Accessories
-                  </button>
-                  <button
-                    onClick={() => handleCategoryClick('hair-accessories')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Hair Accessories
-                  </button>
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleCategoryClick('bangles')}
-                className="text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap"
-              >
-                BANGLES
-              </button>
-              
-              <button
-                onClick={() => handleCategoryClick('anklets')}
-                className="text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap"
-              >
-                ANKLETS
-              </button>
-              
-              <button
-                onClick={() => handleCategoryClick('rings')}
-                className="text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap"
-              >
-                RINGS
-              </button>
-
-              <div className="relative group">
-                <button className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
-                  <span>🌸 COLLECTIONS</span>
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <Link to="/products?tag=mostLoved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Most Loved
-                  </Link>
-                  <Link to="/products?tag=trendingNow" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Trending Now
-                  </Link>
-                  <Link to="/products?tag=newLaunch" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    New Launch
-                  </Link>
-                  <Link to="/products?tag=gifting" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Gifting
-                  </Link>
-                </div>
-              </div>
-
-              <div className="relative group">
-                <button className="flex items-center space-x-1 text-sm font-medium text-pink-500 hover:text-pink-600 whitespace-nowrap">
-                  <span>💖 BANGLE/KADA SIZES</span>
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <Link to="/size-guide" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Size Guide
-                  </Link>
-                  <Link to="/products?category=bangles&size=2.4" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Size 2.4
-                  </Link>
-                  <Link to="/products?category=bangles&size=2.6" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Size 2.6
-                  </Link>
-                  <Link to="/products?category=bangles&size=2.8" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Size 2.8
-                  </Link>
-                </div>
-              </div>
-
-              <Link to="/pre-orders" className="text-sm font-medium text-gray-700 hover:text-black whitespace-nowrap">
+              <Link to="/pre-orders" className="block py-3 text-base font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
                 PRE-ORDERS
               </Link>
-            </div>
-          </div>
-        </nav>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200">
-            <div className="px-4 py-2 space-y-2">
-              <Link to="/" className="block py-2 text-sm font-medium text-gray-700">HOME</Link>
-              <Link to="/category/necklaces" className="block py-2 text-sm font-medium text-gray-700">NECKLACES</Link>
-              <Link to="/category/earrings" className="block py-2 text-sm font-medium text-gray-700">EARRINGS</Link>
-              <Link to="/category/bangles" className="block py-2 text-sm font-medium text-gray-700">BANGLES</Link>
-              <Link to="/category/anklets" className="block py-2 text-sm font-medium text-gray-700">ANKLETS</Link>
-              <Link to="/category/rings" className="block py-2 text-sm font-medium text-gray-700">RINGS</Link>
-              <Link to="/pre-orders" className="block py-2 text-sm font-medium text-gray-700">PRE-ORDERS</Link>
+              
+              {/* Dynamic Categories in Mobile Menu */}
+              {dynamicCategories.map((category) => (
+                <button 
+                  key={category.id}
+                  onClick={() => { handleCategoryClick(category.name); setIsMenuOpen(false); }} 
+                  className="block w-full text-left py-3 text-base font-medium text-gray-700 border-b border-gray-100 uppercase"
+                >
+                  {category.name}
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -398,9 +327,9 @@ const CartSidebar: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-hidden lg:pr-0">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
-      <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-xl">
+      <div className="absolute right-0 top-0 h-full w-full max-w-sm md:max-w-md lg:max-w-lg bg-white shadow-xl">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold">MY BAG ({currentItems.length})</h2>
           <button onClick={onClose}>
@@ -408,7 +337,7 @@ const CartSidebar: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - 200px)' }}>
+        <div className="flex-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - 180px)' }}>
           {currentItems.length === 0 ? (
             <div className="text-center mt-8">
               <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -419,25 +348,27 @@ const CartSidebar: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               {currentItems.map((item) => (
                 <div key={item.id} className="flex items-center space-x-3 border-b pb-4">
                   <img
-                    src={item.product.images[0] || 'https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=800'}
+                    src={item.product.images[0]?.startsWith('http') 
+                      ? item.product.images[0] 
+                      : `/api/static/images/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                     alt={item.product.name}
-                    className="w-16 h-16 object-cover rounded"
+                    className="w-12 h-12 md:w-16 md:h-16 object-cover rounded"
                   />
                   <div className="flex-1">
-                    <h3 className="text-sm font-medium line-clamp-2">{item.product.name}</h3>
+                    <h3 className="text-xs md:text-sm font-medium line-clamp-2">{item.product.name}</h3>
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-sm font-semibold">₹{item.product.price.toLocaleString()}</span>
+                      <span className="text-xs md:text-sm font-semibold">₹{item.product.price.toLocaleString()}</span>
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="w-6 h-6 border rounded flex items-center justify-center text-sm"
+                          className="w-5 h-5 md:w-6 md:h-6 border rounded flex items-center justify-center text-xs md:text-sm"
                         >
                           -
                         </button>
-                        <span className="text-sm w-8 text-center">{item.quantity}</span>
+                        <span className="text-xs md:text-sm w-6 md:w-8 text-center">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="w-6 h-6 border rounded flex items-center justify-center text-sm"
+                          className="w-5 h-5 md:w-6 md:h-6 border rounded flex items-center justify-center text-xs md:text-sm"
                         >
                           +
                         </button>
@@ -467,7 +398,7 @@ const CartSidebar: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </p>
             <button
               onClick={handleCheckout}
-              className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800"
+              className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors"
             >
               PROCEED TO CHECKOUT
             </button>

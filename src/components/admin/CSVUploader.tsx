@@ -259,36 +259,10 @@ const CSVUploader: React.FC<CSVUploaderProps> = ({ onSuccess, onError }) => {
       <ProductDialog
         isOpen={addDialogOpen}
         onClose={() => setAddDialogOpen(false)}
-        onSave={async (formData) => {
+        onSave={async (productData) => {
           try {
-            await apiService.createProduct([{
-              name: formData.name,
-              slug: formData.slug,
-              category: formData.category,
-              description: formData.description,
-              price: formData.price,
-              comparePrice: formData.comparePrice,
-              images: formData.images,
-              preorderAvailable: formData.preorderAvailable,
-              inStock: formData.inStock,
-              specifications: formData.specifications,
-              rating: formData.rating,
-              reviews: formData.reviews,
-              featured: formData.featured,
-              tags: formData.tags,
-              noOfProducts: formData.noOfProducts,
-              variants: formData.variants,
-              visibility: formData.visibility,
-              sortOrder: formData.sortOrder,
-              viewCount: formData.viewCount,
-              salesCount: formData.salesCount,
-              stockAlert: formData.stockAlert,
-              dimensions: formData.dimensions,
-              seoKeywords: formData.seoKeywords,
-              relatedProducts: formData.relatedProducts,
-              metaTitle: formData.metaTitle,
-              metaDescription: formData.metaDescription,
-            }]);
+            // Pass single product object, not array for individual product creation
+            await apiService.createProduct([productData]); // Keep array for bulk operations
 
             onSuccess();
             setAddDialogOpen(false);

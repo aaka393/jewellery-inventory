@@ -27,7 +27,7 @@ export const API_ENDPOINTS = {
   
   // Category endpoints
   CATEGORIES: '/public/categories',
-  CREATE_CATEGORY: '/categories',
+  CREATE_CATEGORY: '/admin/categories',
   DELETE_CATEGORY: '/categories',
   UPDATE_CATEGORY_ORDER: '/admin/categories/order',
   

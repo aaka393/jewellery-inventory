@@ -66,7 +66,9 @@ const CartPage: React.FC = () => {
               {currentItems.map((item) => (
                 <div key={item.id} className="flex items-start space-x-4 pb-6 border-b border-gray-200">
                   <img
-                    src={item.product.images[0] || 'https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=800'}
+                    src={item.product.images[0]?.startsWith('http') 
+                      ? item.product.images[0] 
+                      : `/api/static/images/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                     alt={item.product.name}
                     className="w-24 h-24 object-cover rounded"
                   />

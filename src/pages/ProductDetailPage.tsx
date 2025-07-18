@@ -9,7 +9,7 @@ import { useAuthStore } from '../store/authStore';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { SITE_CONFIG } from '../constants/siteConfig';
+import { SITE_CONFIG, staticImageBaseUrl } from '../constants/siteConfig';
 import ProductReviews from '../components/reviews/ProductReviews';
 
 const ProductDetailPage: React.FC = () => {
@@ -153,8 +153,8 @@ const ProductDetailPage: React.FC = () => {
   }
 
   const productImages = product.images && product.images.length > 0 
-    ? product.images 
-    : ['https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=800'];
+    ? product.images.map(img => img.startsWith('http') ? img : staticImageBaseUrl + img)
+    : ['https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'];
 
   return (
     <>

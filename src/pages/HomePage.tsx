@@ -98,7 +98,7 @@ const HomePage: React.FC = () => {
               >
                 <div className="aspect-square bg-black">
                   <img
-                    src="https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    src="https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772"
                     alt="Silver Bangles - Handcrafted Pure Silver Jewelry"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -115,7 +115,7 @@ const HomePage: React.FC = () => {
               >
                 <div className="aspect-square bg-black">
                   <img
-                    src="https://images.pexels.com/photos/1447333/pexels-photo-1447333.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    src="https://www.macsjewelry.com/cdn/shop/files/IMG_4362_594x.progressive.jpg?v=1701478781"
                     alt="Silver Jhumkas - Traditional Indian Earrings"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -132,7 +132,7 @@ const HomePage: React.FC = () => {
               >
                 <div className="aspect-square bg-black">
                   <img
-                    src="https://images.pexels.com/photos/1191537/pexels-photo-1191537.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    src="https://www.macsjewelry.com/cdn/shop/files/IMG_4361_594x.progressive.jpg?v=1701478781"
                     alt="Silver Anklets - Elegant Foot Jewelry"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -149,7 +149,7 @@ const HomePage: React.FC = () => {
               >
                 <div className="aspect-square bg-black">
                   <img
-                    src="https://images.pexels.com/photos/1447333/pexels-photo-1447333.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    src="https://www.macsjewelry.com/cdn/shop/files/5F29B418-6DDF-402D-920C-FD2EFA58A8FE_594x.progressive.jpg?v=1709126331"
                     alt="Silver Necklaces - Statement Jewelry Pieces"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -198,7 +198,7 @@ const HomePage: React.FC = () => {
               {/* Left Banner */}
               <div className="relative overflow-hidden rounded-lg bg-black">
                 <img
-                  src="https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=800"
+                  src="https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772"
                   alt={`Silver Dholki Wax Necklaces by ${SITE_CONFIG.name}`}
                   className="w-full h-96 object-cover"
                 />
@@ -213,7 +213,7 @@ const HomePage: React.FC = () => {
               {/* Right Banner */}
               <div className="relative overflow-hidden rounded-lg">
                 <img
-                  src="https://images.pexels.com/photos/1447333/pexels-photo-1447333.jpeg?auto=compress&cs=tinysrgb&w=800"
+                  src="https://www.macsjewelry.com/cdn/shop/files/IMG_4362_594x.progressive.jpg?v=1701478781"
                   alt="Traditional Silver Jewelry Collection"
                   className="w-full h-96 object-cover"
                 />

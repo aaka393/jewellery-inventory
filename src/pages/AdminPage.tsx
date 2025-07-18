@@ -73,11 +73,13 @@ const AdminPage: React.FC = () => {
 
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
-    type: 'category' | 'tag';
-    item: Category | TagType | null;
+    type: 'category' | 'tag' | 'product' | 'bulk';
+    item: Category | TagType | Product | null;
+    productId?: string;
+    productName?: string;
   }>({
     isOpen: false,
-    type: 'category',
+    type: 'product',
     item: null
   });
 
@@ -139,20 +141,22 @@ const AdminPage: React.FC = () => {
   };
 
   const handleProductDialog = async (productData: Partial<Product>) => {
-    if (!productData.id) {
-      showNotification('Missing product ID', 'error');
-      return;
-    }
-
     setActionLoading(true);
     try {
-      await apiService.updateProduct(productData.id, productData);
+      if (productData.id) {
+        // Update existing product
+        await apiService.updateProduct(productData.id, productData);
+        showNotification('Product updated successfully!', 'success');
+      } else {
+        // Create new product - pass single object
+        await apiService.createProduct([productData]);
+        showNotification('Product created successfully!', 'success');
+      }
       await loadData();
       setEditDialog({ isOpen: false, product: null });
-      showNotification('Product updated successfully!', 'success');
     } catch (error) {
       console.error('Error updating product:', error);
-      showNotification('Error updating product', 'error');
+      showNotification(productData.id ? 'Error updating product' : 'Error creating product', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -267,6 +271,35 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  const handleDeleteAllProducts = async () => {
+    try {
+      setActionLoading(true);
+      await apiService.deleteProducts();
+      await loadData();
+      showNotification('All products deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting all products:', error);
+      showNotification('Error deleting all products', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteSingleProduct = async (productId: string) => {
+    try {
+      setActionLoading(true);
+      await apiService.deleteProductById(productId);
+      await loadData();
+      setDeleteDialog({ isOpen: false, type: 'product', item: null });
+      showNotification('Product deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      showNotification('Error deleting product', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleBulkTagUpdate = async (tagName: string, productIds: string[]) => {
     try {
       setActionLoading(true);
@@ -316,34 +349,37 @@ const AdminPage: React.FC = () => {
       />
       
       <div className="min-h-screen bg-gray-50">
-        <div className="flex">
+        <div className="flex flex-col lg:flex-row">
           {/* Sidebar */}
-          <div className="w-64 bg-white shadow-sm min-h-screen">
-            <div className="p-6">
+          <div className="w-full lg:w-64 bg-white shadow-sm lg:min-h-screen">
+            <div className="p-4 lg:p-6">
               <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
               <p className="text-sm text-gray-600">{SITE_CONFIG.name}</p>
             </div>
             
-            <nav className="mt-6">
+            <nav className="mt-4 lg:mt-6">
+              {/* Mobile: Horizontal scroll, Desktop: Vertical */}
+              <div className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-50 ${
+                  className={`flex-shrink-0 lg:w-full flex items-center px-4 lg:px-6 py-2 lg:py-3 text-left hover:bg-gray-50 whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'bg-purple-50 text-purple-600 border-r-2 border-purple-600'
                       : 'text-gray-700'
                   }`}
                 >
-                  <tab.icon className="h-5 w-5 mr-3" />
-                  <span>{tab.label}</span>
+                  <tab.icon className="h-4 w-4 lg:h-5 lg:w-5 mr-2 lg:mr-3" />
+                  <span className="text-sm lg:text-base">{tab.label}</span>
                 </button>
               ))}
+              </div>
             </nav>
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 lg:p-8">
             {activeTab === 'dashboard' && <AdminDashboard />}
             
             {activeTab === 'analytics' && <AnalyticsDashboard />}
@@ -352,7 +388,23 @@ const AdminPage: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-800">Products ({products.length})</h2>
-                  <div className="flex space-x-4">
+                  <div className="flex flex-wrap gap-2 md:gap-4">
+                    <button
+                      onClick={() => setEditDialog({ isOpen: true, product: null })}
+                      className="bg-green-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-green-700 text-sm md:text-base"
+                    >
+                      Add Product
+                    </button>
+                    <button
+                      onClick={() => setDeleteDialog({ 
+                        isOpen: true, 
+                        type: 'bulk', 
+                        item: null 
+                      })}
+                      className="bg-red-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-red-700 text-sm md:text-base"
+                    >
+                      Delete All Products
+                    </button>
                     <select
                       onChange={(e) => {
                         if (e.target.value) {
@@ -360,7 +412,7 @@ const AdminPage: React.FC = () => {
                           handleBulkTagUpdate(e.target.value, selectedProducts);
                         }
                       }}
-                      className="px-4 py-2 border border-gray-300 rounded-lg"
+                      className="px-3 py-2 md:px-4 md:py-2 border border-gray-300 rounded-lg text-sm md:text-base"
                     >
                       <option value="">Bulk Tag Featured Products</option>
                       <option value="mostLoved">Most Loved</option>
@@ -378,22 +430,22 @@ const AdminPage: React.FC = () => {
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-2 sm:px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Product
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="hidden sm:table-cell px-2 sm:px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Category
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-2 sm:px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Price
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="hidden md:table-cell px-2 sm:px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Stock
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="hidden lg:table-cell px-2 sm:px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Tags
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-2 sm:px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
@@ -401,30 +453,35 @@ const AdminPage: React.FC = () => {
                       <tbody className="bg-white divide-y divide-gray-200">
                         {products.map((product) => (
                           <tr key={product.id}>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            <td className="px-2 sm:px-3 md:px-6 py-4">
                               <div className="flex items-center">
                                 <img
-                                  src={product.images?.[0] || 'https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=800'}
+                                  src={product.images?.[0]?.startsWith('http') 
+                                    ? product.images[0] 
+                                    : `/api/static/images/${product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                                   alt={product.name}
-                                  className="h-10 w-10 rounded-full object-cover"
+                                  className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 rounded-full object-cover flex-shrink-0"
                                 />
-                                <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">
+                                <div className="ml-1 sm:ml-2 md:ml-4 min-w-0 flex-1">
+                                  <div className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">
                                     {product.name}
                                   </div>
-                                  <div className="text-sm text-gray-500">
+                                  <div className="text-xs text-gray-500 truncate sm:hidden max-w-[120px]">
+                                    {product.category}
+                                  </div>
+                                  <div className="hidden sm:block text-xs text-gray-500 truncate max-w-[150px] md:max-w-none">
                                     {product.slug}
                                   </div>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td className="hidden sm:table-cell px-2 sm:px-3 md:px-6 py-4 whitespace-nowrap text-xs text-gray-900">
                               {product.category}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td className="px-2 sm:px-3 md:px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900">
                               {SITE_CONFIG.currencySymbol}{(product.price || 0).toLocaleString()}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            <td className="hidden md:table-cell px-2 sm:px-3 md:px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                 product.inStock
                                   ? 'bg-green-100 text-green-800'
@@ -436,7 +493,7 @@ const AdminPage: React.FC = () => {
                                 Qty: {product.noOfProducts || 0}
                               </div>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="hidden lg:table-cell px-2 sm:px-3 md:px-6 py-4">
                               <div className="flex flex-wrap gap-1">
                                 {(product.tags || []).slice(0, 3).map((tag, index) => (
                                   <span
@@ -453,13 +510,27 @@ const AdminPage: React.FC = () => {
                                 )}
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button 
-                                onClick={() => setEditDialog({ isOpen: true, product })}
-                                className="text-purple-600 hover:text-purple-900 mr-3"
-                              >
-                                Edit
-                              </button>
+                            <td className="px-2 sm:px-3 md:px-6 py-4 whitespace-nowrap text-xs font-medium">
+                              <div className="flex flex-col gap-1">
+                                <button 
+                                  onClick={() => setEditDialog({ isOpen: true, product })}
+                                  className="text-purple-600 hover:text-purple-900 text-left text-xs"
+                                >
+                                  Edit
+                                </button>
+                                <button 
+                                  onClick={() => setDeleteDialog({ 
+                                    isOpen: true, 
+                                    type: 'product', 
+                                    item: product,
+                                    productId: product.id,
+                                    productName: product.name
+                                  })}
+                                  className="text-red-600 hover:text-red-900 text-left text-xs"
+                                >
+                                  Delete
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -791,14 +862,27 @@ const AdminPage: React.FC = () => {
         {/* Delete Confirmation Dialog */}
         <ConfirmDialog
           isOpen={deleteDialog.isOpen}
-          onClose={() => setDeleteDialog({ isOpen: false, type: 'category', item: null })}
+          onClose={() => setDeleteDialog({ isOpen: false, type: 'product', item: null })}
           onConfirm={() => {
             if (deleteDialog.type === 'category' && deleteDialog.item) {
               handleDeleteCategory(deleteDialog.item.id!);
+            } else if (deleteDialog.type === 'product' && deleteDialog.productId) {
+              handleDeleteSingleProduct(deleteDialog.productId);
+            } else if (deleteDialog.type === 'bulk' && deleteDialog.item === null) {
+              handleDeleteAllProducts();
             }
           }}
-          title={`Delete ${deleteDialog.type === 'category' ? 'Category' : 'Tag'}`}
-          message={`Are you sure you want to delete "${deleteDialog.item?.name}"? This action cannot be undone.`}
+          title={
+            deleteDialog.type === 'bulk' ? 'Delete All Products' : 
+            deleteDialog.type === 'product' ? 'Delete Product' :
+            `Delete ${deleteDialog.type === 'category' ? 'Category' : 'Tag'}`
+          }
+          message={deleteDialog.type === 'bulk' 
+            ? 'Are you sure you want to delete ALL products? This action cannot be undone and will remove all product data permanently.'
+            : deleteDialog.type === 'product'
+            ? `Are you sure you want to delete "${deleteDialog.productName}"? This action cannot be undone.`
+            : `Are you sure you want to delete "${deleteDialog.item?.name}"? This action cannot be undone.`
+          }
           confirmText="Delete"
           type="danger"
           loading={actionLoading}

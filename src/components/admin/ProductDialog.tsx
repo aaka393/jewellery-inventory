@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Product, Specifications } from '../../types';
 import Dialog from '../common/Dialog';
-import { productService } from '../../services';
+import { productService, tagService } from '../../services';
+import { Tag } from '../../types';
 
 interface ProductDialogProps {
     isOpen: boolean;
@@ -25,33 +26,34 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     loading = false,
     mode = 'edit',
 }) => {
+    const [availableTags, setAvailableTags] = useState<Tag[]>([]);
     const [formData, setFormData] = useState<Partial<Product>>({
         name: '',
         category: '',
         description: '',
-        price: undefined,
+        price: 0,
         images: [],
         tags: [],
         inStock: true,
         featured: false,
-        noOfProducts: undefined,
+        noOfProducts: 0,
         specifications: {},
         slug: '',
-        comparePrice: undefined,
+        comparePrice: 0,
         preorderAvailable: false,
-        rating: undefined,
-        reviews: undefined,
+        rating: 0,
+        reviews: 0,
         variants: {},
         visibility: true,
-        sortOrder: undefined,
-        viewCount: undefined,
-        salesCount: undefined,
-        stockAlert: undefined,
+        sortOrder: 0,
+        viewCount: 0,
+        salesCount: 0,
+        stockAlert: 0,
         dimensions: {
-            length: undefined,
-            width: undefined,
-            height: undefined,
-            weight: undefined,
+            length: 0,
+            width: 0,
+            height: 0,
+            weight: 0,
         },
         seoKeywords: [],
         relatedProducts: [],
@@ -64,6 +66,28 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     const [tagInput, setTagInput] = useState('');
     const [specKey, setSpecKey] = useState('');
     const [specValue, setSpecValue] = useState('');
+
+    // Load available tags when dialog opens
+    useEffect(() => {
+        if (isOpen && mode === 'add') {
+            loadAvailableTags();
+        }
+    }, [isOpen, mode]);
+
+    const loadAvailableTags = async () => {
+        try {
+            const response = await tagService.getTags();
+            setAvailableTags(response.result || []);
+            // Auto-fill tags for new products
+            if (mode === 'add' && response.result && response.result.length > 0) {
+                const tagNames = response.result.map((tag: Tag) => tag.name);
+                setFormData(prev => ({ ...prev, tags: tagNames }));
+                setTagInput(tagNames.join(', '));
+            }
+        } catch (error) {
+            console.error('Error loading tags:', error);
+        }
+    };
 
     useEffect(() => {
         if (product) {
@@ -185,7 +209,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave(formData);
+        // For create operations, pass single object, not array
+        if (mode === 'add') {
+            onSave(formData);
+        } else {
+            onSave(formData);
+        }
     };
 
     return (
@@ -199,7 +228,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         <input
                             type="text"
                             name="name"
-                            placeholder='Enter Product Name'
+                            placeholder="Enter Product Name"
                             value={formData.name}
                             onChange={handleInputChange}
                             required
@@ -232,9 +261,9 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         <input
                             type="number"
                             name="price"
-                            value={formData.price}
+                            value={formData.price || ''}
                             onChange={handleInputChange}
-                            placeholder='Enter price'
+                            placeholder="Enter price"
                             min="0"
                             step="0.01"
                             required
@@ -249,8 +278,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         <input
                             type="number"
                             name="noOfProducts"
-                            placeholder='Available stock quantity'
-                            value={formData.noOfProducts}
+                            placeholder="Available stock quantity"
+                            value={formData.noOfProducts || ''}
                             onChange={handleInputChange}
                             min="0"
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -402,8 +431,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         <input
                             type="number"
                             name="comparePrice"
-                            placeholder='Enter compare price'
-                            value={formData.comparePrice}
+                            placeholder="Enter compare price"
+                            value={formData.comparePrice || ''}
                             onChange={handleInputChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
@@ -416,8 +445,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         <input
                             type="number"
                             name="stockAlert"
-                            placeholder='Enter stock alert quantity'
-                            value={formData.stockAlert}
+                            placeholder="Enter stock alert quantity"
+                            value={formData.stockAlert || ''}
                             onChange={handleInputChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
@@ -427,8 +456,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         <input
                             type="number"
                             name="sortOrder"
-                            placeholder='Display order (e.g. 1, 2, 3)'
-                            value={formData.sortOrder}
+                            placeholder="Display order (e.g. 1, 2, 3)"
+                            value={formData.sortOrder || ''}
                             onChange={handleInputChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
@@ -455,7 +484,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                                     type="number"
                                     name={field}
                                     placeholder={field}
-                                    value={(formData.dimensions as any)?.[field] || 0}
+                                    value={(formData.dimensions as any)?.[field] || ''}
                                     onChange={(e) =>
                                         setFormData(prev => ({
                                             ...prev,

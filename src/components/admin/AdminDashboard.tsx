@@ -282,7 +282,9 @@ const AdminDashboard: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <img
-                        src={product.images?.[0] || 'https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=800'}
+                        src={product.images?.[0]?.startsWith('http') 
+                          ? product.images[0] 
+                          : `/api/static/images/${product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                         alt={product.name}
                         className="h-10 w-10 rounded-full object-cover"
                       />

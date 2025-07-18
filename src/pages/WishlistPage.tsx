@@ -51,7 +51,9 @@ const WishlistPage: React.FC = () => {
               <div className="relative">
                 <Link to={`/product/${item.product.slug || item.product.id}`}>
                   <img
-                    src={item.product.images[0] || 'https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=800'}
+                    src={item.product.images[0]?.startsWith('http') 
+                      ? item.product.images[0] 
+                      : `/api/static/images/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                     alt={item.product.name}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                   />

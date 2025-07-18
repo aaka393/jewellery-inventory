@@ -238,6 +238,7 @@ export interface ProductImport {
   seoKeywords?: string[];
   metaTitle?: string;
   metaDescription?: string;
+  id?: string; // Allow id for update operations
 }
 
 export interface AnalyticsEvent {

@@ -46,7 +46,9 @@ class ProductService extends BaseService {
   }
 
   async createProduct(products: ProductImport[]): Promise<ApiResponse<void>> {
-    return this.post<void>('/admin/product/create', products, true);
+    // Handle both single product and array of products
+    const payload = Array.isArray(products) ? products : [products];
+    return this.post<void>('/admin/product/create', payload, true);
   }
 
   async uploadProductImage(file: File): Promise<ApiResponse<{ url: string }>> {

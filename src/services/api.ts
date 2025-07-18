@@ -108,7 +108,13 @@ class ApiService {
   }
 
   async createProduct(products: ProductImport[]): Promise<void> {
-    await productService.createProduct(products);
+    // Handle both single product and bulk product creation
+    if (Array.isArray(products)) {
+      await productService.createProduct(products);
+    } else {
+      // For single product, wrap in array
+      await productService.createProduct([products as ProductImport]);
+    }
   }
 
   async uploadProductImage(file: File): Promise<{ url: string }> {
