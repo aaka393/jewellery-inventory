@@ -151,7 +151,7 @@ const Header: React.FC = () => {
             {/* Center - Logo for homepage, Site name for others */}
             {isHomePage ? (
               <Link to="/" className="absolute left-1/2 transform -translate-x-1/2">
-                <div className="w-16 h-16 mt-4">
+                <div className="w-12 h-12 mt-4">
                   <img 
                     src={Taanira} 
                     alt="Logo" 
