@@ -1,0 +1,171 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { CartItem, Product } from '../types';
+import { useAuthStore } from './authStore';
+import { userService } from '../services/userService';
+
+interface CartState {
+  items: CartItem[];
+  guestItems: CartItem[];
+  addItem: (product: Product, quantity: number) => void;
+  removeItem: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+  mergeGuestCart: () => void;
+  getTotalPrice: () => number;
+  getItemCount: () => number;
+  syncWithServer: () => Promise<void>;
+}
+
+export const useCartStore = create<CartState>()(
+  persist(
+    (set, get) => ({
+      items: [],
+      guestItems: [],
+      addItem: (product, quantity) => {
+        const { isAuthenticated } = useAuthStore.getState();
+        const state = get();
+        const targetItems = isAuthenticated ? state.items : state.guestItems;
+        const existingItem = targetItems.find(item => item.productId === product.id);
+        
+        if (existingItem) {
+          const updatedItems = targetItems.map(item =>
+              item.productId === product.id
+                ? { ...item, quantity: item.quantity + quantity }
+                : item
+            );
+          
+          if (isAuthenticated) {
+            set({ items: updatedItems });
+            // userService.updateCartItem(product.id, existingItem.quantity + quantity).catch(console.error);
+          } else {
+            set({ guestItems: updatedItems });
+          }
+        } else {
+          const newItem = {
+              id: `${product.id}-${Date.now()}`,
+              productId: product.id,
+              quantity,
+              product,
+            };
+          
+          if (isAuthenticated) {
+            set({ items: [...state.items, newItem] });
+            // userService.addToCart(product.id, quantity).catch(console.error);
+          } else {
+            set({ guestItems: [...state.guestItems, newItem] });
+          }
+        }
+      },
+      removeItem: (productId) => {
+        const { isAuthenticated } = useAuthStore.getState();
+        
+        if (isAuthenticated) {
+          set({
+            items: get().items.filter(item => item.productId !== productId),
+          });
+          // userService.removeFromCart(productId).catch(console.error);
+        } else {
+          set({
+            guestItems: get().guestItems.filter(item => item.productId !== productId),
+          });
+        }
+      },
+      updateQuantity: (productId, quantity) => {
+        if (quantity <= 0) {
+          get().removeItem(productId);
+          return;
+        }
+        
+        const { isAuthenticated } = useAuthStore.getState();
+        
+        if (isAuthenticated) {
+          set({
+            items: get().items.map(item =>
+              item.productId === productId
+                ? { ...item, quantity }
+                : item
+            ),
+          });
+          // userService.updateCartItem(productId, quantity).catch(console.error);
+        } else {
+          set({
+            guestItems: get().guestItems.map(item =>
+              item.productId === productId
+                ? { ...item, quantity }
+                : item
+            ),
+          });
+        }
+      },
+      clearCart: () => {
+        const { isAuthenticated } = useAuthStore.getState();
+        
+        if (isAuthenticated) {
+          set({ items: [] });
+        } else {
+          set({ guestItems: [] });
+        }
+      },
+      mergeGuestCart: () => {
+        const { guestItems, items } = get();
+        
+        if (guestItems.length === 0) return;
+        
+        // Sync with server
+        // userService.mergeCart(guestItems).catch(console.error);
+        
+        const mergedItems = [...items];
+        
+        guestItems.forEach(guestItem => {
+          const existingItem = mergedItems.find(item => item.productId === guestItem.productId);
+          
+          if (existingItem) {
+            existingItem.quantity += guestItem.quantity;
+          } else {
+            mergedItems.push({
+              ...guestItem,
+              id: `${guestItem.productId}-${Date.now()}`,
+            });
+          }
+        });
+        
+        set({
+          items: mergedItems,
+          guestItems: [],
+        });
+      },
+      getTotalPrice: () => {
+        const { isAuthenticated } = useAuthStore.getState();
+        const targetItems = isAuthenticated ? get().items : get().guestItems;
+        
+        return (targetItems || []).reduce((total, item) => {
+          const price = item?.product?.price || 0;
+          const quantity = item?.quantity || 0;
+          return total + (price * quantity);
+        }, 0);
+      },
+      getItemCount: () => {
+        const { isAuthenticated } = useAuthStore.getState();
+        const targetItems = isAuthenticated ? get().items : get().guestItems;
+        
+        return (targetItems || []).reduce((count, item) => count + (item?.quantity || 0), 0);
+      },
+      syncWithServer: async () => {
+        const { isAuthenticated } = useAuthStore.getState();
+        if (!isAuthenticated) return;
+        
+        try {
+          // const serverCart = await userService.getUserCart();
+          // Update local cart with server data
+          // set({ items: serverCart.result || [] });
+        } catch (error) {
+          console.error('Failed to sync cart with server:', error);
+        }
+      },
+    }),
+    {
+      name: 'cart-storage',
+    }
+  )
+);
