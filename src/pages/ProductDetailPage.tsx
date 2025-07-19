@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Share2, ChevronLeft, ChevronRight, Truck, Shield, RefreshCw, Minus, Plus, Facebook, Twitter, ZoomIn as Zoom, Maximize } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { Heart, ChevronLeft, ChevronRight, Truck, Shield, RefreshCw, Minus, Plus, Facebook, Twitter, ZoomIn as Zoom, Maximize } from 'lucide-react';
 import { Product } from '../types';
 import { apiService } from '../services/api';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
-import { useAuthStore } from '../store/authStore';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
 import { useAnalytics } from '../hooks/useAnalytics';
@@ -13,20 +12,14 @@ import { SITE_CONFIG, staticImageBaseUrl } from '../constants/siteConfig';
 
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [selectedVariant, setSelectedVariant] = useState<{
-    metal?: string;
-    size?: string;
-    stone?: string;
-  }>({});
+
 
   const { addItem } = useCartStore();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
-  const { isAuthenticated } = useAuthStore();
   const { trackProductView, trackAddToCart, trackAddToWishlist } = useAnalytics();
 
   useEffect(() => {
@@ -42,31 +35,22 @@ const ProductDetailPage: React.FC = () => {
   }, [product, trackProductView]);
 
   const loadProduct = async () => {
-    try {
-      const productData = await apiService.getProductBySlug(slug!);
-      setProduct(productData);
-      // Set default variants
-      if (productData?.variants) {
-        setSelectedVariant({
-          metal: productData.variants.metal,
-          size: productData.variants.size,
-          stone: productData.variants.stone
-        });
-      }
-    } catch (error) {
-      console.error('Error loading product:', error);
-      setProduct(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const productData = await apiService.getProductBySlug(slug!);
+    setProduct(productData);
+  } catch (error) {
+    console.error('Error loading product:', error);
+    setProduct(null);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleAddToCart = () => {
     if (product) {
       addItem(product, quantity);
       trackAddToCart(product.id);
-      
-      // Show success message
       alert(`Added ${quantity} ${product.name} to cart!`);
     }
   };
@@ -144,7 +128,7 @@ const ProductDetailPage: React.FC = () => {
   }
 
   const productImages = product.images && product.images.length > 0 
-    ? product.images.map(img => img.startsWith('http') ? img : `/api/static/image/${img}`)
+    ? product.images.map(img => img.startsWith('http') ? img : `${staticImageBaseUrl}/${img}`)
     : ['https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'];
 
   return (
@@ -152,14 +136,14 @@ const ProductDetailPage: React.FC = () => {
       <SEOHead
         title={`${product.name} - JI Jewelry`}
         description={product.description || `Buy ${product.name} - Handcrafted pure silver jewelry from JI. Free shipping within India.`}
-        keywords={`${product.name}, ${product.category}, silver jewelry, ${(product.tags || []).join(', ')}, JI jewelry`}
+        keywords={`${product.name}, ${product.category}, silver jewelry, JI jewelry`}
         image={productImages[0]}
         type="product"
         productData={{
           name: product.name,
           price: product.price,
           currency: 'INR',
-          availability: product.inStock ? 'InStock' : 'OutOfStock',
+          availability: product.stock ? 'InStock' : 'OutOfStock',
           brand: 'JI',
           category: product.category
         }}

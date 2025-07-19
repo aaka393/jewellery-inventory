@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, X } from 'lucide-react';
+import { Plus, Minus, ShoppingBag, X } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
 import PaymentHandler from '../components/payment/PaymentHandler';
+import { staticImageBaseUrl } from '../constants/siteConfig';
 
 const CartPage: React.FC = () => {
-  const { items, guestItems, removeItem, updateQuantity, getTotalPrice, clearCart } = useCartStore();
+  const { items, guestItems, removeItem, updateQuantity, getTotalPrice } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -75,7 +76,7 @@ const CartPage: React.FC = () => {
                   <img
                     src={item.product.images[0]?.startsWith('http') 
                       ? item.product.images[0] 
-                      : `/api/static/images/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
+                      : `${staticImageBaseUrl}/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                     alt={item.product.name}
                     className="w-24 h-24 object-cover rounded"
                   />

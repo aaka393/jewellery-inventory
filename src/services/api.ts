@@ -268,9 +268,6 @@ class ApiService {
     await adminService.updateUserRole(userId, role);
   }
 
-  async bulkUpdateProductTags(updates: { productId: string; tags: string[] }[]) {
-    await adminService.bulkUpdateProductTags(updates);
-  }
 }
 
 export const apiService = new ApiService();

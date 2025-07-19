@@ -16,7 +16,6 @@ const CategoryDialog: React.FC<CategoryDialogProps> = ({
   onClose,
   onSave,
   category,
-  categories,
   loading = false
 }) => {
   const [formData, setFormData] = useState<Omit<Category, 'id'>>({
@@ -49,14 +48,6 @@ const CategoryDialog: React.FC<CategoryDialogProps> = ({
     }));
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked
-    }));
-  };
-
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
@@ -75,7 +66,7 @@ const CategoryDialog: React.FC<CategoryDialogProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.name.trim()) {
       alert('Category name is required');
@@ -85,23 +76,19 @@ const CategoryDialog: React.FC<CategoryDialogProps> = ({
     onSave(formData);
   };
 
-  // Filter out current category from parent options to prevent circular reference
-  const availableParentCategories = categories.filter(cat => 
-    cat.id !== category?.id
-  );
 
   return (
-    <Dialog 
-      isOpen={isOpen} 
-      onClose={onClose} 
-      title={category ? 'Edit Category' : 'Create Category'} 
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={category ? 'Edit Category' : 'Create Category'}
       maxWidth="2xl"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Basic Information */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
               Category Name *
             </label>
             <input
@@ -110,13 +97,13 @@ const CategoryDialog: React.FC<CategoryDialogProps> = ({
               value={formData.name}
               onChange={handleNameChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
               placeholder="Enter category name"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
               Slug
             </label>
             <input
@@ -124,25 +111,25 @@ const CategoryDialog: React.FC<CategoryDialogProps> = ({
               name="slug"
               value={formData.slug}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
               placeholder="category-slug"
             />
-            <p className="text-xs text-gray-500 mt-1">URL-friendly version of the name</p>
+            <p className="text-xs text-[#D4B896] mt-1">URL-friendly version of the name</p>
           </div>
 
           <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Category Image URL
-          </label>
-          <input
-            type="url"
-            name="image"
-            value={formData.image}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            placeholder="https://example.com/image.jpg"
-          />
-        </div>
+            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+              Category Image URL
+            </label>
+            <input
+              type="url"
+              name="image"
+              value={formData.image}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
         </div>
 
         {/* Action Buttons */}
@@ -151,20 +138,21 @@ const CategoryDialog: React.FC<CategoryDialogProps> = ({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-2 text-[#5f3c2c] bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-2 bg-[#D4B896] text-white rounded-lg hover:bg-[#B79B7D] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Saving...' : (category ? 'Update Category' : 'Create Category')}
           </button>
         </div>
       </form>
     </Dialog>
+
   );
 };
 

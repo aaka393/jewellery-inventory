@@ -1,5 +1,5 @@
 // Site configuration - centralized settings
-export const staticImageBaseUrl = '/api/static/image/';
+export const staticImageBaseUrl = '/api/static/images/';
 
 export const SITE_CONFIG = {
   name: process.env.VITE_SITE_NAME || 'JI Jewelry',
