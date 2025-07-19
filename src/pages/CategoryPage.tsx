@@ -4,16 +4,13 @@ import { useCategoryStore } from '../store/categoryStore';
 import { Product } from '../types';
 import { apiService } from '../services/api';
 import ProductCard from '../components/common/ProductCard';
-import FilterSidebar from '../components/filters/FilterSidebar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { Filter, Grid, List } from 'lucide-react';
+import {  Grid, List } from 'lucide-react';
 
 const CategoryPage: React.FC = () => {
   const { category } = useParams<{ category: string }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({});
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
   const { setSelectedCategory } = useCategoryStore();
@@ -24,7 +21,7 @@ const CategoryPage: React.FC = () => {
       setSelectedCategory(categoryName);
       loadProducts();
     }
-  }, [category, filters]);
+  }, [category]);
 
   const loadProducts = async () => {
     try {
@@ -32,7 +29,6 @@ const CategoryPage: React.FC = () => {
       const categoryName = category?.replace(/-/g, ' ') || '';
       const productsRes = await apiService.filterProducts({ 
         category: categoryName, 
-        ...filters 
       });
       setProducts(sortProducts(productsRes, sortBy));
     } catch (error) {
@@ -110,25 +106,12 @@ const CategoryPage: React.FC = () => {
               </button>
             </div>
             
-            {/* Filter button (mobile) */}
-            <button
-              onClick={() => setIsFilterOpen(true)}
-              className="lg:hidden bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
-            >
-              <Filter className="h-4 w-4" />
-              <span>Filters</span>
-            </button>
           </div>
         </div>
 
         <div className="flex gap-8">
-          {/* Filter Sidebar */}
-          <FilterSidebar
-            filters={filters}
-            onFiltersChange={setFilters}
-            isOpen={isFilterOpen}
-            onClose={() => setIsFilterOpen(false)}
-          />
+
+        
 
           {/* Products Grid */}
           <div className="flex-1">
