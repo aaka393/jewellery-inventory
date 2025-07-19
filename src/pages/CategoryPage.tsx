@@ -48,8 +48,6 @@ const CategoryPage: React.FC = () => {
         return [...products].sort((a, b) => a.price - b.price);
       case 'price-high':
         return [...products].sort((a, b) => b.price - a.price);
-      case 'rating':
-        return [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0));
       case 'newest':
         return [...products].sort((a, b) => new Date(b.id).getTime() - new Date(a.id).getTime());
       default:

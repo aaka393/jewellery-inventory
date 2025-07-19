@@ -25,11 +25,11 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+
 
     if (!formData.username.trim() || !formData.password.trim()) {
       setError('Please fill in all fields');
-      setLoading(false);
+
       return;
     }
 
@@ -52,7 +52,7 @@ const LoginPage: React.FC = () => {
       console.error('Login error:', error);
       setError('Login failed. Please try again.');
     } finally {
-      setLoading(false);
+
     }
   };
 

@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  TrendingUp, 
-  Tag, 
+import {
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  Tag,
   Star,
   Eye,
-  EyeOff,
   Edit,
   Trash2,
-  Check,
-  X
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { apiService } from '../../services/api';
@@ -61,7 +57,7 @@ const AdminDashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Load stats and recent products
       const [productsRes, ordersRes, allProducts] = await Promise.all([
         adminService.getProductStats(),
@@ -90,7 +86,7 @@ const AdminDashboard: React.FC = () => {
 
       // Get recent products (last 10)
       setRecentProducts((allProducts || []).slice(0, 10));
-      
+
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -110,8 +106,8 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleSelectProduct = (productId: string) => {
-    setSelectedProducts(prev => 
-      prev.includes(productId) 
+    setSelectedProducts(prev =>
+      prev.includes(productId)
         ? prev.filter(id => id !== productId)
         : [...prev, productId]
     );
@@ -168,12 +164,12 @@ const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Package className="h-6 w-6 text-blue-600" />
+            <div className="p-2 bg-[#D4B896] rounded-lg">
+              <Package className="h-6 w-6 text-[#5f3c2c]" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Products</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.products.total || 0}</p>
+              <p className="text-sm font-medium text-[#5f3c2c]">Total Products</p>
+              <p className="text-2xl font-bold text-[#5f3c2c]">{stats?.products.total || 0}</p>
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
@@ -184,12 +180,12 @@ const AdminDashboard: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <ShoppingCart className="h-6 w-6 text-green-600" />
+            <div className="p-2 bg-[#D4B896] rounded-lg">
+              <ShoppingCart className="h-6 w-6 text-[#5f3c2c]" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.orders.total || 0}</p>
+              <p className="text-sm font-medium text-[#5f3c2c]">Total Orders</p>
+              <p className="text-2xl font-bold text-[#5f3c2c]">{stats?.orders.total || 0}</p>
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
@@ -200,12 +196,12 @@ const AdminDashboard: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+            <div className="p-2 bg-[#D4B896] rounded-lg">
+              <TrendingUp className="h-6 w-6 text-[#5f3c2c]" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">₹{(stats?.orders.revenue || 0).toLocaleString()}</p>
+              <p className="text-sm font-medium text-[#5f3c2c]">Revenue</p>
+              <p className="text-2xl font-bold text-[#5f3c2c]">₹{(stats?.orders.revenue || 0).toLocaleString()}</p>
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-500">
@@ -215,12 +211,12 @@ const AdminDashboard: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Star className="h-6 w-6 text-yellow-600" />
+            <div className="p-2 bg-[#D4B896] rounded-lg">
+              <Star className="h-6 w-6 text-[#5f3c2c]" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Featured Products</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.products.featured || 0}</p>
+              <p className="text-sm font-medium text-[#5f3c2c]">Featured Products</p>
+              <p className="text-2xl font-bold text-[#5f3c2c]">{stats?.products.featured || 0}</p>
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-500">
@@ -232,7 +228,7 @@ const AdminDashboard: React.FC = () => {
       {/* Recent Products */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-800">Recent Products</h2>
+          <h2 className="text-lg font-semibold text-[#5f3c2c]">Recent Products</h2>
           {selectedProducts.length > 0 && (
             <button
               onClick={() => setDeleteDialog({ isOpen: true, type: 'bulk' })}
@@ -246,104 +242,91 @@ const AdminDashboard: React.FC = () => {
         </div>
         <div className="overflow-x-auto -mx-4 sm:mx-0">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#F8F5F1]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   <input
                     type="checkbox"
                     checked={selectedProducts.length === recentProducts.length && recentProducts.length > 0}
                     onChange={handleSelectAll}
-                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    className="rounded border-gray-300 text-[#5f3c2c] focus:ring-[#D4B896]"
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Price
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Stock
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {recentProducts.map((product) => (
-                <tr key={product.id} className={selectedProducts.includes(product.id) ? 'bg-purple-50' : ''}>
+                <tr key={product.id} className={selectedProducts.includes(product.id) ? 'bg-[#F4E1D2]' : ''}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input
                       type="checkbox"
                       checked={selectedProducts.includes(product.id)}
                       onChange={() => handleSelectProduct(product.id)}
-                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      className="rounded border-gray-300 text-[#5f3c2c] focus:ring-[#D4B896]"
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <img
-                        src={product.images?.[0]?.startsWith('http') 
-                          ? product.images[0] 
+                        src={product.images?.[0]?.startsWith('http')
+                          ? product.images[0]
                           : `${product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                         alt={product.name}
                         className="h-10 w-10 rounded-full object-cover"
                       />
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-[#5f3c2c]">
                           {product.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {(product.tags || []).slice(0, 2).join(', ')}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#5f3c2c]">
                     {product.category}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#5f3c2c]">
                     ₹{(product.price || 0).toLocaleString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {product.noOfProducts || 0}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      product.inStock
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {product.inStock ? 'In Stock' : 'Out of Stock'}
-                    </span>
-                  </td>
+              
+                 
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
                         onClick={() => toggleProductVisibility(product.id, true)}
-                        className="text-gray-600 hover:text-gray-900"
+                        className="text-[#5f3c2c] hover:text-[#5f3c2c]"
                         title="Toggle visibility"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button className="text-purple-600 hover:text-purple-900" title="Edit">
+                      <button className="text-[#5f3c2c] hover:text-[#5f3c2c]" title="Edit">
                         <Edit className="h-4 w-4" />
                       </button>
-                      <button 
-                        onClick={() => setDeleteDialog({ 
-                          isOpen: true, 
-                          type: 'single', 
+                      <button
+                        onClick={() => setDeleteDialog({
+                          isOpen: true,
+                          type: 'single',
                           productId: product.id,
-                          productName: product.name 
+                          productName: product.name
                         })}
-                        className="text-red-600 hover:text-red-900" 
+                        className="text-red-600 hover:text-red-900"
                         title="Delete"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -361,17 +344,17 @@ const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center mb-4">
-            <Tag className="h-5 w-5 text-purple-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-800">Quick Tag Actions</h3>
+            <Tag className="h-5 w-5 text-[#5f3c2c] mr-2" />
+            <h3 className="text-lg font-semibold text-[#5f3c2c]">Quick Tag Actions</h3>
           </div>
           <div className="space-y-2">
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+            <button className="w-full text-left px-3 py-2 text-sm text-[#5f3c2c] hover:bg-[#F8E5D6] rounded">
               Mark products as "Most Loved"
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+            <button className="w-full text-left px-3 py-2 text-sm text-[#5f3c2c] hover:bg-[#F8E5D6] rounded">
               Mark products as "Trending Now"
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+            <button className="w-full text-left px-3 py-2 text-sm text-[#5f3c2c] hover:bg-[#F8E5D6] rounded">
               Mark products as "New Launch"
             </button>
           </div>
@@ -379,10 +362,10 @@ const AdminDashboard: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center mb-4">
-            <Package className="h-5 w-5 text-blue-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-800">Inventory Alerts</h3>
+            <Package className="h-5 w-5 text-[#5f3c2c] mr-2" />
+            <h3 className="text-lg font-semibold text-[#5f3c2c]">Inventory Alerts</h3>
           </div>
-          <div className="space-y-2 text-sm text-gray-600">
+          <div className="space-y-2 text-sm text-[#5f3c2c]">
             <p>{stats?.products.outOfStock || 0} products out of stock</p>
             <p>Low stock alerts: 5 products</p>
             <p>Pending reviews: 12 items</p>
@@ -391,10 +374,10 @@ const AdminDashboard: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center mb-4">
-            <TrendingUp className="h-5 w-5 text-green-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-800">Performance</h3>
+            <TrendingUp className="h-5 w-5 text-[#5f3c2c] mr-2" />
+            <h3 className="text-lg font-semibold text-[#5f3c2c]">Performance</h3>
           </div>
-          <div className="space-y-2 text-sm text-gray-600">
+          <div className="space-y-2 text-sm text-[#5f3c2c]">
             <p>Top category: Necklaces</p>
             <p>Best selling: Silver Bangles</p>
             <p>Conversion rate: 3.2%</p>
@@ -406,12 +389,12 @@ const AdminDashboard: React.FC = () => {
       <ConfirmDialog
         isOpen={deleteDialog.isOpen}
         onClose={() => setDeleteDialog({ isOpen: false, type: 'single' })}
-        onConfirm={deleteDialog.type === 'single' 
-          ? () => handleDeleteProduct(deleteDialog.productId!) 
+        onConfirm={deleteDialog.type === 'single'
+          ? () => handleDeleteProduct(deleteDialog.productId!)
           : handleBulkDelete
         }
         title={deleteDialog.type === 'single' ? 'Delete Product' : 'Delete Products'}
-        message={deleteDialog.type === 'single' 
+        message={deleteDialog.type === 'single'
           ? `Are you sure you want to delete "${deleteDialog.productName}"? This action cannot be undone.`
           : `Are you sure you want to delete ${selectedProducts.length} selected products? This action cannot be undone.`
         }
@@ -420,6 +403,7 @@ const AdminDashboard: React.FC = () => {
         loading={actionLoading}
       />
     </div>
+
   );
 };
 

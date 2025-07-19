@@ -25,9 +25,9 @@ class ProductService extends BaseService {
     if (filters.category) queryParams.append('category', filters.category);
     if (filters.priceMin) queryParams.append('priceMin', filters.priceMin.toString());
     if (filters.priceMax) queryParams.append('priceMax', filters.priceMax.toString());
-    if (filters.tags) {
-      filters.tags.forEach(tag => queryParams.append('tags', tag));
-    }
+    // if (filters.tags) {
+    //   filters.tags.forEach(tag => queryParams.append('tags', tag));
+    // }
     if (filters.q) queryParams.append('q', filters.q);
     if (filters.sort) queryParams.append('sort', filters.sort);
     if (filters.page) queryParams.append('page', filters.page.toString());
@@ -46,7 +46,7 @@ class ProductService extends BaseService {
   }
 
 async createProduct(product: ProductImport): Promise<ApiResponse<void>> {
-  return this.post<void>('/admin/products', product, true);
+  return this.post<void>('/admin/product/create', product, true);
 }
 
 

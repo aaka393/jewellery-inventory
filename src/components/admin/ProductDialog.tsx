@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Product } from '../../types';
 import Dialog from '../common/Dialog';
-import { Upload, X, Plus, Minus, Image as ImageIcon, Move, Eye } from 'lucide-react';
+import { Upload, X,Move, Eye } from 'lucide-react';
+import { staticImageBaseUrl } from '../../constants/siteConfig';
 
 interface ProductDialogProps {
     isOpen: boolean;
@@ -28,7 +29,7 @@ interface ProductFormData {
     category: string;
     description: string;
     initialPrice: number;
-    price: number; 
+    price: number;
     comparePrice: number;
     images: string[];
     stock: boolean;
@@ -94,12 +95,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                 images: product.images || [],
                 stock: product.stock ?? true,
             });
-            
+
             // Convert existing images to ImageFile format for editing
             const existingImages: ImageFile[] = (product.images || []).map((url, index) => ({
                 id: `existing-${index}`,
                 file: null as any, // Existing images don't have files
-                preview: url.startsWith('http') ? url : `/api/static/image/${url}`,
+                preview: url.startsWith('http') ? url : `${staticImageBaseUrl}/${url}`,
                 uploaded: true,
                 url: url
             }));
@@ -121,7 +122,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
-        
+
         const files = Array.from(e.dataTransfer.files);
         handleFiles(files);
     };
@@ -133,7 +134,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
 
     const handleFiles = (files: File[]) => {
         const imageFiles = files.filter(file => file.type.startsWith('image/'));
-        
+
         const newImageFiles: ImageFile[] = imageFiles.map(file => ({
             id: `${Date.now()}-${Math.random()}`,
             file,
@@ -167,7 +168,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
 
     const uploadImages = async (): Promise<string[]> => {
         const uploadedUrls: string[] = [];
-        
+
         for (const imageFile of imageFiles) {
             if (imageFile.uploaded && imageFile.url) {
                 // Already uploaded or existing image
@@ -191,8 +192,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                     const result = await response.json();
                     if (result.code === 2011 && result.result) {
                         // Use the static mount URL format
-                        const fullUrl = `/api/static/image/${result.result}`;
-                        uploadedUrls.push(fullUrl);
+                        const imageId = `${result.result}`;
+                        uploadedUrls.push(imageId);
                     } else {
                         throw new Error('Invalid upload response');
                     }
@@ -202,13 +203,13 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                 }
             }
         }
-        
+
         return uploadedUrls;
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-        
+
         if (name.includes('.')) {
             const [parent, child] = name.split('.');
             setFormData(prev => ({
@@ -234,20 +235,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         }));
     };
 
-    const handleAddSpecification = () => {
-        if (specKey && specValue) {
-            setFormData(prev => ({
-                ...prev,
-                specifications: {
-                    ...prev.specifications,
-                    [specKey]: specValue,
-                }
-            }));
-            setSpecKey('');
-            setSpecValue('');
-        }
-    };
-
     const generateSlug = (name: string) => {
         return name
             .toLowerCase()
@@ -266,7 +253,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!formData.name?.trim()) {
             alert('Product name is required');
             return;
@@ -279,10 +266,10 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
 
         try {
             setUploading(true);
-            
+
             // Upload images first
             const uploadedImageUrls = await uploadImages();
-            
+
             // Prepare the final product data matching ProductImportModel
             const productData: any = {
                 ...(mode === 'edit' && product?.id ? { id: product.id } : {}),
@@ -307,17 +294,17 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     };
 
     return (
-        <Dialog 
-            isOpen={isOpen} 
-            onClose={onClose} 
-            title={mode === 'add' ? 'Add New Product' : 'Edit Product'} 
+        <Dialog
+            isOpen={isOpen}
+            onClose={onClose}
+            title={mode === 'add' ? 'Add New Product' : 'Edit Product'}
             maxWidth="2xl"
         >
             <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto max-h-[75vh]">
                 {/* Basic Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
                             Product Name *
                         </label>
                         <input
@@ -327,12 +314,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             value={formData.name}
                             onChange={handleNameChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
                             Category *
                         </label>
                         <select
@@ -340,7 +327,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             value={formData.category}
                             onChange={handleInputChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                         >
                             <option value="">Select Category</option>
                             {categories.map(cat => (
@@ -350,7 +337,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
                             Initial Price (Cost) *
                         </label>
                         <input
@@ -362,12 +349,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             min="0"
                             step="0.01"
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
                             Selling Price *
                         </label>
                         <input
@@ -379,12 +366,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             min="0"
                             step="0.01"
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
                             Compare Price
                         </label>
                         <input
@@ -395,12 +382,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             placeholder="Original price"
                             min="0"
                             step="0.01"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
                             Slug
                         </label>
                         <input
@@ -409,14 +396,14 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             value={formData.slug}
                             onChange={handleInputChange}
                             placeholder="product-slug"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                         />
                     </div>
                 </div>
 
                 {/* Description */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
                         Description
                     </label>
                     <textarea
@@ -425,16 +412,16 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         onChange={handleInputChange}
                         rows={3}
                         placeholder="Product description..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                     />
                 </div>
 
                 {/* Image Upload */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
                         Product Images
                     </label>
-                    
+
                     {/* Drag and Drop Area */}
                     <div
                         ref={dragRef}
@@ -443,17 +430,16 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         onDragOver={handleDrag}
                         onDrop={handleDrop}
                         onClick={() => fileInputRef.current?.click()}
-                        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-                            dragActive 
-                                ? 'border-purple-500 bg-purple-50' 
-                                : 'border-gray-300 hover:border-purple-400 hover:bg-gray-50'
-                        }`}
+                        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${dragActive
+                                ? 'border-[#D4B896] bg-[#F2E9D8]'
+                                : 'border-gray-300 hover:border-[#D4B896] hover:bg-gray-50'
+                            }`}
                     >
-                        <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">
-                            Drag and drop images here, or <span className="text-purple-600">click to browse</span>
+                        <Upload className="h-8 w-8 text-[#5f3c2c] mx-auto mb-2" />
+                        <p className="text-sm text-[#5f3c2c]">
+                            Drag and drop images here, or <span className="text-[#D4B896]">click to browse</span>
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-[#D4B896] mt-1">
                             Supports: JPG, PNG, GIF (Max 5MB each)
                         </p>
                     </div>
@@ -479,7 +465,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
-                                    
+
                                     {/* Image Controls */}
                                     <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center space-x-2">
                                         {index > 0 && (
@@ -492,7 +478,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                                                 <Move className="h-3 w-3 rotate-180" />
                                             </button>
                                         )}
-                                        
+
                                         <button
                                             type="button"
                                             onClick={() => window.open(imageFile.preview, '_blank')}
@@ -501,7 +487,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                                         >
                                             <Eye className="h-3 w-3" />
                                         </button>
-                                        
+
                                         {index < imageFiles.length - 1 && (
                                             <button
                                                 type="button"
@@ -512,7 +498,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                                                 <Move className="h-3 w-3" />
                                             </button>
                                         )}
-                                        
+
                                         <button
                                             type="button"
                                             onClick={() => removeImage(imageFile.id)}
@@ -522,7 +508,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                                             <X className="h-3 w-3" />
                                         </button>
                                     </div>
-                                    
+
                                     {/* Upload Status */}
                                     <div className="absolute top-1 left-1">
                                         {imageFile.uploaded ? (
@@ -545,9 +531,9 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             name="stock"
                             checked={formData.stock}
                             onChange={handleCheckboxChange}
-                            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                            className="rounded border-gray-300 text-[#D4B896] focus:ring-[#D4B896]"
                         />
-                        <span className="text-sm text-gray-700">In Stock</span>
+                        <span className="text-sm text-[#5f3c2c]">In Stock</span>
                     </label>
                 </div>
 
@@ -557,14 +543,14 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         type="button"
                         onClick={onClose}
                         disabled={loading || uploading}
-                        className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 px-4 py-2 text-[#5f3c2c] bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={loading || uploading}
-                        className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                        className="flex-1 px-4 py-2 bg-[#D4B896] text-white rounded-lg hover:bg-[#B79B7D] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                     >
                         {uploading ? (
                             <>
@@ -578,6 +564,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                 </div>
             </form>
         </Dialog>
+
     );
 };
 
