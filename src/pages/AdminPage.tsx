@@ -263,10 +263,9 @@ const AdminPage: React.FC = () => {
     <div className="flex min-h-screen bg-[#f5e9dc] text-[#5f3c2c] font-serif">
       <div className="flex flex-col lg:flex-row w-full">
         {/* Sidebar */}
-        <aside className="w-full lg:w-60 bg-black shadow-sm lg:min-h-screen lg:sticky lg:top-0 border-r border-[#e2cbb5]">
+        <aside className="w-full lg:w-60 bg-[#D4B896] shadow-sm lg:min-h-screen lg:sticky lg:top-0 border-r border-[#e2cbb5]">
           <div className="p-6">
             <h1 className="text-2xl font-semibold mb-1">Admin Panel</h1>
-            <p className="italic text-sm text-[#5f3c2c] mb-8">{SITE_CONFIG.name}</p>
           </div>
 
           <nav className="mt-4 lg:mt-6">
