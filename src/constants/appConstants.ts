@@ -69,7 +69,7 @@ export const API_ENDPOINTS = {
 
   // Payment endpoints
   CREATE_PAYMENT_ORDER: '/payment/create-order',
-  VERIFY_PAYMENT: '/payment/verify',
+  VERIFY_PAYMENT: '/payments/payment/verify',
   PAYMENT_STATUS: '/payment/status',
 
   // User endpoints

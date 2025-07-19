@@ -32,7 +32,7 @@ class PaymentService extends BaseService {
     razorpay_payment_id: string;
     razorpay_signature: string;
   }): Promise<ApiResponse<{ status: string }>> {
-    return this.post<{ status: string }>('/payment/verify', paymentData, true);
+    return this.post<{ status: string }>('/payments/payment/verify', paymentData, true);
   }
 
   async getPaymentStatus(orderId: string): Promise<ApiResponse<PaymentStatus>> {
