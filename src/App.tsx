@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Header from './components/common/Header';
-import Footer from './components/common/Footer';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -55,7 +54,6 @@ function App() {
               <Route path="*" element={<HomePage />} />
             </Routes>
           </main>
-          <Footer />
         </div>
       </Router>
     </HelmetProvider>
