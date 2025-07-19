@@ -9,6 +9,8 @@ import { SITE_CONFIG } from '../constants/siteConfig';
 import Footer from '../components/common/Footer';
 import Neckless from '../assets/Neckless.jpg';
 import catalog from '../assets/Devi.jpg'
+import Header from '../components/common/Header';
+import { Heart, ShoppingBag } from 'lucide-react';
 const HomePage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +42,48 @@ const HomePage: React.FC = () => {
   if (loading) {
     return <LoadingSpinner />;
   }
-
+const jewelryProducts = [
+  {
+    id: 1,
+    name: "Celestial Moon Ring",
+    price: "$189",
+    image: "https://images.pexels.com/photos/1191531/pexels-photo-1191531.jpeg?auto=compress&cs=tinysrgb&w=800",
+    hoverImage: "https://images.pexels.com/photos/1721932/pexels-photo-1721932.jpeg?auto=compress&cs=tinysrgb&w=800",
+    rating: 5,
+    isNew: true,
+    isSoldOut: false
+  },
+  {
+    id: 2,
+    name: "Pearl Drop Earrings",
+    price: "$245",
+    image: "https://images.pexels.com/photos/1454171/pexels-photo-1454171.jpeg?auto=compress&cs=tinysrgb&w=800",
+    hoverImage: "https://images.pexels.com/photos/1454169/pexels-photo-1454169.jpeg?auto=compress&cs=tinysrgb&w=800",
+    rating: 5,
+    isNew: false,
+    isSoldOut: false
+  },
+  {
+    id: 3,
+    name: "Infinity Bracelet",
+    price: "$159",
+    image: "https://images.pexels.com/photos/1721932/pexels-photo-1721932.jpeg?auto=compress&cs=tinysrgb&w=800",
+    hoverImage: "https://images.pexels.com/photos/1721938/pexels-photo-1721938.jpeg?auto=compress&cs=tinysrgb&w=800",
+    rating: 4,
+    isNew: true,
+    isSoldOut: true
+  },
+  {
+    id: 4,
+    name: "Diamond Tennis Necklace",
+    price: "$389",
+    image: "https://images.pexels.com/photos/1454169/pexels-photo-1454169.jpeg?auto=compress&cs=tinysrgb&w=800",
+    hoverImage: "https://images.pexels.com/photos/2735037/pexels-photo-2735037.jpeg?auto=compress&cs=tinysrgb&w=800",
+    rating: 5,
+    isNew: false,
+    isSoldOut: false
+  },
+];
   return (
     <>
       <SEOHead
@@ -49,40 +92,41 @@ const HomePage: React.FC = () => {
         keywords={`silver jewelry, handcrafted jewelry, necklaces, earrings, bangles, anklets, rings, Indian jewelry, ${SITE_CONFIG.name}, pure silver, 925 silver`}
       />
       
-      <div className="bg-[#1C1A17] text-[#F2E9D8] overflow-hidden">
+      <div className=" text-[#F2E9D8] overflow-hidden">
+         <Header />
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center relative">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 w-full h-screen">
+          <section className="min-h-screen relative flex items-center justify-center">
+          {/* Images Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 w-full h-screen">
+            {/* Left Image (Always visible) */}
             <div className="relative overflow-hidden">
               <img
                 src="https://images.pexels.com/photos/6624862/pexels-photo-6624862.jpeg?auto=compress&cs=tinysrgb&w=1200"
                 alt="Hero Left - Handcrafted Silver Jewelry"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1C1A17]/20"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1C1A17]/30"></div>
             </div>
-            <div className="relative overflow-hidden">
+
+            {/* Right Image (Hidden on mobile) */}
+            <div className="relative overflow-hidden hidden lg:block">
               <img
                 src={Neckless}
                 alt="Hero Right - Pure Silver Collection"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#1C1A17]/20"></div>
             </div>
           </div>
 
+          {/* Text Overlay */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center z-10">
-              <div className="mb-6">
-                <h1 className="text-6xl md:text-8xl font-serif italic text-[#F2E9D8] mb-4">
-                  {SITE_CONFIG.shortName}
-                </h1>
-              </div>
-              <div>
-                <p className="text-lg md:text-xl font-light tracking-wide text-[#D4B896] max-w-md mx-auto">
-                  {SITE_CONFIG.description}
-                </p>
-              </div>
+            <div className="text-center px-4 z-10">
+              <h1 className="text-5xl md:text-7xl font-serif italic text-[#F2E9D8] mb-6">
+                {SITE_CONFIG.shortName}
+              </h1>
+              <p className="text-base md:text-xl font-light tracking-wide text-[#D4B896] max-w-md mx-auto">
+                {SITE_CONFIG.description}
+              </p>
             </div>
           </div>
         </section>
@@ -90,154 +134,99 @@ const HomePage: React.FC = () => {
         {/* Story Section */}
         <section className="py-20 px-6 text-center max-w-4xl mx-auto">
           <div className="space-y-6">
-            <p className="text-lg md:text-xl font-light leading-relaxed text-[#D4B896] italic">
+            <p className="text-lg md:text-xl font-light leading-relaxed text-[#804000] italic">
               {SITE_CONFIG.tagline}
             </p>
-            <p className="text-base md:text-lg font-light text-[#F2E9D8]">
+            <p className="text-base md:text-lg font-light bold text-[#804000]">
               Discover our handcrafted pure silver jewelry collection.
             </p>
             <Link 
               to="/products"
-              className="inline-block mt-8 text-sm tracking-widest border-b border-[#D4B896] pb-1 hover:border-[#F2E9D8] transition-colors"
+              className="inline-block mt-8 text-sm text-[#804000] tracking-widest border-b border-[#D4B896] pb-1 hover:border-[#F2E9D8] transition-colors"
             >
               EXPLORE COLLECTION →
             </Link>
           </div>
         </section>
 
-        {/* Shop by Category Section */}
-        <section className="py-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-6xl font-serif italic text-[#F2E9D8] mb-8">Shop by Category</h2>
-              <p className="text-lg font-light text-[#D4B896]">
-                Explore our curated collections of handcrafted silver jewelry
-              </p>
-            </div>
+        <div className="min-h-screen ">
+    
+        <section className="py-20 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-20 font-serif italic">
+          <h2 className="text-3xl md:text-4xl font-light text-[#804000] mb-4 tracking-wide">
+            Shop by Category
+          </h2>
+          <div className="w-24 h-[1px] bg-[#D4B896] mx-auto mb-4"></div>
+          <p className="text-[#804000] font-light max-w-2xl mx-auto mb-6">
+            Each piece is meticulously crafted with attention to detail, using only the finest materials
+          </p>
 
-            <div className="min-h-screen bg-[#1C1A17] p-8">
-            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {/* Bangles Card */}
-                <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('bangles')}>
-                  <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
-                        FEATURED
-                      </span>
-                    </div>
-                    <div className="relative h-96">
-                      <img
-                        src="https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772"
-                        alt="Silver Bangles - Handcrafted Pure Silver Jewelry"
-                        className="product-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
-                      />
-                      <img
-                        src="https://images.pexels.com/photos/1454166/pexels-photo-1454166.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Silver Bangles - Alternative View"
-                        className="product-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                      />
-                    </div>
-                  </div>
-                  <div className="product-content mt-6 text-center">
-                    <h3 className="text-xl font-serif text-[#F2E9D8] mb-2 group-hover:text-[#D4B896] transition-colors duration-300">Bangles</h3>
-                    <p className="text-sm text-[#D4B896] group-hover:text-[#F2E9D8] transition-colors duration-300">Handcrafted Silver Collection</p>
-                  </div>
-                </div>
-
-                {/* Jhumkas Card */}
-                <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('jhumkas')}>
-                  <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
-                        TRENDING
-                      </span>
-                    </div>
-                    <div className="relative h-96">
-                      <img
-                        src="https://www.macsjewelry.com/cdn/shop/files/IMG_4362_594x.progressive.jpg?v=1701478781"
-                        alt="Silver Jhumkas - Traditional Indian Earrings"
-                        className="product-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
-                      />
-                      <img
-                        src="https://images.pexels.com/photos/1454164/pexels-photo-1454164.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Silver Jhumkas - Alternative View"
-                        className="product-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                      />
-                    </div>
-                  </div>
-                  <div className="product-content mt-6 text-center">
-                    <h3 className="text-xl font-serif text-[#F2E9D8] mb-2 group-hover:text-[#D4B896] transition-colors duration-300">Jhumkas</h3>
-                    <p className="text-sm text-[#D4B896] group-hover:text-[#F2E9D8] transition-colors duration-300">Traditional Earrings</p>
-                  </div>
-                </div>
-
-                {/* Anklets Card */}
-                <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('anklets')}>
-                  <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
-                        NEW
-                      </span>
-                    </div>
-                    <div className="relative h-96">
-                      <img
-                        src="https://www.macsjewelry.com/cdn/shop/files/IMG_4361_594x.progressive.jpg?v=1701478781"
-                        alt="Silver Anklets - Elegant Foot Jewelry"
-                        className="product-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
-                      />
-                      <img
-                        src="https://images.pexels.com/photos/1454165/pexels-photo-1454165.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Silver Anklets - Alternative View"
-                        className="product-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                      />
-                    </div>
-                  </div>
-                  <div className="product-content mt-6 text-center">
-                    <h3 className="text-xl font-serif text-[#F2E9D8] mb-2 group-hover:text-[#D4B896] transition-colors duration-300">Anklets</h3>
-                    <p className="text-sm text-[#D4B896] group-hover:text-[#F2E9D8] transition-colors duration-300">Elegant Foot Jewelry</p>
-                  </div>
-                </div>
-
-                {/* New Necklaces Card */}
-                <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('necklaces')}>
-                  <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
-                        PREMIUM
-                      </span>
-                    </div>
-                    <div className="relative h-96">
-                      <img
-                        src="https://images.pexels.com/photos/1454163/pexels-photo-1454163.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Silver Necklaces - Elegant Neck Jewelry"
-                        className="product-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
-                      />
-                      <img
-                        src="https://images.pexels.com/photos/1454168/pexels-photo-1454168.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Silver Necklaces - Alternative View"
-                        className="product-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                      />
-                    </div>
-                  </div>
-                  <div className="product-content mt-6 text-center">
-                    <h3 className="text-xl font-serif text-[#F2E9D8] mb-2 group-hover:text-[#D4B896] transition-colors duration-300">Necklaces</h3>
-                    <p className="text-sm text-[#D4B896] group-hover:text-[#F2E9D8] transition-colors duration-300">Elegant Neck Jewelry</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-             <div className="text-center mt-[200px]">
-              <Link
-                to="/products"
-                className="bg-[#D4B896] text-[#1C1A17] px-12 py-4 text-sm tracking-widest hover:bg-[#F2E9D8] transition-colors"
-              >
-                VIEW ALL PRODUCTS
-              </Link>
-            </div>
-            </div>
+          <div className="mt-10">
+            <h3 className="text-2xl text-[#804000] mb-2">Our Collections</h3>
+            <p className="text-[#804000]">Discover our handcrafted collections of handcrafted silver jewelry</p>
           </div>
-        </section>
+          </div>
+    {/* Desktop: 4 columns, Tablet: 3, Mobile: 2 */}
+   <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+  {jewelryProducts.map((product) => (
+    <div
+      key={product.id}
+      className="group relative bg-[#f4efe6] border border-[#d4b896]/30 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500"
+    >
+      {/* Normal Image */}
+      <img
+        src={product.image}
+        alt={product.name}
+        className="w-full h-80 object-contain opacity-100 group-hover:opacity-0 transition-opacity duration-700"
+      />
+
+      {/* Hover Image - Full Cover */}
+      <img
+        src={product.hoverImage}
+        alt={`${product.name} hover`}
+        className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+      />
+
+      {/* Badges */}
+      {product.isSoldOut && (
+        <div className="absolute top-2 left-2 bg-white text-[#2A1810] text-[10px] font-bold tracking-widest px-2 py-1 rounded">
+          SOLD OUT
+        </div>
+      )}
+      {product.isNew && !product.isSoldOut && (
+        <div className="absolute top-2 left-2 bg-[#D4B896] text-[#1F1107] px-2 py-1 rounded-full text-xs font-semibold tracking-wide">
+          NEW
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="hidden md:flex absolute top-3 right-3 flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+        <button className="p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-colors">
+          <Heart className="w-5 h-5 text-[#2A1810]" />
+        </button>
+        <button className="p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-colors">
+          <ShoppingBag className="w-5 h-5 text-[#2A1810]" />
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
+
+          {/* View All Button */}
+          <div className="text-center mt-32">
+            <Link
+              to="/products"
+              className="bg-[#D4B896] text-[#1C1A17] px-12 py-4 text-sm tracking-widest hover:bg-[#F2E9D8] transition-colors"
+            >
+              VIEW ALL PRODUCTS
+            </Link>
+          </div>
+        </div>
+      </section>
+
+    </div>
 
         {/* Brand Section */}
        <section className="relative min-h-screen flex items-center">
