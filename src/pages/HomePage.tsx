@@ -227,7 +227,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-             <div className="text-center mt-[250px]">
+             <div className="text-center mt-[200px]">
               <Link
                 to="/products"
                 className="bg-[#D4B896] text-[#1C1A17] px-12 py-4 text-sm tracking-widest hover:bg-[#F2E9D8] transition-colors"

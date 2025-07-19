@@ -2,12 +2,12 @@
 export const staticImageBaseUrl = '/api/static/images/';
 
 export const SITE_CONFIG = {
-  name: process.env.VITE_SITE_NAME || 'JI Jewelry',
-  shortName: process.env.VITE_SITE_SHORT_NAME || 'JI',
+  name: process.env.VITE_SITE_NAME || 'Taanira',
+  shortName: process.env.VITE_SITE_SHORT_NAME || ' 𝒯𝒶𝒶𝓃𝒾𝓇𝒶',
   description: process.env.VITE_SITE_DESCRIPTION || 'Handcrafted Pure Silver Jewelry',
   tagline: process.env.VITE_SITE_TAGLINE || 'A Tanishq Partnership. JI is India\'s first omnichannel jeweller offering best-in-class jewellery.',
-  domain: process.env.VITE_SITE_DOMAIN || 'JIjewelry.com',
-  supportEmail: process.env.VITE_SUPPORT_EMAIL || 'support@JIjewelry.com',
+  domain: process.env.VITE_SITE_DOMAIN || 'Taanira.com',
+  supportEmail: process.env.VITE_SUPPORT_EMAIL || 'support@Taanira.com',
   supportPhone: process.env.VITE_SUPPORT_PHONE || '1800-102-0103',
   address: process.env.VITE_SITE_ADDRESS || 'Hyderabad Manikonda, Hyderabad',
   workingHours: process.env.VITE_WORKING_HOURS || '10:00 AM - 10:00 PM',
