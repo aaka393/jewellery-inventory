@@ -5,59 +5,58 @@ import { SITE_CONFIG } from '../../constants/siteConfig';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-[#1C1A17] text-[#D4B896] font-light">
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+
           {/* Company Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">{SITE_CONFIG.name}</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              {SITE_CONFIG.tagline}
-            </p>
+            <h3 className="text-2xl font-serif italic text-[#F2E9D8] mb-4">{SITE_CONFIG.name}</h3>
+            <p className="text-sm leading-relaxed mb-6">{SITE_CONFIG.tagline}</p>
             <div className="flex space-x-4">
               <a href={SITE_CONFIG.social.facebook} target="_blank" rel="noopener noreferrer">
-                <Facebook className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+                <Facebook className="h-5 w-5 text-[#D4B896] hover:text-[#F2E9D8] transition-colors" />
               </a>
               <a href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer">
-                <Instagram className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+                <Instagram className="h-5 w-5 text-[#D4B896] hover:text-[#F2E9D8] transition-colors" />
               </a>
               <a href={SITE_CONFIG.social.twitter} target="_blank" rel="noopener noreferrer">
-                <Twitter className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+                <Twitter className="h-5 w-5 text-[#D4B896] hover:text-[#F2E9D8] transition-colors" />
               </a>
               <a href={SITE_CONFIG.social.youtube} target="_blank" rel="noopener noreferrer">
-                <Youtube className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+                <Youtube className="h-5 w-5 text-[#D4B896] hover:text-[#F2E9D8] transition-colors" />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-md font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
-              <li><Link to="/about" className="text-gray-400 hover:text-white text-sm">About Us</Link></li>
-              <li><Link to="/contact" className="text-gray-400 hover:text-white text-sm">Contact Us</Link></li>
-              <li><Link to="/stores" className="text-gray-400 hover:text-white text-sm">Store Locator</Link></li>
-              <li><Link to="/size-guide" className="text-gray-400 hover:text-white text-sm">Size Guide</Link></li>
-              <li><Link to="/care-guide" className="text-gray-400 hover:text-white text-sm">Care Guide</Link></li>
+            <h4 className="text-lg font-serif italic text-[#F2E9D8] mb-4">Quick Links</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link to="/about" className="hover:text-[#F2E9D8] transition-colors">About Us</Link></li>
+              <li><Link to="/contact" className="hover:text-[#F2E9D8] transition-colors">Contact Us</Link></li>
+              <li><Link to="/stores" className="hover:text-[#F2E9D8] transition-colors">Store Locator</Link></li>
+              <li><Link to="/size-guide" className="hover:text-[#F2E9D8] transition-colors">Size Guide</Link></li>
+              <li><Link to="/care-guide" className="hover:text-[#F2E9D8] transition-colors">Care Guide</Link></li>
             </ul>
           </div>
 
           {/* Customer Care */}
           <div>
-            <h4 className="text-md font-semibold mb-4">Customer Care</h4>
-            <ul className="space-y-2">
-              <li><Link to="/returns" className="text-gray-400 hover:text-white text-sm">Returns & Exchange</Link></li>
-              <li><Link to="/warranty" className="text-gray-400 hover:text-white text-sm">Warranty</Link></li>
-              <li><Link to="/shipping" className="text-gray-400 hover:text-white text-sm">Shipping Info</Link></li>
-              <li><Link to="/faq" className="text-gray-400 hover:text-white text-sm">FAQ</Link></li>
-              <li><Link to="/track-order" className="text-gray-400 hover:text-white text-sm">Track Order</Link></li>
+            <h4 className="text-lg font-serif italic text-[#F2E9D8] mb-4">Customer Care</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link to="/returns" className="hover:text-[#F2E9D8] transition-colors">Returns & Exchange</Link></li>
+              <li><Link to="/warranty" className="hover:text-[#F2E9D8] transition-colors">Warranty</Link></li>
+              <li><Link to="/shipping" className="hover:text-[#F2E9D8] transition-colors">Shipping Info</Link></li>
+              <li><Link to="/faq" className="hover:text-[#F2E9D8] transition-colors">FAQ</Link></li>
+              <li><Link to="/track-order" className="hover:text-[#F2E9D8] transition-colors">Track Order</Link></li>
             </ul>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h4 className="text-md font-semibold mb-4">Contact Info</h4>
-            <div className="space-y-2 text-sm text-gray-400">
+            <h4 className="text-lg font-serif italic text-[#F2E9D8] mb-4">Contact Info</h4>
+            <div className="space-y-2 text-sm">
               <p>📞 {SITE_CONFIG.supportPhone}</p>
               <p>✉️ {SITE_CONFIG.supportEmail}</p>
               <p>📍 {SITE_CONFIG.address}</p>
@@ -66,18 +65,18 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © 2024 {SITE_CONFIG.name}. All rights reserved.
-          </p>
-          <div className="flex space-x-6 text-sm text-gray-400">
-            <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-white">Terms & Conditions</Link>
-            <Link to="/sitemap" className="hover:text-white">Sitemap</Link>
+        {/* Bottom Bar */}
+        <div className="border-t border-[#2A2621] mt-16 pt-8 flex flex-col md:flex-row justify-between items-center text-xs">
+          <p className="text-[#D4B896] mb-4 md:mb-0">© 2024 {SITE_CONFIG.name}. All rights reserved.</p>
+          <div className="flex space-x-6">
+            <Link to="/privacy" className="hover:text-[#F2E9D8] transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-[#F2E9D8] transition-colors">Terms & Conditions</Link>
+            <Link to="/sitemap" className="hover:text-[#F2E9D8] transition-colors">Sitemap</Link>
           </div>
         </div>
       </div>
     </footer>
+
   );
 };
 
