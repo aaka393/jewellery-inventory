@@ -6,7 +6,9 @@ import { useCategoryStore } from '../store/categoryStore';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
 import { SITE_CONFIG } from '../constants/siteConfig';
-
+import Footer from '../components/common/Footer';
+import Neckless from '../assets/Neckless.jpg';
+import catalog from '../assets/Devi.jpg'
 const HomePage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +63,7 @@ const HomePage: React.FC = () => {
             </div>
             <div className="relative overflow-hidden">
               <img
-                src="https://images.pexels.com/photos/1447333/pexels-photo-1447333.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                src={Neckless}
                 alt="Hero Right - Pure Silver Collection"
                 className="w-full h-full object-cover"
               />
@@ -86,7 +88,7 @@ const HomePage: React.FC = () => {
         </section>
 
         {/* Story Section */}
-        <section className="py-24 px-6 text-center max-w-4xl mx-auto">
+        <section className="py-20 px-6 text-center max-w-4xl mx-auto">
           <div className="space-y-6">
             <p className="text-lg md:text-xl font-light leading-relaxed text-[#D4B896] italic">
               {SITE_CONFIG.tagline}
@@ -104,7 +106,7 @@ const HomePage: React.FC = () => {
         </section>
 
         {/* Shop by Category Section */}
-        <section className="py-24">
+        <section className="py-20">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-6xl font-serif italic text-[#F2E9D8] mb-8">Shop by Category</h2>
@@ -113,97 +115,119 @@ const HomePage: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Default Categories */}
-              <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('bangles')}>
-                <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
-                  <div className="absolute top-4 left-4 z-10">
-                    <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
-                      FEATURED
-                    </span>
-                  </div>
-                  <div className="relative h-96">
-                    <img
-                      src="https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772"
-                      alt="Silver Bangles - Handcrafted Pure Silver Jewelry"
-                      className="product-image absolute inset-0 w-full h-full object-cover opacity-100"
-                    />
-                  </div>
-                </div>
-                <div className="product-content mt-6 text-center">
-                  <h3 className="text-xl font-serif text-[#F2E9D8] mb-2">Bangles</h3>
-                  <p className="text-sm text-[#D4B896]">Handcrafted Silver Collection</p>
-                </div>
-              </div>
-
-              <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('jhumkas')}>
-                <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
-                  <div className="absolute top-4 left-4 z-10">
-                    <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
-                      TRENDING
-                    </span>
-                  </div>
-                  <div className="relative h-96">
-                    <img
-                      src="https://www.macsjewelry.com/cdn/shop/files/IMG_4362_594x.progressive.jpg?v=1701478781"
-                      alt="Silver Jhumkas - Traditional Indian Earrings"
-                      className="product-image absolute inset-0 w-full h-full object-cover opacity-100"
-                    />
-                  </div>
-                </div>
-                <div className="product-content mt-6 text-center">
-                  <h3 className="text-xl font-serif text-[#F2E9D8] mb-2">Jhumkas</h3>
-                  <p className="text-sm text-[#D4B896]">Traditional Earrings</p>
-                </div>
-              </div>
-
-              <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('anklets')}>
-                <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
-                  <div className="absolute top-4 left-4 z-10">
-                    <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
-                      NEW
-                    </span>
-                  </div>
-                  <div className="relative h-96">
-                    <img
-                      src="https://www.macsjewelry.com/cdn/shop/files/IMG_4361_594x.progressive.jpg?v=1701478781"
-                      alt="Silver Anklets - Elegant Foot Jewelry"
-                      className="product-image absolute inset-0 w-full h-full object-cover opacity-100"
-                    />
-                  </div>
-                </div>
-                <div className="product-content mt-6 text-center">
-                  <h3 className="text-xl font-serif text-[#F2E9D8] mb-2">Anklets</h3>
-                  <p className="text-sm text-[#D4B896]">Elegant Foot Jewelry</p>
-                </div>
-              </div>
-
-              {/* Dynamic Categories */}
-              {categories.slice(0, 3).map((category, index) => (
-                <div key={category.id} className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick(category.name)}>
+            <div className="min-h-screen bg-[#1C1A17] p-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {/* Bangles Card */}
+                <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('bangles')}>
                   <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
                     <div className="absolute top-4 left-4 z-10">
                       <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
-                        COLLECTION
+                        FEATURED
                       </span>
                     </div>
                     <div className="relative h-96">
                       <img
-                        src={category.image || `https://images.pexels.com/photos/1191537/pexels-photo-1191537.jpeg?auto=compress&cs=tinysrgb&w=800`}
-                        alt={`${category.name} - Silver Jewelry Collection`}
-                        className="product-image absolute inset-0 w-full h-full object-cover opacity-100"
+                        src="https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772"
+                        alt="Silver Bangles - Handcrafted Pure Silver Jewelry"
+                        className="product-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+                      />
+                      <img
+                        src="https://images.pexels.com/photos/1454166/pexels-photo-1454166.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Silver Bangles - Alternative View"
+                        className="product-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                       />
                     </div>
                   </div>
                   <div className="product-content mt-6 text-center">
-                    <h3 className="text-xl font-serif text-[#F2E9D8] mb-2">{category.name}</h3>
-                    <p className="text-sm text-[#D4B896]">Handcrafted Collection</p>
+                    <h3 className="text-xl font-serif text-[#F2E9D8] mb-2 group-hover:text-[#D4B896] transition-colors duration-300">Bangles</h3>
+                    <p className="text-sm text-[#D4B896] group-hover:text-[#F2E9D8] transition-colors duration-300">Handcrafted Silver Collection</p>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="text-center mt-16">
+                {/* Jhumkas Card */}
+                <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('jhumkas')}>
+                  <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
+                    <div className="absolute top-4 left-4 z-10">
+                      <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
+                        TRENDING
+                      </span>
+                    </div>
+                    <div className="relative h-96">
+                      <img
+                        src="https://www.macsjewelry.com/cdn/shop/files/IMG_4362_594x.progressive.jpg?v=1701478781"
+                        alt="Silver Jhumkas - Traditional Indian Earrings"
+                        className="product-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+                      />
+                      <img
+                        src="https://images.pexels.com/photos/1454164/pexels-photo-1454164.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Silver Jhumkas - Alternative View"
+                        className="product-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                      />
+                    </div>
+                  </div>
+                  <div className="product-content mt-6 text-center">
+                    <h3 className="text-xl font-serif text-[#F2E9D8] mb-2 group-hover:text-[#D4B896] transition-colors duration-300">Jhumkas</h3>
+                    <p className="text-sm text-[#D4B896] group-hover:text-[#F2E9D8] transition-colors duration-300">Traditional Earrings</p>
+                  </div>
+                </div>
+
+                {/* Anklets Card */}
+                <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('anklets')}>
+                  <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
+                    <div className="absolute top-4 left-4 z-10">
+                      <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
+                        NEW
+                      </span>
+                    </div>
+                    <div className="relative h-96">
+                      <img
+                        src="https://www.macsjewelry.com/cdn/shop/files/IMG_4361_594x.progressive.jpg?v=1701478781"
+                        alt="Silver Anklets - Elegant Foot Jewelry"
+                        className="product-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+                      />
+                      <img
+                        src="https://images.pexels.com/photos/1454165/pexels-photo-1454165.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Silver Anklets - Alternative View"
+                        className="product-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                      />
+                    </div>
+                  </div>
+                  <div className="product-content mt-6 text-center">
+                    <h3 className="text-xl font-serif text-[#F2E9D8] mb-2 group-hover:text-[#D4B896] transition-colors duration-300">Anklets</h3>
+                    <p className="text-sm text-[#D4B896] group-hover:text-[#F2E9D8] transition-colors duration-300">Elegant Foot Jewelry</p>
+                  </div>
+                </div>
+
+                {/* New Necklaces Card */}
+                <div className="product-card relative group cursor-pointer" onClick={() => handleCategoryClick('necklaces')}>
+                  <div className="relative overflow-hidden bg-[#2A2621] rounded-lg">
+                    <div className="absolute top-4 left-4 z-10">
+                      <span className="bg-[#D4B896] text-[#1C1A17] px-3 py-1 text-xs tracking-widest">
+                        PREMIUM
+                      </span>
+                    </div>
+                    <div className="relative h-96">
+                      <img
+                        src="https://images.pexels.com/photos/1454163/pexels-photo-1454163.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Silver Necklaces - Elegant Neck Jewelry"
+                        className="product-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+                      />
+                      <img
+                        src="https://images.pexels.com/photos/1454168/pexels-photo-1454168.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Silver Necklaces - Alternative View"
+                        className="product-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                      />
+                    </div>
+                  </div>
+                  <div className="product-content mt-6 text-center">
+                    <h3 className="text-xl font-serif text-[#F2E9D8] mb-2 group-hover:text-[#D4B896] transition-colors duration-300">Necklaces</h3>
+                    <p className="text-sm text-[#D4B896] group-hover:text-[#F2E9D8] transition-colors duration-300">Elegant Neck Jewelry</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+             <div className="text-center mt-[250px]">
               <Link
                 to="/products"
                 className="bg-[#D4B896] text-[#1C1A17] px-12 py-4 text-sm tracking-widest hover:bg-[#F2E9D8] transition-colors"
@@ -211,31 +235,36 @@ const HomePage: React.FC = () => {
                 VIEW ALL PRODUCTS
               </Link>
             </div>
+            </div>
           </div>
         </section>
 
         {/* Brand Section */}
-        <section className="relative min-h-screen flex items-center">
-          <div className="absolute inset-0">
-            <img
-              src="https://images.pexels.com/photos/1447333/pexels-photo-1447333.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt="Brand - Handcrafted Silver Jewelry"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-[#1C1A17]/40"></div>
-          </div>
-          <div className="relative z-10 max-w-2xl mx-auto px-6 text-left space-y-6">
-            <p className="text-lg md:text-xl font-light leading-relaxed text-[#F2E9D8]">
-              {SITE_CONFIG.name} is more than jewelry - it's a celebration of craftsmanship.
-            </p>
-            <p className="text-lg md:text-xl font-light leading-relaxed text-[#F2E9D8]">
-              Each piece is handcrafted with 92.5% pure silver, ensuring lasting quality and timeless beauty.
-            </p>
-            <p className="text-lg md:text-xl font-light leading-relaxed text-[#F2E9D8]">
-              From traditional designs to contemporary styles, our collection celebrates the art of silver jewelry making.
-            </p>
-          </div>
-        </section>
+       <section className="relative min-h-screen flex items-center">
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0">
+              <img
+                src={catalog}
+                alt="Brand - Handcrafted Silver Jewelry"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-[#1C1A17]/40"></div>
+            </div>
+
+            {/* Left-aligned Content */}
+            <div className="relative z-10 w-full max-w-4xl px-6 text-left space-y-6">
+              <p className="text-lg md:text-xl font-light leading-relaxed text-[#F2E9D8]">
+                {SITE_CONFIG.name} is more than jewelry - it's a celebration of craftsmanship.
+              </p>
+              <p className="text-lg md:text-xl font-light leading-relaxed text-[#F2E9D8]">
+                Each piece is handcrafted with 92.5% pure silver, ensuring lasting quality and timeless beauty.
+              </p>
+              <p className="text-lg md:text-xl font-light leading-relaxed text-[#F2E9D8]">
+                From traditional designs to contemporary styles, our collection celebrates the art of silver jewelry making.
+              </p>
+            </div>
+          </section>
+
 
         {/* Newsletter Section */}
         <section className="py-24 px-6 text-center">
@@ -264,13 +293,9 @@ const HomePage: React.FC = () => {
         </section>
 
         {/* Footer */}
-        <footer className="py-12 px-6 border-t border-[#2A2621] text-center text-xs text-[#D4B896]">
-          <div className="space-y-2">
-            <p>{SITE_CONFIG.name} © 2025. All rights reserved.</p>
-            <p>Handcrafted pure silver jewelry. Free shipping within India.</p>
-            <p>Contact: {SITE_CONFIG.supportEmail} | {SITE_CONFIG.supportPhone}</p>
-          </div>
-        </footer>
+        <div className="py-12 px-6 border-t border-[#2A2621] text-center text-xs text-[#D4B896]">
+           <Footer/>
+        </div>
       </div>
     </>
   );

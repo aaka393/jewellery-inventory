@@ -7,10 +7,11 @@ import { useWishlistStore } from '../../store/wishlistStore';
 import { useCategoryStore } from '../../store/categoryStore';
 import { apiService } from '../../services/api';
 import SEOHead from '../seo/SEOHead';
-import { SITE_CONFIG } from '../../constants/siteConfig';
+import { SITE_CONFIG, staticImageBaseUrl } from '../../constants/siteConfig';
 import { searchService } from '../../services/searchService';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { Category } from '../../types';
+import Tanvera from '../../assets/TanveeraP.png';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -160,7 +161,9 @@ const Header: React.FC = () => {
             {/* Center Logo for home page */}
             {isHomePage && (
               <Link to="/" className="absolute left-1/2 transform -translate-x-1/2">
-                <div className="w-8 h-8 bg-[#F2E9D8] rounded-full"></div>
+                <div className="w-16 h-16 mt-4">
+                    <img src={Tanvera} alt="img"  className="filter brightness-0 invert" />
+                </div>
               </Link>
             )}
 
@@ -432,7 +435,7 @@ const CartSidebar: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   <img
                     src={item.product.images[0]?.startsWith('http') 
                       ? item.product.images[0] 
-                      : `/api/static/images/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
+                      : `${staticImageBaseUrl}/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                     alt={item.product.name}
                     className="w-12 h-12 md:w-16 md:h-16 object-cover rounded"
                   />
