@@ -12,6 +12,10 @@ import { useLocation } from 'react-router-dom';
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCartSidebar, setShowCartSidebar] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  
   const { user, isAuthenticated, logout } = useAuthStore();
   const { loadCategories } = useCategoryStore();
   const navigate = useNavigate();
@@ -22,59 +26,142 @@ const Header: React.FC = () => {
     loadCategories().catch(console.error);
   }, [loadCategories]);
 
+  // Scroll behavior
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Update scrolled state for background
+      setScrolled(currentScrollY > 50);
+      
+      // Header visibility logic
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down
+        setIsVisible(false);
+      } else {
+        // Scrolling up
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
 
-
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
+  // Header styles based on page type
+  const getHeaderStyles = () => {
+    if (isHomePage) {
+      return {
+        background: scrolled ? '' : 'transparent',
+        textColor: scrolled ? '#5A5248' : '#FFFFFF',
+        fontWeight: scrolled ? '500' : '700'
+      };
+    } else {
+      return {
+        background: '#FFFFFF',
+        textColor: '#5A5248',
+        fontWeight: '500'
+      };
+    }
+  };
+
+  const styles = getHeaderStyles();
 
   return (
     <>
       <SEOHead />
-      <header className='fixed top-0 left-0 right-0 z-50 bg-transparent'>
-        {/* Main header */}
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
+          isVisible ? 'translate-y-0' : '-translate-y-full'
+        }`}
+        style={{ 
+          backgroundColor: styles.background,
+          backdropFilter: scrolled || !isHomePage ? 'blur(10px)' : 'none'
+        }}
+      >
         <div className='px-6 py-6'>
           <div className="flex items-center justify-between">
-            {/* Left side - Hamburger Menu and Navigation */}
-            <div className="flex items-center space-x-8">
-              {/* Hamburger Menu */}
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className={'text-[#F2E9D8] hover:text-[#D4B896]'}
-              >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-
-
-              <div className="hidden md:flex space-x-8 text-sm tracking-widest">
+            {/* Left side - Navigation for non-homepage */}
+            {!isHomePage && (
+              <div className="flex items-center space-x-8">
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="text-[#DEC9A3] hover:text-[#D4B896] transition-colors duration-300"
+                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                  className="hover:opacity-70 transition-opacity"
                 >
-                  MENU
+                  {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                 </button>
-                <Link
-                  to="/products"
-                  className="text-[#DEC9A3] hover:text-[#D4B896] transition-colors duration-300"
-                >
-                  SHOP
-                </Link>
-                <Link
-                  to="/about"
-                  className="text-[#DEC9A3] hover:text-[#D4B896] transition-colors duration-300"
-                >
-                  ABOUT
-                </Link>
-              </div>
 
-            </div>
+                <div className="hidden md:flex space-x-8 text-sm tracking-widest">
+                  <Link
+                    to="/products"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    SHOP
+                  </Link>
+                  <Link
+                    to="/about"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    ABOUT
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Homepage left side - Menu only */}
+            {isHomePage && (
+              <div className="flex items-center space-x-8">
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                  className="hover:opacity-70 transition-opacity"
+                >
+                  {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
+
+                <div className="hidden md:flex space-x-8 text-sm tracking-widest">
+                  <Link
+                    to="/products"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    SHOP
+                  </Link>
+                  <Link
+                    to="/about"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    WINE
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Center - Logo for homepage, Site name for others */}
             {isHomePage ? (
               <Link to="/" className="absolute left-1/2 transform -translate-x-1/2">
                 <div className="w-16 h-16 mt-4">
-                  <img src={Taanira} alt="img" className="filter brightness-0 invert" />
+                  <img 
+                    src={Taanira} 
+                    alt="Logo" 
+                    className={`w-full h-full object-contain ${
+                      scrolled ? '' : 'filter brightness-0 invert'
+                    }`}
+                    style={{
+                      filter: scrolled ? 'none' : 'brightness(0) invert(1)'
+                    }}
+                  />
                 </div>
               </Link>
             ) : (
@@ -82,22 +169,26 @@ const Header: React.FC = () => {
                 to="/"
                 className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
               >
-                <div className="w-16 h-16 flex items-center justify-center">
-                  <span className="text-lg font-semibold text-[#DEC9A3] tracking-wide">
+                <div className="flex items-center justify-center">
+                  <span 
+                    className="text-2xl font-serif italic tracking-wide"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                  >
                     {SITE_CONFIG.shortName}
                   </span>
                 </div>
               </Link>
             )}
 
-
-
             {/* Right side - Login and Cart */}
             <div className="flex items-center space-x-8">
               {/* User Authentication */}
               {isAuthenticated ? (
                 <div className="relative group">
-                  <button className='flex items-center space-x-1 text-[#F2E9D8] hover:text-[#D4B896] transition-colors duration-300'>
+                  <button 
+                    className='flex items-center space-x-1 hover:opacity-70 transition-opacity'
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                  >
                     <span className="text-sm tracking-widest">
                       {user?.firstname?.toUpperCase() || 'USER'}
                     </span>
@@ -131,7 +222,8 @@ const Header: React.FC = () => {
               ) : (
                 <Link
                   to="/login"
-                  className='text-sm tracking-widest isHomePage text-[#F2E9D8] hover:text-[#D4B896] transition-colors duration-300 cursor-pointer'
+                  className='text-sm tracking-widest hover:opacity-70 transition-opacity cursor-pointer'
+                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
                 >
                   LOGIN
                 </Link>
@@ -140,53 +232,59 @@ const Header: React.FC = () => {
               {/* Cart */}
               <button
                 onClick={() => setShowCartSidebar(true)}
-                className='relative flex items-center gap-1'>
-                <span className="text-sm tracking-widest isHomePage text-[#F2E9D8] hover:text-[#D4B896] transition-colors duration-300 cursor-pointer">CART</span>
-                <ShoppingBag className="w-4 h-4 text-sm tracking-widest isHomePage text-[#F2E9D8] hover:text-[#D4B896] transition-colors duration-300 cursor-pointer" />
+                className='relative flex items-center gap-2 hover:opacity-70 transition-opacity'
+              >
+                <span 
+                  className="text-sm tracking-widest"
+                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                >
+                  CART
+                </span>
+                <div 
+                  className="w-5 h-5 border rounded-sm"
+                  style={{ borderColor: styles.textColor }}
+                />
               </button>
-
             </div>
           </div>
         </div>
 
         {/* Mobile/Desktop Menu Overlay */}
         {isMenuOpen && (
-          <div className="fixed inset-0 bg-[#1C1A17] bg-opacity-95 z-40 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black bg-opacity-95 z-40 flex items-center justify-center">
             <div className="text-center space-y-8">
               <Link
                 to="/products"
                 onClick={() => setIsMenuOpen(false)}
-                className="block text-2xl md:text-4xl font-light text-[#F2E9D8] hover:text-[#D4B896] transition-colors duration-300"
+                className="block text-2xl md:text-4xl font-light text-white hover:opacity-70 transition-opacity"
               >
                 SHOP
               </Link>
               <Link
                 to="/"
                 onClick={() => setIsMenuOpen(false)}
-                className="block text-2xl md:text-4xl font-light text-[#F2E9D8] hover:text-[#D4B896] transition-colors duration-300"
+                className="block text-2xl md:text-4xl font-light text-white hover:opacity-70 transition-opacity"
               >
                 HOME
               </Link>
               <Link
                 to="/about"
                 onClick={() => setIsMenuOpen(false)}
-                className="block text-2xl md:text-4xl font-light text-[#F2E9D8] hover:text-[#D4B896] transition-colors duration-300"
+                className="block text-2xl md:text-4xl font-light text-white hover:opacity-70 transition-opacity"
               >
-                ABOUT
+                {isHomePage ? 'WINE' : 'ABOUT'}
               </Link>
             </div>
 
             {/* Close button */}
             <button
               onClick={() => setIsMenuOpen(false)}
-              className="absolute top-6 right-6 text-[#F2E9D8] hover:text-[#D4B896] transition-colors duration-300"
+              className="absolute top-6 right-6 text-white hover:opacity-70 transition-opacity"
             >
               <X className="h-8 w-8" />
             </button>
           </div>
         )}
-
-
       </header>
 
       {/* Cart Sidebar */}
