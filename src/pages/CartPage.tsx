@@ -13,12 +13,13 @@ const CartPage: React.FC = () => {
 
   // Use appropriate items based on auth status
   const currentItems = isAuthenticated ? items : guestItems;
+  console.log(currentItems, "currentItems")
 
-  const handleQuantityChange = (productId: string, newQuantity: number) => {
+  const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity < 1) {
-      removeItem(productId);
+      removeItem(id);
     } else {
-      updateQuantity(productId, newQuantity);
+      updateQuantity(id, newQuantity);
     }
   };
 
@@ -31,9 +32,9 @@ const CartPage: React.FC = () => {
     alert(`Payment failed: ${error}`);
   };
 
-  const handleRemoveItem = (productId: string, productName: string) => {
+  const handleRemoveItem = (id: string, productName: string) => {
     if (confirm(`Remove ${productName} from cart?`)) {
-      removeItem(productId);
+      removeItem(id);
     }
   };
 
@@ -90,14 +91,14 @@ const CartPage: React.FC = () => {
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
+                          onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                           className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
                         <span className="w-8 text-center">{item.quantity}</span>
                         <button
-                          onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
+                          onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                           className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                         >
                           <Plus className="h-4 w-4" />

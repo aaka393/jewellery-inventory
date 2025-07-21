@@ -27,36 +27,24 @@ class UserService extends BaseService {
     return this.put<UserProfile>('/user/profile', profileData, true);
   }
 
-  async getUserOrders(): Promise<ApiResponse<Order[]>> {
-    return this.get<Order[]>('/user/orders', true);
-  }
-
-  async getUserWishlist(): Promise<ApiResponse<string[]>> {
-    return this.get<string[]>('/user/wishlist', true);
-  }
-
-  async addToWishlist(productId: string): Promise<ApiResponse<void>> {
-    return this.post<void>('/user/wishlist', { productId }, true);
-  }
-
-  async removeFromWishlist(productId: string): Promise<ApiResponse<void>> {
-    return this.delete<void>(`/user/wishlist/${productId}`, true);
+  async getUserOrders(id: string): Promise<ApiResponse<UserProfile[]>> {
+    return this.get<UserProfile[]>(`/user/${id}/orders/`, true);
   }
 
   async getUserCart(): Promise<ApiResponse<any[]>> {
     return this.get<any[]>('/cart', true);
   }
 
-  async addToCart(productId: string, quantity: number): Promise<ApiResponse<void>> {
-    return this.post<void>('/cart/add', { productId, quantity }, true);
+  async addToCart(id: string, quantity: number): Promise<ApiResponse<void>> {
+    return this.post<void>('/cart/add', { id, quantity }, true);
   }
 
-  async updateCartItem(productId: string, quantity: number): Promise<ApiResponse<void>> {
-    return this.put<void>('/cart/update', { productId, quantity }, true);
-  }
+  async updateCartItem(id: string, quantity: number): Promise<ApiResponse<void>> {
+  return this.put<void>(`/cart/update/${id}?quantity=${quantity}`, null, true);
+}
 
-  async removeFromCart(productId: string): Promise<ApiResponse<void>> {
-    return this.delete<void>(`/cart/remove/${productId}`, true);
+  async removeFromCart(id: string): Promise<ApiResponse<void>> {
+    return this.delete<void>(`/cart/remove/${id}`, true);
   }
 
   async mergeCart(guestCartItems: any[]): Promise<ApiResponse<void>> {

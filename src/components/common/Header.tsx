@@ -264,6 +264,8 @@ const Header: React.FC = () => {
 // Enhanced Cart Sidebar Component with simplified product display
 const CartSidebar: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { items, guestItems, removeItem, updateQuantity, getTotalPrice } = useCartStore();
+  console.log("items", items)
+  console.log("guestItems", guestItems)
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -274,11 +276,11 @@ const CartSidebar: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     navigate('/cart');
   };
 
-  const handleQuantityUpdate = (productId: string, newQuantity: number) => {
+  const handleQuantityUpdate = (id: string, newQuantity: number) => {
     if (newQuantity <= 0) {
-      removeItem(productId);
+      removeItem(id);
     } else {
-      updateQuantity(productId, newQuantity);
+      updateQuantity(id, newQuantity);
     }
   };
 
@@ -331,21 +333,21 @@ const CartSidebar: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => handleQuantityUpdate(item.productId, item.quantity - 1)}
+                          onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
                           className="w-6 h-6 md:w-7 md:h-7 border rounded flex items-center justify-center text-sm hover:bg-gray-50 transition-colors"
                         >
                           -
                         </button>
                         <span className="text-sm md:text-base w-6 md:w-8 text-center">{item.quantity}</span>
                         <button
-                          onClick={() => handleQuantityUpdate(item.productId, item.quantity + 1)}
+                          onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
                           className="w-6 h-6 md:w-7 md:h-7 border rounded flex items-center justify-center text-sm hover:bg-gray-50 transition-colors"
                         >
                           +
                         </button>
                       </div>
                       <button
-                        onClick={() => removeItem(item.productId)}
+                        onClick={() => removeItem(item.id)}
                         className="text-xs text-gray-400 hover:text-red-500 transition-colors"
                       >
                         Remove

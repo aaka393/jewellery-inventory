@@ -8,8 +8,8 @@ interface CartState {
   items: CartItem[];
   guestItems: CartItem[];
   addItem: (product: Product, quantity: number) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   mergeGuestCart: () => void;
   getTotalPrice: () => number;
@@ -37,7 +37,7 @@ export const useCartStore = create<CartState>()(
           
           if (isAuthenticated) {
             set({ items: updatedItems });
-            // userService.updateCartItem(product.id, existingItem.quantity + quantity).catch(console.error);
+            userService.updateCartItem(product.id, existingItem.quantity + quantity).catch(console.error);
           } else {
             set({ guestItems: updatedItems });
           }
@@ -51,23 +51,23 @@ export const useCartStore = create<CartState>()(
           
           if (isAuthenticated) {
             set({ items: [...state.items, newItem] });
-            // userService.addToCart(product.id, quantity).catch(console.error);
+            userService.addToCart(product.id, quantity).catch(console.error);
           } else {
             set({ guestItems: [...state.guestItems, newItem] });
           }
         }
       },
-      removeItem: (productId) => {
+      removeItem: (id) => {
         const { isAuthenticated } = useAuthStore.getState();
         
         if (isAuthenticated) {
           set({
-            items: get().items.filter(item => item.productId !== productId),
+            items: get().items.filter(item => item.productId !== id),
           });
-          // userService.removeFromCart(productId).catch(console.error);
+          userService.removeFromCart(id).catch(console.error);
         } else {
           set({
-            guestItems: get().guestItems.filter(item => item.productId !== productId),
+            guestItems: get().guestItems.filter(item => item.productId !== id),
           });
         }
       },
@@ -87,7 +87,7 @@ export const useCartStore = create<CartState>()(
                 : item
             ),
           });
-          // userService.updateCartItem(productId, quantity).catch(console.error);
+          userService.updateCartItem(productId, quantity).catch(console.error);
         } else {
           set({
             guestItems: get().guestItems.map(item =>
@@ -113,7 +113,7 @@ export const useCartStore = create<CartState>()(
         if (guestItems.length === 0) return;
         
         // Sync with server
-        // userService.mergeCart(guestItems).catch(console.error);
+        userService.mergeCart(guestItems).catch(console.error);
         
         const mergedItems = [...items];
         
@@ -156,9 +156,9 @@ export const useCartStore = create<CartState>()(
         if (!isAuthenticated) return;
         
         try {
-          // const serverCart = await userService.getUserCart();
+          const serverCart = await userService.getUserCart();
           // Update local cart with server data
-          // set({ items: serverCart.result || [] });
+          set({ items: serverCart.result || [] });
         } catch (error) {
           console.error('Failed to sync cart with server:', error);
         }

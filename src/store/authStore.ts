@@ -24,12 +24,12 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       loading: false,
-      
+
       login: async (credentials) => {
         set({ loading: true });
         try {
           const response = await authService.login(credentials);
-          
+
           if (response && (response.code === RESPONSE_CODES.LOGIN_SUCCESS || response.success)) {
             const user: User = {
               id: response.result?.id || response.data?.id,
@@ -39,28 +39,24 @@ export const useAuthStore = create<AuthState>()(
               contact: response.result?.contact || response.data?.contact,
               username: response.result?.username || response.data?.username,
               role: (response.result?.role || response.data?.role) as 'Admin' | 'User' | undefined,
-              addresses: [],
-              wishlist: [],
-              cart: [],
-              isActive: true,
             };
-            
-            set({ 
-              user, 
-              isAuthenticated: true, 
-              loading: false 
+
+            set({
+              user,
+              isAuthenticated: true,
+              loading: false
             });
-            
+
             // Merge guest cart when user logs in
             const cartStore = useCartStore.getState();
             const wishlistStore = useWishlistStore.getState();
             cartStore.mergeGuestCart();
             cartStore.syncWithServer();
             wishlistStore.syncWithServer();
-            
+
             return true;
           }
-          
+
           console.error('Login failed:', response);
           set({ loading: false });
           return false;
@@ -75,7 +71,7 @@ export const useAuthStore = create<AuthState>()(
         set({ loading: true });
         try {
           const response = await authService.register(userData);
-          
+
           if (response.code === RESPONSE_CODES.REGISTER_SUCCESS) {
             const user: User = {
               id: response.result.id,
@@ -86,23 +82,20 @@ export const useAuthStore = create<AuthState>()(
               username: response.result.username,
               role: response.result.role as 'Admin' | 'User' | undefined,
             };
-            
-            set({ 
-              user, 
-              isAuthenticated: true, 
-              loading: false 
+
+            set({
+              user,
+              isAuthenticated: true,
+              loading: false
             });
-            
+
             // Merge guest cart when user registers
             const cartStore = useCartStore.getState();
-            const wishlistStore = useWishlistStore.getState();
             cartStore.mergeGuestCart();
             cartStore.syncWithServer();
-            wishlistStore.syncWithServer();
-            
             return true;
           }
-          
+
           set({ loading: false });
           return false;
         } catch (error) {
@@ -121,9 +114,9 @@ export const useAuthStore = create<AuthState>()(
           // Continue with client-side logout even if API fails
         } finally {
           // Clear client-side state
-          set({ 
-            user: null, 
-            isAuthenticated: false 
+          set({
+            user: null,
+            isAuthenticated: false
           });
         }
       },
@@ -131,7 +124,7 @@ export const useAuthStore = create<AuthState>()(
       verifyToken: async () => {
         try {
           const response = await authService.verifyToken();
-          
+
           if (response.code === RESPONSE_CODES.TOKEN_VERIFIED) {
             const user: User = {
               id: response.result.id,
@@ -142,24 +135,24 @@ export const useAuthStore = create<AuthState>()(
               username: response.result.username,
               role: response.result.role as 'Admin' | 'User' | undefined,
             };
-            
-            set({ 
-              user, 
-              isAuthenticated: true 
+
+            set({
+              user,
+              isAuthenticated: true
             });
             return true;
           }
-          
-          set({ 
-            user: null, 
-            isAuthenticated: false 
+
+          set({
+            user: null,
+            isAuthenticated: false
           });
           return false;
         } catch (error) {
           console.error('Token verification failed:', error);
-          set({ 
-            user: null, 
-            isAuthenticated: false 
+          set({
+            user: null,
+            isAuthenticated: false
           });
           return false;
         }

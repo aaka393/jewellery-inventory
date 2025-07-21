@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product } from '../../types';
@@ -14,6 +14,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const { addItem } = useCartStore();
+
+  useEffect(() => {
+  const { syncWithServer } = useCartStore.getState();
+  syncWithServer();
+}, []);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();

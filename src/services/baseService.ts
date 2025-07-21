@@ -34,12 +34,6 @@ class BaseService {
 
     try {
       const response = await fetch(url, config);
-      
-      console.log(`API Request: ${config.method || 'GET'} ${url}`, {
-        status: response.status,
-        statusText: response.statusText
-      });
-      
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`HTTP error! status: ${response.status}`, errorText);
@@ -47,7 +41,6 @@ class BaseService {
       }
 
       const data: ApiResponse<T> = await response.json();
-      console.log('API Response:', data);
       return data;
     } catch (error) {
       console.error('API request failed:', error);

@@ -7,11 +7,6 @@ export interface User {
   username: string;
   role?: 'Admin' | 'User';
   avatar?: string;
-  addresses: Address[];
-  wishlist: string[]; // Product IDs
-  cart: CartItem[];
-  lastLogin?: Date;
-  isActive: boolean;
 }
 
 export interface Address {
@@ -45,13 +40,12 @@ export interface Product {
   slug?: string; // SEO-friendly URL
   category: string; // slug or ObjectId reference
   description?: string;
-  
   initialPrice: number; // what admin paid
   price: number; // selling price to customer
   comparePrice?: number; // optional MRP
-  
   images: string[];
   stock: boolean;
+  createdAt: string;
 }
 
 export interface Category {
