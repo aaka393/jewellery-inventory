@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { WishlistItem, Product } from '../types';
-import { userService } from '../services/userService';
 import { useAuthStore } from './authStore';
 
 interface WishlistState {

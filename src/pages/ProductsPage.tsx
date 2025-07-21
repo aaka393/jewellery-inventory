@@ -5,14 +5,11 @@ import { Filter, Grid, List } from 'lucide-react';
 import { Product, ProductFilters } from '../types';
 import { apiService } from '../services/api';
 import ProductCard from '../components/common/ProductCard';
-import FilterSidebar from '../components/filters/FilterSidebar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<ProductFilters>({});
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
   const [isVisible, setIsVisible] = useState(false);
@@ -27,39 +24,38 @@ const ProductsPage: React.FC = () => {
     // Trigger animations after component mounts
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
-  }, [filters, searchParams]);
+  }, [searchParams]);
 
   const loadProducts = async () => {
-    try {
-      setLoading(true);
-      const category = searchParams.get('category');
-      const query = searchParams.get('q');
-      let searchFilters = { ...filters };
+  try {
+    setLoading(true);
 
-      const categoryToFilter = selectedCategory || category;
-      if (categoryToFilter) {
-        searchFilters.category = categoryToFilter;
-      }
+    const category = searchParams.get('category');
 
-      const productsRes = await apiService.filterProducts(searchFilters);
-      let filteredProducts = productsRes || [];
+    const fetchedProducts = await apiService.getProducts(); // now returns Product[]
 
-      if (query) {
-        filteredProducts = filteredProducts.filter(product =>
-          (product.name || '').toLowerCase().includes(query.toLowerCase()) ||
-          (product.description || '').toLowerCase().includes(query.toLowerCase())
-        );
-      }
+    const categoryToFilter = selectedCategory || category;
+    let filteredProducts = fetchedProducts;
 
-      filteredProducts = sortProducts(filteredProducts, sortBy);
-      setProducts(filteredProducts);
-    } catch (error) {
-      console.error('Error loading products:', error);
-      setProducts([]);
-    } finally {
-      setLoading(false);
+    if (categoryToFilter) {
+      filteredProducts = fetchedProducts.filter(
+        (p) => p.category?.toLowerCase() === categoryToFilter.toLowerCase()
+      );
     }
-  };
+
+    const sortedProducts = sortProducts(filteredProducts, sortBy);
+    setProducts(sortedProducts);
+  } catch (error) {
+    console.error('Error loading products:', error);
+    setProducts([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
 
   const sortProducts = (products: Product[], sortBy: string) => {
     if (!products || !Array.isArray(products)) return [];
@@ -110,8 +106,6 @@ const ProductsPage: React.FC = () => {
               <option value="featured">Featured</option>
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-              <option value="newest">Newest</option>
             </select>
 
             {/* View Toggle */}
@@ -130,14 +124,7 @@ const ProductsPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Filter button for mobile */}
-            <button
-              onClick={() => setIsFilterOpen(true)}
-              className="sm:hidden bg-[#DEC9A3] text-[#4A3F36] px-4 py-2 rounded-md flex items-center space-x-2 hover:bg-[#d1b990] transition w-full justify-center"
-            >
-              <Filter className="h-4 w-4" />
-              <span className="text-sm font-medium tracking-wide">Filters</span>
-            </button>
+
           </div>
         </div>
 

@@ -150,7 +150,7 @@ const ProductDetailPage: React.FC = () => {
       />
       
       <div className="min-h-screen bg-white">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto mt-[150px] px-4 py-8">
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8" aria-label="Breadcrumb">
             <Link to="/" className="hover:text-black">Home</Link>
