@@ -14,6 +14,8 @@ interface CartState {
   mergeGuestCart: () => void;
   getTotalPrice: () => number;
   getItemCount: () => number;
+  getProductQuantity: (productId: string) => number;
+  isProductInCart: (productId: string) => boolean;
   syncWithServer: () => Promise<void>;
 }
 
@@ -92,7 +94,7 @@ export const useCartStore = create<CartState>()(
         const { isAuthenticated } = useAuthStore.getState();
 
         if (isAuthenticated) {
-          // ✅ Keep logic same for authenticated users (quantity is absolute)
+          // For authenticated users, quantity is absolute
           set({
             items: get().items.map(item =>
               item.productId === id
@@ -104,21 +106,21 @@ export const useCartStore = create<CartState>()(
             .then(() => get().syncWithServer())
             .catch(console.error);
         } else {
-          // ✅ For guest users, treat `quantity` as change (+1 or -1)
+          // For guest users, quantity is also absolute now
           const guestItems = get().guestItems;
-          const item = guestItems.find(item => item.id === id);
+          const item = guestItems.find(item => item.productId === id);
           if (!item) return;
 
-          const newQuantity = item.quantity + quantity;
+          const newQuantity = quantity;
 
           if (newQuantity <= 0) {
             set({
-              guestItems: guestItems.filter(item => item.id !== id),
+              guestItems: guestItems.filter(item => item.productId !== id),
             });
           } else {
             set({
               guestItems: guestItems.map(item =>
-                item.id === id ? { ...item, quantity: newQuantity } : item
+                item.productId === id ? { ...item, quantity: newQuantity } : item
               ),
             });
           }
@@ -180,6 +182,18 @@ export const useCartStore = create<CartState>()(
         return (targetItems || []).reduce((count, item) => count + (item?.quantity || 0), 0);
       },
 
+      getProductQuantity: (productId: string) => {
+        const { isAuthenticated } = useAuthStore.getState();
+        const targetItems = isAuthenticated ? get().items : get().guestItems;
+        const item = targetItems.find(item => item.productId === productId);
+        return item ? item.quantity : 0;
+      },
+
+      isProductInCart: (productId: string) => {
+        const { isAuthenticated } = useAuthStore.getState();
+        const targetItems = isAuthenticated ? get().items : get().guestItems;
+        return targetItems.some(item => item.productId === productId);
+      },
       syncWithServer: async () => {
         const { isAuthenticated } = useAuthStore.getState();
         if (!isAuthenticated) return;

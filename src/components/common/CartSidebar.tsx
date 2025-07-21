@@ -29,9 +29,13 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
   const handleQuantityUpdate = (id: string, change: number) => {
     const item = currentItems.find(item => item.id === id);
     if (!item) return;
-      updateQuantity(item.id, change)
-      if(change < 1){
-      removeItem(id)
+    
+    const newQuantity = item.quantity + change;
+    
+    if (newQuantity <= 0) {
+      removeItem(item.productId);
+    } else {
+      updateQuantity(item.productId, newQuantity);
     }
   };
 

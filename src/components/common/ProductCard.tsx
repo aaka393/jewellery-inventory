@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Eye, ChevronLeft, ChevronRight, Plus, Minus } from 'lucide-react';
 import { Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { SITE_CONFIG, staticImageBaseUrl } from '../../constants/siteConfig';
@@ -13,12 +13,15 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const { addItem } = useCartStore();
+  const { addItem, updateQuantity, removeItem, getProductQuantity, isProductInCart } = useCartStore();
 
   useEffect(() => {
   const { syncWithServer } = useCartStore.getState();
   syncWithServer();
 }, []);
+
+  const productQuantity = getProductQuantity(product.id);
+  const inCart = isProductInCart(product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,6 +39,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
     }
   };
 
+  const handleQuantityChange = (e: React.MouseEvent, change: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const newQuantity = productQuantity + change;
+    
+    if (newQuantity <= 0) {
+      removeItem(product.id);
+    } else {
+      updateQuantity(product.id, newQuantity);
+    }
+  };
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -137,14 +152,44 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
         </div>
 
 
-        {/* Add to cart button */}
-        <button
-          onClick={handleAddToCart}
-          disabled={!product.stock}
-          className="w-full py-2.5 text-sm font-medium border-2 border-gray-800 text-gray-800 rounded-md hover:bg-gray-800 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-800 transition-all duration-300 transform hover:scale-105 active:scale-95"
-        >
-          {product.stock ? 'ADD TO CART' : 'OUT OF STOCK'}
-        </button>
+        {/* Cart controls */}
+        {!product.stock ? (
+          <button
+            disabled
+            className="w-full py-2.5 text-sm font-medium border-2 border-gray-400 text-gray-400 rounded-md cursor-not-allowed"
+          >
+            OUT OF STOCK
+          </button>
+        ) : inCart ? (
+          <div className="flex items-center justify-center space-x-3 py-2.5">
+            <button
+              onClick={(e) => handleQuantityChange(e, -1)}
+              className="w-8 h-8 flex items-center justify-center border-2 border-gray-800 text-gray-800 rounded-full hover:bg-gray-800 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95"
+              aria-label="Decrease quantity"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            
+            <span className="text-lg font-semibold text-gray-800 min-w-[2rem] text-center">
+              {productQuantity}
+            </span>
+            
+            <button
+              onClick={(e) => handleQuantityChange(e, 1)}
+              className="w-8 h-8 flex items-center justify-center border-2 border-gray-800 text-gray-800 rounded-full hover:bg-gray-800 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95"
+              aria-label="Increase quantity"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleAddToCart}
+            className="w-full py-2.5 text-sm font-medium border-2 border-gray-800 text-gray-800 rounded-md hover:bg-gray-800 hover:text-white transition-all duration-300 transform hover:scale-105 active:scale-95"
+          >
+            ADD TO CART
+          </button>
+        )}
 
 
       </div>

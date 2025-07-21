@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown, ShoppingBag } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useCategoryStore } from '../../store/categoryStore';
+import { useCartStore } from '../../store/cartStore';
 import SEOHead from '../seo/SEOHead';
 import { SITE_CONFIG } from '../../constants/siteConfig';
 import Taanira from '../../assets/Taanira-logo.png';
@@ -18,12 +19,14 @@ const Header: React.FC = () => {
 
   const { user, isAuthenticated, logout } = useAuthStore();
   const { loadCategories } = useCategoryStore();
+  const { getItemCount } = useCartStore();
   const navigate = useNavigate();
   const location = useLocation();
 
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname.startsWith('/admin'); // ✅ Admin page check
 
+  const cartItemCount = getItemCount();
 
   useEffect(() => {
     loadCategories().catch(console.error);
@@ -188,7 +191,7 @@ const Header: React.FC = () => {
               {!isAdminPage && (
                 <button
                   onClick={() => setShowCartSidebar(true)}
-                  className="flex items-center gap-2 hover:opacity-70 transition-opacity"
+                  className="flex items-center gap-2 hover:opacity-70 transition-opacity relative"
                 >
                   <span
                     className="hidden sm:inline text-xs sm:text-sm tracking-widest"
@@ -196,7 +199,14 @@ const Header: React.FC = () => {
                   >
                     CART
                   </span>
-                  <ShoppingBag className="w-5 h-5" style={{ color: styles.textColor }} />
+                  <div className="relative">
+                    <ShoppingBag className="w-5 h-5" style={{ color: styles.textColor }} />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                        {cartItemCount > 99 ? '99+' : cartItemCount}
+                      </span>
+                    )}
+                  </div>
                 </button>
               )}
 
@@ -235,6 +245,15 @@ const Header: React.FC = () => {
                       SHOP
                     </Link>
                     <div className="border-t border-[#d4b896]/20 mt-2" />
+                    <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80 flex items-center justify-center space-x-2">
+                      <span>CART</span>
+                      {cartItemCount > 0 && (
+                        <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                          {cartItemCount > 99 ? '99+' : cartItemCount}
+                        </span>
+                      )}
+                    </Link>
+                    <div className="border-t border-[#d4b896]/20 mt-2" />
                     {user?.role === 'Admin' && (
                       <>
                         <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
@@ -258,6 +277,15 @@ const Header: React.FC = () => {
                         <div className="border-t border-[#d4b896]/20 mt-2" />
                       </div>
                     ))}
+                    <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80 flex items-center justify-center space-x-2">
+                      <span>CART</span>
+                      {cartItemCount > 0 && (
+                        <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                          {cartItemCount > 99 ? '99+' : cartItemCount}
+                        </span>
+                      )}
+                    </Link>
+                    <div className="border-t border-[#d4b896]/20 mt-2" />
                     <Link to="/login" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
                       LOGIN
                     </Link>

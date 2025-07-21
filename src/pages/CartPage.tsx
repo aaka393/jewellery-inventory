@@ -16,10 +16,15 @@ const CartPage: React.FC = () => {
   console.log(currentItems, "currentItems")
 
   const handleQuantityChange = (id: string, delta: number) => {
-    updateQuantity(id, delta);
-    console.log(delta)
-    if(delta < 1){
-      removeItem(id)
+    const item = currentItems.find(item => item.id === id);
+    if (!item) return;
+    
+    const newQuantity = item.quantity + delta;
+    
+    if (newQuantity <= 0) {
+      removeItem(item.productId);
+    } else {
+      updateQuantity(item.productId, newQuantity);
     }
   };
 
