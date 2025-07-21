@@ -4,7 +4,7 @@ import { Menu, X, ChevronDown, ShoppingBag } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useCategoryStore } from '../../store/categoryStore';
 import SEOHead from '../seo/SEOHead';
-import { SITE_CONFIG} from '../../constants/siteConfig';
+import { SITE_CONFIG } from '../../constants/siteConfig';
 import Taanira from '../../assets/Taanira-logo.png';
 import CartSidebar from './CartSidebar';
 
@@ -20,7 +20,9 @@ const Header: React.FC = () => {
   const { loadCategories } = useCategoryStore();
   const navigate = useNavigate();
   const location = useLocation();
+
   const isHomePage = location.pathname === '/';
+  const isAdminPage = location.pathname.startsWith('/admin'); // ✅ Admin page check
 
   useEffect(() => {
     loadCategories().catch(console.error);
@@ -50,8 +52,9 @@ const Header: React.FC = () => {
 
   const styles = {
     background: 'transparent',
-    textColor: scrolled ? '#5A5248' : '#FFFFFF',
+    textColor: isAdminPage ? '#5A5248' : '#FFFFFF', // ✅ Text color based on admin
     fontWeight: scrolled ? '500' : '700',
+    borderColor: '#d4b896',
   };
 
   return (
@@ -60,14 +63,16 @@ const Header: React.FC = () => {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
           isVisible ? 'translate-y-0' : '-translate-y-full'
-        }`}
+        } ${isAdminPage ? 'border-b' : ''}`} // ✅ Only add border class for admin
         style={{
           backgroundColor: styles.background,
+          borderColor: isAdminPage ? styles.borderColor : 'transparent',
+          borderBottomWidth: isAdminPage ? '1px' : '0px',
         }}
       >
         <div className="px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            {/* Left - Hamburger & Menu */}
+            {/* Left - Menu */}
             <div className="flex items-center space-x-4 sm:space-x-8">
               <button
                 onClick={() => setIsMenuOpen(true)}
@@ -96,12 +101,12 @@ const Header: React.FC = () => {
                   style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
                   className="hover:opacity-70 transition-opacity"
                 >
-                  {isHomePage ? 'ABOUT' : 'ABOUT'}
+                  ABOUT
                 </Link>
               </div>
             </div>
 
-            {/* Center - Logo */}
+            {/* Center - Logo or Name */}
             <Link
               to="/"
               className={`absolute left-1/2 transform -translate-x-1/2 ${
@@ -113,8 +118,10 @@ const Header: React.FC = () => {
                   <img
                     src={Taanira}
                     alt="Logo"
-                    className="w-full h-full object-contain transition-all duration-300" 
-                    style={{ filter: scrolled ? 'none' : 'brightness(0) invert(1)' }}
+                    className="w-full h-full object-contain transition-all duration-300"
+                    style={{
+                      filter: isAdminPage ? 'none' : 'brightness(0) invert(1)',
+                    }}
                   />
                 </div>
               ) : (
@@ -130,99 +137,83 @@ const Header: React.FC = () => {
             </Link>
 
             {/* Right - Auth & Cart */}
-           <div
-            className={`hidden sm:flex items-center space-x-4 transition-opacity duration-700 ${
-              showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-            }`}
-          >
-          {/* LOGIN / DROPDOWN */}
-          {isAuthenticated ? (
-            <div className="relative group">
-              <button
-                className="flex items-center space-x-1 hover:opacity-70 transition-opacity"
-                style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-              >
-                <span className="text-xs sm:text-sm tracking-widest">
-                  {user?.firstname?.toUpperCase() || 'USER'}
-                </span>
-                <ChevronDown className="h-3 w-3" />
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                  {user?.firstname} {user?.lastname}
-                  <div className="text-xs text-gray-500">{user?.email}</div>
+            <div
+              className={`hidden sm:flex items-center space-x-4 transition-opacity duration-700 ${
+                showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+              }`}
+            >
+              {isAuthenticated ? (
+                <div className="relative group">
+                  <button
+                    className="flex items-center space-x-1 hover:opacity-70 transition-opacity"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                  >
+                    <span className="text-xs sm:text-sm tracking-widest">
+                      {user?.firstname?.toUpperCase() || 'USER'}
+                    </span>
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                      {user?.firstname} {user?.lastname}
+                      <div className="text-xs text-gray-500">{user?.email}</div>
+                    </div>
+                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Profile
+                    </Link>
+                    <Link to="/user/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Orders
+                    </Link>
+                    {user?.role === 'Admin' && (
+                      <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Admin Panel
+                      </Link>
+                    )}
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </div>
-                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  Profile
-                </Link>
-                <Link to="/user/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  Orders
-                </Link>
-                {user?.role === 'Admin' && (
-                  <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Admin Panel
-                  </Link>
-                )}
-                <div className="border-t border-gray-100 my-1"></div>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              ) : (
+                <Link
+                  to="/login"
+                  className="text-xs sm:text-sm tracking-widest hover:opacity-70 transition-opacity cursor-pointer"
+                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
                 >
-                  Logout
-                </button>
-              </div>
+                  LOGIN
+                </Link>
+              )}
+
+              <button
+                onClick={() => setShowCartSidebar(true)}
+                className="flex items-center gap-2 hover:opacity-70 transition-opacity"
+              >
+                <span
+                  className="hidden sm:inline text-xs sm:text-sm tracking-widest"
+                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                >
+                  CART
+                </span>
+                <ShoppingBag className="w-5 h-5" style={{ color: styles.textColor }} />
+              </button>
             </div>
-          ) : (
-            <Link
-              to="/login"
-              className="text-xs sm:text-sm tracking-widest hover:opacity-70 transition-opacity cursor-pointer"
-              style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-            >
-              LOGIN
-            </Link>
-          )}
-
-                <button
-            onClick={() => setShowCartSidebar(true)}
-            className="flex items-center gap-2 hover:opacity-70 transition-opacity"
-          >
-            {/* CART Text – only shown on sm and above */}
-            <span
-              className="hidden sm:inline text-xs sm:text-sm tracking-widest"
-              style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-            >
-              CART
-            </span>
-
-            {/* Icon – always visible */}
-            <ShoppingBag
-              className="w-5 h-5"
-              style={{ color: styles.textColor }}
-            />
-          </button>
-
-
-          </div>
-
           </div>
         </div>
       </header>
 
-      {/* Sidebar Menu - Left Slide */}
+      {/* Sidebar Menu */}
       {isMenuOpen && (
         <>
-          {/* Overlay */}
           <div
             className="fixed inset-0 bg-black bg-opacity-40 z-40"
             onClick={() => setIsMenuOpen(false)}
           />
-
-          {/* Sidebar */}
           <div className="fixed top-0 left-0 h-screen w-full sm:w-1/2 sm:max-w-xs bg-[#1d1a15] z-50 shadow-lg px-6 py-10 flex flex-col justify-between text-[#d4b896] transition-all duration-500 ease-in-out overflow-y-auto">
-
-            {/* Top Section */}
             <div>
-              {/* Close Button */}
               <div className="flex items-center gap-2 mb-12">
                 <button
                   onClick={() => setIsMenuOpen(false)}
@@ -233,56 +224,26 @@ const Header: React.FC = () => {
                 <span className="tracking-widest text-xs">CLOSE</span>
               </div>
 
-              {/* Menu Items */}
               <div className="flex flex-col gap-10 text-center pl-2">
                 {isAuthenticated ? (
-                  user?.role === 'Admin' ? (
-                    <>
-                      {/* PROFILE */}
-                      <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
-                        PROFILE
-                      </Link>
-                      <div className="border-t border-[#d4b896]/20 mt-2" />
-
-                      {/* SHOP */}
-                      <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
-                        SHOP
-                      </Link>
-                      <div className="border-t border-[#d4b896]/20 mt-2" />
-
-                      {/* ADMIN PANEL */}
-                      <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
-                        ADMIN PANEL
-                      </Link>
-                      <div className="border-t border-[#d4b896]/20 mt-2" />
-                    </>
-                  ) : (
-                    <>
-                      {/* HOME */}
-                      <Link to="/" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
-                        HOME
-                      </Link>
-                      <div className="border-t border-[#d4b896]/20 mt-2" />
-
-                      {/* PROFILE */}
-                      <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
-                        PROFILE
-                      </Link>
-                      <div className="border-t border-[#d4b896]/20 mt-2" />
-
-                      {/* SHOP */}
-                      <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
-                        SHOP
-                      </Link>
-                      <div className="border-t border-[#d4b896]/20 mt-2" />
-
-                      {/* ABOUT */}
-                      <Link to="/about" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
-                        ABOUT
-                      </Link>
-                      <div className="border-t border-[#d4b896]/20 mt-2" />
-                    </>
-                  )
+                  <>
+                    <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
+                      PROFILE
+                    </Link>
+                    <div className="border-t border-[#d4b896]/20 mt-2" />
+                    <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
+                      SHOP
+                    </Link>
+                    <div className="border-t border-[#d4b896]/20 mt-2" />
+                    {user?.role === 'Admin' && (
+                      <>
+                        <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
+                          ADMIN PANEL
+                        </Link>
+                        <div className="border-t border-[#d4b896]/20 mt-2" />
+                      </>
+                    )}
+                  </>
                 ) : (
                   <>
                     {['/', '/products', '/about'].map((path) => (
@@ -297,13 +258,7 @@ const Header: React.FC = () => {
                         <div className="border-t border-[#d4b896]/20 mt-2" />
                       </div>
                     ))}
-
-                    {/* LOGIN */}
-                    <Link
-                      to="/login"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="block text-lg tracking-[0.2em] font-light hover:opacity-80"
-                    >
+                    <Link to="/login" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
                       LOGIN
                     </Link>
                   </>
@@ -311,7 +266,6 @@ const Header: React.FC = () => {
               </div>
             </div>
 
-            {/* Logout – only when authenticated */}
             {isAuthenticated && (
               <div className="mt-8 text-center">
                 <button
@@ -329,8 +283,6 @@ const Header: React.FC = () => {
         </>
       )}
 
-
-      {/* Cart Sidebar */}
       {showCartSidebar && <CartSidebar onClose={() => setShowCartSidebar(false)} />}
     </>
   );

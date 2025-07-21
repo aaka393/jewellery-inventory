@@ -13,12 +13,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
   const { items, guestItems, removeItem, updateQuantity, getTotalPrice } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
-
   const currentItems = isAuthenticated ? items : guestItems;
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowContent(true), 500);
+    const timer = setTimeout(() => setShowContent(true), 200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -38,13 +37,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Overlay */}
-      <div
-        className="absolute inset-0 bg-black bg-opacity-50"
-        onClick={onClose}
-      ></div>
+      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
 
       {/* Sidebar */}
-      <div className="absolute right-0 top-0 h-full w-full max-w-sm md:max-w-md bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+      <div className="absolute right-0 top-0 h-full w-full max-w-sm md:max-w-md bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold">MY BAG ({currentItems.length})</h2>
@@ -53,12 +49,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
           </button>
         </div>
 
-        {/* Content */}
+        {/* Scrollable Cart Content */}
         <div
           className={`flex-1 overflow-y-auto p-4 transition-opacity duration-700 ${
             showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
-          style={{ height: 'calc(100vh - 180px)' }}
         >
           {currentItems.length === 0 ? (
             <div className="text-center mt-8 animate-fadeInSlow">
@@ -77,40 +72,37 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
               {currentItems.map((item, index) => (
                 <div
                   key={item.id}
-                  className="flex items-start space-x-3 border-b pb-4 opacity-0 animate-fadeInSlow"
-                  style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'forwards' }}
+                  className="flex items-start space-x-3 border-b pb-4 animate-fadeInSlow"
+                  style={{ animationDelay: `${index * 0.05}s`, animationFillMode: 'forwards' }}
                 >
                   <img
                     src={
                       item.product.images[0]?.startsWith('http')
                         ? item.product.images[0]
-                        : `${staticImageBaseUrl}/${item.product.images[0]}` ||
-                          'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'
+                        : `${staticImageBaseUrl}/${item.product.images[0]}`
                     }
                     alt={item.product.name}
-                    className="w-12 h-12 md:w-16 md:h-16 object-cover rounded flex-shrink-0"
+                    className="w-14 h-14 md:w-16 md:h-16 object-cover rounded"
                   />
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm md:text-base font-medium text-gray-900 line-clamp-2 mb-2">
+                    <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
                       {item.product.name}
                     </h3>
-                    <div className="text-sm md:text-base font-semibold text-gray-900 mb-3">
+                    <p className="text-sm font-semibold text-gray-900 mb-2">
                       ₹{item.product.price.toLocaleString()}
-                    </div>
+                    </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleQuantityUpdate(item.productId, item.quantity - 1)}
-                          className="w-6 h-6 md:w-7 md:h-7 border rounded flex items-center justify-center text-sm hover:bg-gray-50 transition-colors"
+                          className="w-7 h-7 border rounded flex items-center justify-center text-sm hover:bg-gray-50"
                         >
                           -
                         </button>
-                        <span className="text-sm md:text-base w-6 md:w-8 text-center">
-                          {item.quantity}
-                        </span>
+                        <span className="text-sm w-6 text-center">{item.quantity}</span>
                         <button
                           onClick={() => handleQuantityUpdate(item.productId, item.quantity + 1)}
-                          className="w-6 h-6 md:w-7 md:h-7 border rounded flex items-center justify-center text-sm hover:bg-gray-50 transition-colors"
+                          className="w-7 h-7 border rounded flex items-center justify-center text-sm hover:bg-gray-50"
                         >
                           +
                         </button>
@@ -145,13 +137,13 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
             </p>
             <button
               onClick={handleCheckout}
-              className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors"
+              className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800"
             >
               PROCEED TO CHECKOUT
             </button>
             <button
               onClick={onClose}
-              className="w-full mt-2 text-center text-sm text-gray-600 hover:text-black transition-colors"
+              className="w-full mt-2 text-center text-sm text-gray-600 hover:text-black"
             >
               VIEW CART
             </button>
