@@ -24,6 +24,7 @@ const Header: React.FC = () => {
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname.startsWith('/admin'); // ✅ Admin page check
 
+
   useEffect(() => {
     loadCategories().catch(console.error);
   }, [loadCategories]);
@@ -52,7 +53,8 @@ const Header: React.FC = () => {
 
   const styles = {
     background: 'transparent',
-    textColor: isAdminPage ? '#5A5248' : '#FFFFFF', // ✅ Text color based on admin
+    textColor: isHomePage ? '#FFFFFF' : '#5f3c2c',
+    // ✅ Text color based on admin
     fontWeight: scrolled ? '500' : '700',
     borderColor: '#d4b896',
   };
@@ -61,9 +63,8 @@ const Header: React.FC = () => {
     <>
       <SEOHead />
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
-          isVisible ? 'translate-y-0' : '-translate-y-full'
-        } ${isAdminPage ? 'border-b' : ''}`} // ✅ Only add border class for admin
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'
+          } ${isAdminPage ? 'border-b' : ''}`} // ✅ Only add border class for admin
         style={{
           backgroundColor: styles.background,
           borderColor: isAdminPage ? styles.borderColor : 'transparent',
@@ -77,41 +78,38 @@ const Header: React.FC = () => {
               <button
                 onClick={() => setIsMenuOpen(true)}
                 style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                className={`hover:opacity-70 transition-opacity z-50 relative ${
-                  showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-                }`}
+                className={`hover:opacity-70 transition-opacity z-50 relative ${showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+                  }`}
               >
                 <Menu className="h-6 w-6" />
               </button>
 
-              <div
-                className={`hidden md:flex space-x-6 lg:space-x-8 text-sm tracking-widest transition-opacity duration-700 ${
-                  showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-                }`}
-              >
-                <Link
-                  to="/products"
-                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                  className="hover:opacity-70 transition-opacity"
-                >
-                  SHOP
-                </Link>
-                <Link
-                  to="/about"
-                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                  className="hover:opacity-70 transition-opacity"
-                >
-                  ABOUT
-                </Link>
-              </div>
+              {!isAdminPage && (
+                <div className="hidden md:flex space-x-6 lg:space-x-8 text-sm tracking-widest transition-opacity duration-700">
+                  <Link
+                    to="/products"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    SHOP
+                  </Link>
+                  <Link
+                    to="/about"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    ABOUT
+                  </Link>
+                </div>
+              )}
+
             </div>
 
             {/* Center - Logo or Name */}
             <Link
               to="/"
-              className={`absolute left-1/2 transform -translate-x-1/2 ${
-                showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-              }`}
+              className={`absolute left-1/2 transform -translate-x-1/2 ${showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+                }`}
             >
               {isHomePage ? (
                 <div className="w-10 h-10 sm:w-12 sm:h-12 mt-2 sm:mt-4">
@@ -138,9 +136,8 @@ const Header: React.FC = () => {
 
             {/* Right - Auth & Cart */}
             <div
-              className={`hidden sm:flex items-center space-x-4 transition-opacity duration-700 ${
-                showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-              }`}
+              className={`hidden sm:flex items-center space-x-4 transition-opacity duration-700 ${showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+                }`}
             >
               {isAuthenticated ? (
                 <div className="relative group">
@@ -188,18 +185,21 @@ const Header: React.FC = () => {
                 </Link>
               )}
 
-              <button
-                onClick={() => setShowCartSidebar(true)}
-                className="flex items-center gap-2 hover:opacity-70 transition-opacity"
-              >
-                <span
-                  className="hidden sm:inline text-xs sm:text-sm tracking-widest"
-                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+              {!isAdminPage && (
+                <button
+                  onClick={() => setShowCartSidebar(true)}
+                  className="flex items-center gap-2 hover:opacity-70 transition-opacity"
                 >
-                  CART
-                </span>
-                <ShoppingBag className="w-5 h-5" style={{ color: styles.textColor }} />
-              </button>
+                  <span
+                    className="hidden sm:inline text-xs sm:text-sm tracking-widest"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                  >
+                    CART
+                  </span>
+                  <ShoppingBag className="w-5 h-5" style={{ color: styles.textColor }} />
+                </button>
+              )}
+
             </div>
           </div>
         </div>
