@@ -213,15 +213,24 @@ const AdminDashboard: React.FC = () => {
       {/* Categories Overview */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold text-[#5f3c2c] mb-4">Categories Overview</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats?.products.categories && Object.entries(stats.products.categories).map(([category, count]) => (
-            <div key={category} className="text-center p-4 bg-[#F8F5F1] rounded-lg">
-              <div className="text-2xl font-bold text-[#5f3c2c]">{count}</div>
-              <div className="text-sm text-[#8f674b] capitalize">{category}</div>
-            </div>
-          ))}
-        </div>
+
+        {stats?.products?.categories && Object.keys(stats.products.categories).length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Object.entries(stats.products.categories).map(([category]) => (
+              <div
+                key={category}
+                className="flex items-center justify-center text-sm text-[#8f674b] capitalize bg-[#F8F5F1] rounded-lg p-4 text-center"
+              >
+                {category}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-sm text-gray-500">No category data available.</div>
+        )}
       </div>
+
+
 
       {/* Recent Products */}
       <div className="bg-white rounded-lg shadow-sm">
@@ -301,9 +310,8 @@ const AdminDashboard: React.FC = () => {
                     {SITE_CONFIG.currencySymbol}{(product.price || 0).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      product.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
                       {product.stock ? 'In Stock' : 'Out of Stock'}
                     </span>
                   </td>

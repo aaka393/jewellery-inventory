@@ -33,7 +33,6 @@ const AdminPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
-  console.log("products",products)
   // Dialog states
   const [editDialog, setEditDialog] = useState<{
     isOpen: boolean;
