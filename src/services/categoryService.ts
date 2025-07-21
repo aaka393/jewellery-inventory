@@ -15,6 +15,11 @@ class CategoryService extends BaseService {
   async deleteCategory(id: string): Promise<ApiResponse<void>> {
     return this.delete<void>(`${API_ENDPOINTS.DELETE_CATEGORY}/${id}`, true);
   }
+
+async updateCategory(id: string, data: Partial<Category>): Promise<ApiResponse<Category>> {
+    return this.put<Category>(`${API_ENDPOINTS.UPDATE_CATEGORY}/${id}`, data, true);
+  }
+
 }
 
 export const categoryService = new CategoryService();

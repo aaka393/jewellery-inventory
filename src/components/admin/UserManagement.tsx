@@ -24,6 +24,8 @@ const UserManagement: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [trackingLoading, setTrackingLoading] = useState<string | null>(null);
   const [userOrderCounts, setUserOrderCounts] = useState<Record<string, number>>({});
+  const [customTrackingNumber, setCustomTrackingNumber] = useState('');
+
 
   const [trackingConfirmDialog, setTrackingConfirmDialog] = useState<{
     isOpen: boolean;
@@ -67,18 +69,17 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const sendTrackingId = async (userId: string) => {
+  const sendTrackingId = async (userId: string, trackingNumber: string) => {
     try {
       setTrackingLoading(userId);
 
-      // Call the tracking API endpoint
       const response = await fetch('/api/admin/send-tracking', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ userId })
+        body: JSON.stringify({ userId, trackingNumber }),
       });
 
       if (!response.ok) {
@@ -91,7 +92,6 @@ const UserManagement: React.FC = () => {
         const trackingData: TrackingResponse = result.result;
         showNotification('Tracking ID sent successfully!', 'success');
 
-        // If delivered is true, fetch and display total products ordered
         if (trackingData.delivered) {
           await fetchUserOrderCount(userId);
         }
@@ -296,17 +296,33 @@ const UserManagement: React.FC = () => {
       </div>
       <ConfirmDialog
         isOpen={trackingConfirmDialog.isOpen}
-        onClose={() => setTrackingConfirmDialog({ isOpen: false })}
+        onClose={() => {
+          setTrackingConfirmDialog({ isOpen: false });
+          setCustomTrackingNumber('');
+        }}
         onConfirm={() => {
-          if (trackingConfirmDialog.userId) {
-            sendTrackingId(trackingConfirmDialog.userId);
+          if (trackingConfirmDialog.userId && customTrackingNumber) {
+            sendTrackingId(trackingConfirmDialog.userId, customTrackingNumber);
           }
           setTrackingConfirmDialog({ isOpen: false });
+          setCustomTrackingNumber('');
         }}
         title="Send Tracking ID"
-        message="Are you sure you want to send the tracking ID to this user?"
         confirmText="Send"
+        message={
+          <>
+            <p className="mb-2">Enter the tracking number for this user:</p>
+            <input
+              type="text"
+              value={customTrackingNumber}
+              onChange={(e) => setCustomTrackingNumber(e.target.value)}
+              placeholder="Tracking Number"
+              className="w-full border border-gray-300 px-3 py-2 rounded"
+            />
+          </>
+        }
       />
+
       {/* Confirm Role Change Dialog */}
       <ConfirmDialog
         isOpen={roleChangeDialog.isOpen}

@@ -136,6 +136,12 @@ class ApiService {
     return response.result;
   }
 
+  async updateCategory(id: string, data: Partial<Category>): Promise<Category> {
+  const response = await categoryService.updateCategory(id, data);
+  return response.result;
+}
+
+
   async deleteCategory(id: string): Promise<void> {
     await categoryService.deleteCategory(id);
   }

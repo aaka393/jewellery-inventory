@@ -5,6 +5,7 @@ import { apiService } from '../../services/api';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ConfirmDialog from '../common/ConfirmDialog';
 import Dialog from '../common/Dialog';
+import { staticImageBaseUrl } from '../../constants/siteConfig';
 
 interface CategoryFormData {
   name: string;
@@ -25,7 +26,7 @@ const CategoryManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
-  
+
   // Dialog states
   const [categoryDialog, setCategoryDialog] = useState<{
     isOpen: boolean;
@@ -70,7 +71,7 @@ const CategoryManagement: React.FC = () => {
           slug: categoryDialog.category.slug || '',
           image: categoryDialog.category.image || ''
         });
-        
+
         // Set existing image if available
         if (categoryDialog.category.image) {
           setImageFiles([{
@@ -111,7 +112,7 @@ const CategoryManagement: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === 'name') {
       setFormData(prev => ({
         ...prev,
@@ -153,7 +154,7 @@ const CategoryManagement: React.FC = () => {
 
   const handleFiles = (files: File[]) => {
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
-    
+
     if (imageFiles.length > 0) {
       // Only allow one image for categories
       const file = imageFiles[0];
@@ -163,7 +164,7 @@ const CategoryManagement: React.FC = () => {
         preview: URL.createObjectURL(file),
         uploaded: false
       };
-      
+
       setImageFiles([newImageFile]);
     }
   };
@@ -236,7 +237,7 @@ const CategoryManagement: React.FC = () => {
 
       if (categoryDialog.mode === 'edit' && categoryDialog.category) {
         // Update category (when API is available)
-        // await apiService.updateCategory(categoryDialog.category.id, categoryData);
+        await apiService.updateCategory(categoryDialog.category.id, categoryData);
         console.log('Update category:', categoryData);
       } else {
         // Create new category
@@ -245,7 +246,7 @@ const CategoryManagement: React.FC = () => {
 
       await loadCategories();
       setCategoryDialog({ isOpen: false, category: null, mode: 'create' });
-      
+
     } catch (error) {
       console.error('Error saving category:', error);
       alert('Failed to save category. Please try again.');
@@ -376,7 +377,7 @@ const CategoryManagement: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     {category.image ? (
                       <img
-                        src={category.image}
+                        src={`${staticImageBaseUrl}/${category.image}`}
                         alt={category.name}
                         className="h-10 w-10 rounded-lg object-cover"
                       />
@@ -386,13 +387,15 @@ const CategoryManagement: React.FC = () => {
                       </div>
                     )}
                   </td>
+
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-[#5f3c2c]">{category.name}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-[#8f674b]">{category.slug}</div>
                   </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
                         onClick={() => setCategoryDialog({ isOpen: true, category, mode: 'edit' })}
@@ -402,11 +405,11 @@ const CategoryManagement: React.FC = () => {
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => setDeleteDialog({ 
-                          isOpen: true, 
-                          type: 'single', 
+                        onClick={() => setDeleteDialog({
+                          isOpen: true,
+                          type: 'single',
                           categoryId: category.id,
-                          categoryName: category.name 
+                          categoryName: category.name
                         })}
                         className="text-red-600 hover:text-red-900"
                         title="Delete"
@@ -474,11 +477,10 @@ const CategoryManagement: React.FC = () => {
               onDragOver={handleDrag}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-                dragActive
-                  ? 'border-[#D4B896] bg-[#F2E9D8]'
-                  : 'border-gray-300 hover:border-[#D4B896] hover:bg-gray-50'
-              }`}
+              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${dragActive
+                ? 'border-[#D4B896] bg-[#F2E9D8]'
+                : 'border-gray-300 hover:border-[#D4B896] hover:bg-gray-50'
+                }`}
             >
               <Upload className="h-8 w-8 text-[#5f3c2c] mx-auto mb-2" />
               <p className="text-sm text-[#5f3c2c]">
@@ -541,7 +543,7 @@ const CategoryManagement: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-3 pt-4 border-t">
+          < div className="flex space-x-3 pt-4 border-t" >
             <button
               type="button"
               onClick={() => setCategoryDialog({ isOpen: false, category: null, mode: 'create' })}

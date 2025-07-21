@@ -1,7 +1,7 @@
 import BaseService from './baseService';
 import { Order, User } from '../types';
 import { ApiResponse } from '../types/api';
-
+import { API_ENDPOINTS } from '../constants/appConstants';
 
 interface ProductStats {
   totalProducts: number;
@@ -17,40 +17,45 @@ interface OrderStats {
 }
 
 class AdminService extends BaseService {
-
+  // Product
   async updateProductVisibility(productId: string, visible: boolean): Promise<ApiResponse<void>> {
-    return this.put<void>(`/admin/products/${productId}/visibility`, { visible }, true);
+    return this.put<void>(`${API_ENDPOINTS.UPDATE_PRODUCT_VISIBILITY}/${productId}/visibility`, { visible }, true);
   }
 
   async getProductStats(): Promise<ApiResponse<ProductStats>> {
-    return this.get<ProductStats>('/admin/stats/products', true);
+    return this.get<ProductStats>(API_ENDPOINTS.ADMIN_PRODUCT_STATS, true);
   }
 
-  // Order Management
+  // Order
   async getAllOrders(): Promise<ApiResponse<Order[]>> {
-    return this.get<Order[]>('/admin/orders', true);
+    return this.get<Order[]>(API_ENDPOINTS.ADMIN_ORDERS, true);
   }
 
   async updateOrderStatus(orderId: string, status: string): Promise<ApiResponse<void>> {
-    return this.put<void>(`/admin/orders/${orderId}/status`, { status }, true);
+    return this.put<void>(`${API_ENDPOINTS.UPDATE_ORDER_STATUS}/${orderId}/status`, { status }, true);
   }
 
   async getOrderStats(): Promise<ApiResponse<OrderStats>> {
-    return this.get<OrderStats>('/admin/stats/orders', true);
+    return this.get<OrderStats>(API_ENDPOINTS.ADMIN_ORDER_STATS, true);
   }
 
-  // User Management
+  // User
   async getAllUsers(): Promise<ApiResponse<User[]>> {
-    return this.get<User[]>('/admin/users', true);
+    return this.get<User[]>(API_ENDPOINTS.ADMIN_USERS, true);
   }
 
   async updateUserRole(userId: string, role: string): Promise<ApiResponse<void>> {
-    return this.put<void>(`/admin/users/${userId}/role`, { role }, true);
+    return this.put<void>(`${API_ENDPOINTS.ADMIN_USER_ROLE}/${userId}/role`, { role }, true);
   }
 
-  // Category Management
+  // Category
   async updateCategoryOrder(categoryIds: string[]): Promise<ApiResponse<void>> {
-    return this.put<void>('/admin/categories/order', { categoryIds }, true);
+    return this.put<void>(API_ENDPOINTS.UPDATE_CATEGORY_ORDER, { categoryIds }, true);
+  }
+
+  // Manual Tracking
+  async addManualTracking(userId: string, trackingId: string): Promise<ApiResponse<void>> {
+    return this.post<void>(`${API_ENDPOINTS.ADMIN_USERS}/${userId}/tracking`, { trackingId }, true);
   }
 }
 
