@@ -1,71 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Package, ShoppingCart, DollarSign, Users, Eye } from 'lucide-react';
-import { adminService } from '../../services/adminService';
-import { apiService } from '../../services/api';
 import { Product } from '../../types';
+import { DashboardStats } from '../../types/dashboard';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { SITE_CONFIG, staticImageBaseUrl } from '../../constants/siteConfig';
-
-interface DashboardStats {
-  products: {
-    total: number;
-    inStock: number;
-    categories: Record<string, number>;
-  };
-  orders: {
-    total: number;
-    pending: number;
-    completed: number;
-    revenue: number;
-  };
-  users: {
-    total: number;
-  };
-}
+import { useAdminDashboard } from '../../hooks/useAdminDashboard';
 
 const AdminDashboard: React.FC = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [recentProducts, setRecentProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { stats, recentProducts, loading, error } = useAdminDashboard();
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const [ps, os, us, products] = await Promise.all([
-          adminService.getProductStats(),
-          adminService.getOrderStats(),
-          adminService.getAllUsers(),
-          apiService.getProducts(),
-        ]);
-
-        setStats({
-          products: {
-            total: ps.result.totalProducts,
-            inStock: ps.result.stock,
-            categories: ps.result.categories,
-          },
-          orders: {
-            total: os.result.totalOrders,
-            pending: os.result.pendingOrders,
-            completed: os.result.completedOrders,
-            revenue: os.result.totalRevenue,
-          },
-          users: {
-            total: us.result?.length || 0,
-          },
-        });
-
-        setRecentProducts((products || []).slice(0, 10));
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  if (loading || !stats) return <LoadingSpinner />;
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-600 p-4">Error: {error}</div>;
+  if (!stats) return <div className="text-gray-600 p-4">No data available</div>;
 
   return (
     <div className="space-y-6">
@@ -140,16 +86,23 @@ interface CardProps {
   value: string | number;
   note?: string;
 }
+
+interface CardProps {
+  icon: React.ComponentType<any>;
+  title: string;
+  value: string | number;
+  note?: string;
+}
 const Card: React.FC<CardProps> = ({ icon: Icon, title, value, note }) => (
   <div className="bg-white rounded-lg shadow-sm p-6">
     <div className="flex items-center">
       <div className="p-2 bg-[#D4B896] rounded-lg"><Icon className="h-6 w-6 text-[#5f3c2c]" /></div>
       <div className="ml-4">
         <p className="text-sm font-medium text-[#5f3c2c]">{title}</p>
-        <p className="text-2xl font-bold text-[#5f3c2c]">{value}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        {note && <p className="text-sm text-gray-500">{note}</p>}
       </div>
     </div>
-    {note && <div className="mt-4 text-sm text-gray-500">{note}</div>}
   </div>
 );
 

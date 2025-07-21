@@ -81,8 +81,11 @@ export const API_ENDPOINTS = {
   // Admin endpoints
   ADMIN_PRODUCT_STATS: '/admin/stats/products',
   ADMIN_ORDER_STATS: '/admin/stats/orders',
+  ADMIN_DASHBOARD_STATS: '/admin/stats/dashboard',
   ADMIN_USERS: '/admin/users',
   ADMIN_USER_ROLE: '/admin/users',
+  ADMIN_USER_ORDER_COUNT: '/admin/user',
+  ADMIN_SEND_TRACKING: '/admin/send-tracking',
   BULK_CREATE_PRODUCTS: '/admin/products/bulk',
   UPDATE_PRODUCT_VISIBILITY: '/admin/products',
   BULK_UPDATE_TAGS: '/admin/products/tags/bulk',

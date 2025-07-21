@@ -6,196 +6,40 @@ import {
     Trash2,
     Search,
 } from 'lucide-react';
-import { Product, Category, ProductImport } from '../../types';
-import { apiService } from '../../services/api';
+import { Product } from '../../types';
+import { DeleteDialogState, EditDialogState } from '../../types/admin';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ProductDialog from './ProductDialog';
 import NotificationToast from './NotificationToast';
 import ConfirmDialog from '../common/ConfirmDialog';
 import SEOHead from '../seo/SEOHead';
 import { SITE_CONFIG, staticImageBaseUrl } from '../../constants/siteConfig';
-
-interface NotificationState {
-    message: string;
-    type: 'success' | 'error' | 'warning' | 'info';
-    isVisible: boolean;
-}
+import { useProductManagement } from '../../hooks/useProductManagement';
 
 const ProductManagement: React.FC = () => {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
-    const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
 
-
     // Dialog states
-    const [editDialog, setEditDialog] = useState<{
-        isOpen: boolean;
-        product: Product | null;
-    }>({
-        isOpen: false,
-        product: null
-    });
+    const [editDialog, setEditDialog] = useState<EditDialogState>({ isOpen: false, product: null });
+    const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState>({ isOpen: false, type: 'product', item: null });
 
-    const [deleteDialog, setDeleteDialog] = useState<{
-        isOpen: boolean;
-        type: 'category' | 'product' | 'bulk';
-        item: Category | Product | null;
-        productId?: string;
-        productName?: string;
-    }>({
-        isOpen: false,
-        type: 'product',
-        item: null
-    });
-
-    const [notification, setNotification] = useState<NotificationState>({
-        message: '',
-        type: 'info',
-        isVisible: false
-    });
-
-    const [actionLoading, setActionLoading] = useState(false);
-
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    const showNotification = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
-        setNotification({
-            message,
-            type,
-            isVisible: true
-        });
-    };
-
-    const loadData = async () => {
-        try {
-            const [productsRes, categoriesRes] = await Promise.all([
-                apiService.getProducts(),
-                apiService.getCategories(),
-            ]);
-            setProducts(productsRes || []);
-            setCategories(categoriesRes || []);
-        } catch (error) {
-            console.error('Error loading data:', error);
-            setProducts([]);
-            setCategories([]);
-            showNotification('Failed to load data', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleProductDialog = async (productData: Partial<Product>) => {
-        setActionLoading(true);
-        try {
-            if (productData.id) {
-                // Update existing product
-                await apiService.updateProduct(productData.id, productData);
-                showNotification('Product updated successfully!', 'success');
-            } else {
-                // Type guard to ensure required fields exist
-                if (
-                    productData.name &&
-                    productData.category &&
-                    typeof productData.price === 'number' &&
-                    typeof productData.initialPrice === 'number'
-                ) {
-                    const productToCreate: ProductImport = {
-                        name: productData.name,
-                        slug: productData.slug,
-                        category: productData.category,
-                        description: productData.description,
-                        price: productData.price,
-                        initialPrice: productData.initialPrice,
-                        comparePrice: productData.comparePrice,
-                        images: productData.images,
-                        stock: productData.stock,
-                    };
-
-                    await apiService.createProduct(productToCreate);
-                    showNotification('Product created successfully!', 'success');
-                } else {
-                    throw new Error('Missing required product fields for creation.');
-                }
-            }
-
-            await loadData();
-            setEditDialog({ isOpen: false, product: null });
-        } catch (error) {
-            console.error('Error updating/creating product:', error);
-            showNotification(productData.id ? 'Error updating product' : 'Error creating product', 'error');
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
-    const handleDeleteAllProducts = async () => {
-        try {
-            setActionLoading(true);
-            await apiService.deleteProducts();
-            await loadData();
-            showNotification('All products deleted successfully!', 'success');
-        } catch (error) {
-            console.error('Error deleting all products:', error);
-            showNotification('Error deleting all products', 'error');
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
-    const handleDeleteSingleProduct = async (productId: string) => {
-        try {
-            setActionLoading(true);
-            await apiService.deleteProductById(productId);
-            await loadData();
-            setDeleteDialog({ isOpen: false, type: 'product', item: null });
-            showNotification('Product deleted successfully!', 'success');
-        } catch (error) {
-            console.error('Error deleting product:', error);
-            showNotification('Error deleting product', 'error');
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
-    const handleBulkDelete = async () => {
-        try {
-            setActionLoading(true);
-            await Promise.all(selectedProducts.map(id => apiService.deleteProductById(id)));
-            setSelectedProducts([]);
-            await loadData();
-            setDeleteDialog({ isOpen: false, type: 'bulk', item: null });
-            showNotification(`Deleted ${selectedProducts.length} products`, 'success');
-        } catch (error) {
-            console.error('Error bulk deleting products:', error);
-            showNotification('Error deleting products', 'error');
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
-    const handleSelectProduct = (productId: string) => {
-        setSelectedProducts(prev =>
-            prev.includes(productId)
-                ? prev.filter(id => id !== productId)
-                : [...prev, productId]
-        );
-    };
-
-    const handleSelectAll = () => {
-        if (selectedProducts.length === filteredProducts.length) {
-            setSelectedProducts([]);
-        } else {
-            setSelectedProducts(filteredProducts.map(p => p.id));
-        }
-    };
-
-    console.log(products)
+    const {
+        products,
+        categories,
+        loading,
+        actionLoading,
+        selectedProducts,
+        notification,
+        setNotification,
+        handleProductSave,
+        handleDeleteAllProducts,
+        handleDeleteSingleProduct,
+        handleBulkDelete,
+        handleSelectProduct,
+        handleSelectAll,
+    } = useProductManagement();
     // Filter products based on search and category
     const filteredProducts = products
         .filter(product => {
@@ -210,8 +54,6 @@ const ProductManagement: React.FC = () => {
             ? bTimestamp - aTimestamp
             : aTimestamp - bTimestamp;
         });
-
-
 
     if (loading) {
         return <LoadingSpinner />;
@@ -326,7 +168,7 @@ const ProductManagement: React.FC = () => {
                                         <input
                                             type="checkbox"
                                             checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
-                                            onChange={handleSelectAll}
+                                            onChange={() => handleSelectAll(filteredProducts)}
                                             className="rounded border-gray-300 text-[#5f3c2c] focus:ring-[#D4B896]"
                                         />
                                     </th>
@@ -440,7 +282,7 @@ const ProductManagement: React.FC = () => {
                 <ProductDialog
                     isOpen={editDialog.isOpen}
                     onClose={() => setEditDialog({ isOpen: false, product: null })}
-                    onSave={handleProductDialog}
+                    onSave={handleProductSave}
                     product={editDialog.product}
                     mode={editDialog.product ? 'edit' : 'add'}
                     categories={categoryNames}
