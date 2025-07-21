@@ -139,29 +139,45 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      mergeGuestCart: () => {
+      mergeGuestCart: async () => {
         const { guestItems, items } = get();
-        if (guestItems.length === 0) return;
+        const { isAuthenticated } = useAuthStore.getState();
 
-        cartService.mergeCart(guestItems).catch(console.error);
-        const mergedItems = [...items];
+        if (!isAuthenticated || guestItems.length === 0) return;
 
-        guestItems.forEach(guestItem => {
-          const existingItem = mergedItems.find(item => item.productId === guestItem.productId);
-          if (existingItem) {
-            existingItem.quantity += guestItem.quantity;
-          } else {
-            mergedItems.push({
-              ...guestItem,
-              id: `${guestItem.productId}-${Date.now()}`,
-            });
-          }
-        });
+        // Transform guest items to match expected payload
+        const formattedItems = guestItems.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          product: item.product,
+        }));
 
-        set({
-          items: mergedItems,
-          guestItems: [],
-        });
+        try {
+          // Send to backend
+          await cartService.mergeCart(formattedItems);
+
+          // Merge into Zustand's authenticated cart
+          const mergedItems = [...items];
+
+          guestItems.forEach(guestItem => {
+            const existingItem = mergedItems.find(item => item.productId === guestItem.productId);
+            if (existingItem) {
+              existingItem.quantity += guestItem.quantity;
+            } else {
+              mergedItems.push({
+                ...guestItem,
+                id: `${guestItem.productId}-${Date.now()}`,
+              });
+            }
+          });
+
+          set({
+            items: mergedItems,
+            guestItems: [],
+          });
+        } catch (err) {
+          console.error('Failed to merge guest cart:', err);
+        }
       },
 
       getTotalPrice: () => {

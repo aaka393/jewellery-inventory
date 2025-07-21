@@ -13,19 +13,17 @@ class CartService extends BaseService {
   }
 
 // cartService.ts
-async updateCartItem(id: string, delta: number): Promise<ApiResponse<void>> {
-  console.log("id", id);
-  // console.log("delta", delta);
-  return this.put<void>(`/cart/update/${id}?quantity=${delta}`, null, true);
+async updateCartItem(id: string, delta: number): Promise<ApiResponse<void>> {;
+  return this.put<void>(`${API_ENDPOINTS.UPDATE_CART}/${id}?quantity=${delta}`, null, true);
 }
 
   
   async removeFromCart(id: string): Promise<ApiResponse<void>> {
-    return this.delete<void>(`/cart/remove/${id}`, true);
+    return this.delete<void>(`${API_ENDPOINTS.REMOVE_FROM_CART}/${id}`, true);
   }
 
   async mergeCart(guestCartItems: any[]): Promise<ApiResponse<void>> {
-    return this.post<void>('/cart/merge', { items: guestCartItems }, true);
+    return this.post<void>(API_ENDPOINTS.MERGE_CART, { items: guestCartItems }, true);
   }
 
 }
