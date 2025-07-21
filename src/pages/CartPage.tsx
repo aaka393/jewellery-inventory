@@ -106,7 +106,7 @@ const CartPage: React.FC = () => {
                       </div>
                       
                       <button
-                        onClick={() => handleRemoveItem(item.productId, item.product.name)}
+                        onClick={() => handleRemoveItem(item.id, item.product.name)}
                         className="text-gray-400 hover:text-red-500"
                       >
                         Remove

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { CartItem, Product } from '../types';
 import { useAuthStore } from './authStore';
-import { userService } from '../services/userService';
+import { cartService } from '../services/cartService';
 
 interface CartState {
   items: CartItem[];
@@ -26,7 +26,7 @@ export const useCartStore = create<CartState>()(
         const { isAuthenticated } = useAuthStore.getState();
         const state = get();
         const targetItems = isAuthenticated ? state.items : state.guestItems;
-        const existingItem = targetItems.find(item => item.productId === product.id);
+        const existingItem = targetItems.find(item => item.productId === product.id)
         
         if (existingItem) {
           const updatedItems = targetItems.map(item =>
@@ -37,7 +37,7 @@ export const useCartStore = create<CartState>()(
           
           if (isAuthenticated) {
             set({ items: updatedItems });
-            userService.updateCartItem(product.id, existingItem.quantity + quantity).catch(console.error);
+            cartService.updateCartItem(product.id, existingItem.quantity + quantity).catch(console.error);
           } else {
             set({ guestItems: updatedItems });
           }
@@ -51,7 +51,7 @@ export const useCartStore = create<CartState>()(
           
           if (isAuthenticated) {
             set({ items: [...state.items, newItem] });
-            userService.addToCart(product.id, quantity).catch(console.error);
+            cartService.addToCart(product.id, quantity).catch(console.error);
           } else {
             set({ guestItems: [...state.guestItems, newItem] });
           }
@@ -64,16 +64,16 @@ export const useCartStore = create<CartState>()(
           set({
             items: get().items.filter(item => item.productId !== id),
           });
-          userService.removeFromCart(id).catch(console.error);
+          cartService.removeFromCart(id).catch(console.error);
         } else {
           set({
             guestItems: get().guestItems.filter(item => item.productId !== id),
           });
         }
       },
-      updateQuantity: (productId, quantity) => {
+      updateQuantity: (id, quantity) => {
         if (quantity <= 0) {
-          get().removeItem(productId);
+          get().removeItem(id);
           return;
         }
         
@@ -82,16 +82,16 @@ export const useCartStore = create<CartState>()(
         if (isAuthenticated) {
           set({
             items: get().items.map(item =>
-              item.productId === productId
+              item.productId === id
                 ? { ...item, quantity }
                 : item
             ),
           });
-          userService.updateCartItem(productId, quantity).catch(console.error);
+          cartService.updateCartItem(id, quantity).catch(console.error);
         } else {
           set({
             guestItems: get().guestItems.map(item =>
-              item.productId === productId
+              item.productId === id
                 ? { ...item, quantity }
                 : item
             ),
@@ -113,7 +113,7 @@ export const useCartStore = create<CartState>()(
         if (guestItems.length === 0) return;
         
         // Sync with server
-        userService.mergeCart(guestItems).catch(console.error);
+        cartService.mergeCart(guestItems).catch(console.error);
         
         const mergedItems = [...items];
         
@@ -156,7 +156,7 @@ export const useCartStore = create<CartState>()(
         if (!isAuthenticated) return;
         
         try {
-          const serverCart = await userService.getUserCart();
+          const serverCart = await cartService.getCart();
           // Update local cart with server data
           set({ items: serverCart.result || [] });
         } catch (error) {
