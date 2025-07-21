@@ -92,6 +92,7 @@ export const useCartStore = create<CartState>()(
         const { isAuthenticated } = useAuthStore.getState();
 
         if (isAuthenticated) {
+          // ✅ Keep logic same for authenticated users (quantity is absolute)
           set({
             items: get().items.map(item =>
               item.productId === id
@@ -103,15 +104,28 @@ export const useCartStore = create<CartState>()(
             .then(() => get().syncWithServer())
             .catch(console.error);
         } else {
-          set({
-            guestItems: get().guestItems.map(item =>
-              item.productId === id
-                ? { ...item, quantity }
-                : item
-            ),
-          });
+          // ✅ For guest users, treat `quantity` as change (+1 or -1)
+          const guestItems = get().guestItems;
+          const item = guestItems.find(item => item.id === id);
+          if (!item) return;
+
+          const newQuantity = item.quantity + quantity;
+
+          if (newQuantity <= 0) {
+            set({
+              guestItems: guestItems.filter(item => item.id !== id),
+            });
+          } else {
+            set({
+              guestItems: guestItems.map(item =>
+                item.id === id ? { ...item, quantity: newQuantity } : item
+              ),
+            });
+          }
         }
       },
+
+
 
 
       clearCart: () => {

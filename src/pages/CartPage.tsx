@@ -7,7 +7,7 @@ import PaymentHandler from '../components/payment/PaymentHandler';
 import { staticImageBaseUrl } from '../constants/siteConfig';
 
 const CartPage: React.FC = () => {
-  const { items, guestItems, removeItem, getTotalPrice } = useCartStore();
+  const { items, guestItems, removeItem, updateQuantity, getTotalPrice } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -15,6 +15,13 @@ const CartPage: React.FC = () => {
   const currentItems = isAuthenticated ? items : guestItems;
   console.log(currentItems, "currentItems")
 
+  const handleQuantityChange = (id: string, delta: number) => {
+    updateQuantity(id, delta);
+    console.log(delta)
+    if(delta < 1){
+      removeItem(id)
+    }
+  };
 
   const handlePaymentSuccess = () => {
     alert('Payment successful! Redirecting to order confirmation...');
@@ -25,6 +32,11 @@ const CartPage: React.FC = () => {
     alert(`Payment failed: ${error}`);
   };
 
+  const handleRemoveItem = (id: string, productName: string) => {
+    if (confirm(`Remove ${productName} from cart?`)) {
+      removeItem(id);
+    }
+  };
 
   if (currentItems.length === 0) {
     return (
@@ -46,7 +58,7 @@ const CartPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto mt-20 px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-light text-gray-800">
             MY BAG ({currentItems.length})
@@ -73,6 +85,31 @@ const CartPage: React.FC = () => {
                     <h3 className="font-medium text-gray-800 mb-2">{item.product.name}</h3>
                     <div className="text-lg font-medium text-gray-900 mb-4">
                       {item.quantity} x Rs. {item.product.price.toLocaleString()}
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleQuantityChange(item.id, -1)}
+                          className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </button>
+                        <span className="w-8 text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => handleQuantityChange(item.id, 1)}
+                          className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => handleRemoveItem(item.id, item.product.name)}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        Remove
+                      </button>
                     </div>
                   </div>
                 </div>
