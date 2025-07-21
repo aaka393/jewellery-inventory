@@ -15,6 +15,7 @@ const ProductsPage: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
+  const [isVisible, setIsVisible] = useState(false);
   const [searchParams] = useSearchParams();
   const { selectedCategory, setSelectedCategory } = useCategoryStore();
 
@@ -23,6 +24,9 @@ const ProductsPage: React.FC = () => {
       setSelectedCategory(null);
     }
     loadProducts();
+    // Trigger animations after component mounts
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
   }, [filters, searchParams]);
 
   const loadProducts = async () => {
@@ -83,9 +87,12 @@ const ProductsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FAF9F6]">
       <div className="container mx-auto px-4 py-20">
-        <div className="flex justify-between items-center mb-8">
+        {/* Header with Animation */}
+        <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 transform transition-all duration-1000 ${
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+        }`}>
           <div>
-            <h1 className="text-3xl font-serif font-semibold text-[#4A3F36]">
+            <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-[#4A3F36]">
               {selectedCategory || searchParams.get('category')
                 ? `${(selectedCategory || searchParams.get('category'))?.replace(/\b\w/g, l => l.toUpperCase())} Collection`
                 : 'All Products'}
@@ -93,12 +100,12 @@ const ProductsPage: React.FC = () => {
             <p className="text-[#6D6258] mt-1 text-sm">{products.length} products found</p>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
             {/* Sort */}
             <select
               value={sortBy}
               onChange={(e) => handleSortChange(e.target.value)}
-              className="px-4 py-2 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[#DEC9A3]"
+              className="w-full sm:w-auto px-4 py-2 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-sm"
             >
               <option value="featured">Featured</option>
               <option value="price-low">Price: Low to High</option>
@@ -123,10 +130,10 @@ const ProductsPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Filter button */}
+            {/* Filter button for mobile */}
             <button
               onClick={() => setIsFilterOpen(true)}
-              className="lg:hidden bg-[#DEC9A3] text-[#4A3F36] px-4 py-2 rounded-md flex items-center space-x-2 hover:bg-[#d1b990] transition"
+              className="sm:hidden bg-[#DEC9A3] text-[#4A3F36] px-4 py-2 rounded-md flex items-center space-x-2 hover:bg-[#d1b990] transition w-full justify-center"
             >
               <Filter className="h-4 w-4" />
               <span className="text-sm font-medium tracking-wide">Filters</span>
@@ -135,20 +142,35 @@ const ProductsPage: React.FC = () => {
         </div>
 
         <div className="flex gap-8">
-          {/* Products Grid */}
+          {/* Products Grid with Staggered Animation */}
           <div className="flex-1">
             {products.length === 0 ? (
-              <div className="text-center py-12">
+              <div className={`text-center py-12 transform transition-all duration-1000 delay-200 ${
+                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              }`}>
                 <p className="text-[#6D6258] text-lg">No products found matching your criteria.</p>
               </div>
             ) : (
               <div
-                className={`grid gap-4 ${
-                  viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+                className={`grid gap-4 sm:gap-6 ${
+                  viewMode === 'grid' 
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                    : 'grid-cols-1'
                 }`}
               >
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                {products.map((product, index) => (
+                  <div
+                    key={product.id}
+                    className={`transform transition-all duration-700 hover:scale-105 ${
+                      isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                    }`}
+                    style={{ 
+                      transitionDelay: `${Math.min(index * 100, 1000)}ms`,
+                      animationFillMode: 'both'
+                    }}
+                  >
+                    <ProductCard product={product} />
+                  </div>
                 ))}
               </div>
             )}

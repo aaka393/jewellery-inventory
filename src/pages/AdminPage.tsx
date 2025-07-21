@@ -290,7 +290,7 @@ const AdminPage: React.FC = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-10 bg-[#f5e9dc]">
+        <main className="flex-1 p-10 mt-20 bg-[#f5e9dc]">
           {activeTab === 'dashboard' && <AdminDashboard />}
 
           {activeTab === 'products' && (
