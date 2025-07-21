@@ -1,135 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Crown, Mail, Phone, Send, Package } from 'lucide-react';
 import { User } from '../../types';
-import { adminService } from '../../services/adminService';
+import { RoleChangeDialog, TrackingConfirmDialog } from '../../types/admin';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ConfirmDialog from '../common/ConfirmDialog';
 import NotificationToast from './NotificationToast';
-
-interface TrackingResponse {
-  orderid: string;
-  trackId: string;
-  delivered: boolean;
-}
-
-interface NotificationState {
-  message: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  isVisible: boolean;
-}
+import { useUserManagement } from '../../hooks/useUserManagement';
 
 const UserManagement: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'admin' | 'user'>('all');
-  const [trackingLoading, setTrackingLoading] = useState<string | null>(null);
-  const [userOrderCounts, setUserOrderCounts] = useState<Record<string, number>>({});
   const [customTrackingNumber, setCustomTrackingNumber] = useState('');
 
+  const [trackingConfirmDialog, setTrackingConfirmDialog] = useState<TrackingConfirmDialog>({ isOpen: false });
+  const [roleChangeDialog, setRoleChangeDialog] = useState<RoleChangeDialog>({ isOpen: false });
 
-  const [trackingConfirmDialog, setTrackingConfirmDialog] = useState<{
-    isOpen: boolean;
-    userId?: string;
-  }>({ isOpen: false });
-
-  const [roleChangeDialog, setRoleChangeDialog] = useState<{
-    isOpen: boolean;
-    userId?: string;
-    newRole?: string;
-  }>({ isOpen: false });
-
-  const [notification, setNotification] = useState<NotificationState>({
-    message: '',
-    type: 'info',
-    isVisible: false
-  });
-
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  const showNotification = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
-    setNotification({
-      message,
-      type,
-      isVisible: true
-    });
-  };
-
-  const loadUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await adminService.getAllUsers();
-      setUsers(response.result || []);
-    } catch (error) {
-      console.error('Error loading users:', error);
-      setUsers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const sendTrackingId = async (userId: string, trackingNumber: string) => {
-    try {
-      setTrackingLoading(userId);
-
-      const response = await fetch('/api/admin/send-tracking', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ userId, trackingNumber }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (result.code === 10000) {
-        const trackingData: TrackingResponse = result.result;
-        showNotification('Tracking ID sent successfully!', 'success');
-
-        if (trackingData.delivered) {
-          await fetchUserOrderCount(userId);
-        }
-      } else {
-        throw new Error(result.message || 'Failed to send tracking ID');
-      }
-    } catch (error) {
-      console.error('Error sending tracking ID:', error);
-      showNotification('Failed to send tracking ID', 'error');
-    } finally {
-      setTrackingLoading(null);
-    }
-  };
-
-  
-
-  const fetchUserOrderCount = async (userId: string) => {
-    try {
-      // Fetch user's total ordered products count
-      const response = await fetch(`/api/admin/user/${userId}/order-count`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.code === 10000) {
-          setUserOrderCounts(prev => ({
-            ...prev,
-            [userId]: result.result.totalProducts || 0
-          }));
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user order count:', error);
-    }
-  };
-
+  const {
+    users,
+    loading,
+    trackingLoading,
+    userOrderCounts,
+    notification,
+    setNotification,
+    sendTrackingId,
+    updateUserRole,
+    getUserStats,
+  } = useUserManagement();
   const confirmRoleChange = (userId: string, newRole: string) => {
     setRoleChangeDialog({ isOpen: true, userId, newRole });
   };
@@ -137,12 +32,9 @@ const UserManagement: React.FC = () => {
   const handleUpdateUserRole = async () => {
     try {
       if (!roleChangeDialog.userId || !roleChangeDialog.newRole) return;
-      await adminService.updateUserRole(roleChangeDialog.userId, roleChangeDialog.newRole);
-      await loadUsers();
-      showNotification('User role updated successfully!', 'success');
+      await updateUserRole(roleChangeDialog.userId, roleChangeDialog.newRole);
     } catch (error) {
       console.error('Error updating user role:', error);
-      showNotification('Failed to update user role', 'error');
     } finally {
       setRoleChangeDialog({ isOpen: false });
     }
@@ -153,14 +45,6 @@ const UserManagement: React.FC = () => {
     if (filter === 'admin') return user.role === 'Admin';
     if (filter === 'user') return user.role === 'User' || !user.role;
     return true;
-  });
-
-  const getUserStats = () => ({
-    total: users.length,
-    admins: users.filter(u => u.role === 'Admin').length,
-    users: users.filter(u => u.role === 'User' || !u.role).length,
-    active: users.filter(u => u.isActive).length,
-    inactive: users.filter(u => !u.isActive).length,
   });
 
   if (loading) return <LoadingSpinner />;
@@ -338,7 +222,7 @@ const UserManagement: React.FC = () => {
         message={notification.message}
         type={notification.type}
         isVisible={notification.isVisible}
-        onClose={() => setNotification((prev) => ({ ...prev, isVisible: false }))}
+        onClose={() => setNotification((prev: any) => ({ ...prev, isVisible: false }))}
       />
     </div>
   );
