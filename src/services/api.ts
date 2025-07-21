@@ -2,8 +2,7 @@ import {
   authService, 
   productService, 
   categoryService, 
-  cartService, 
-  wishlistService, 
+  cartService,   
   orderService,
   userService,
   analyticsService,
@@ -11,7 +10,7 @@ import {
   paymentService,
   adminService
 } from './index';
-import { Product, Category, CartItem, WishlistItem, ProductFilters, ProductImport, Order, User } from '../types';
+import { Product, Category, CartItem, ProductFilters, ProductImport, Order, User } from '../types';
 
 class ApiService {
   // Auth methods
@@ -157,14 +156,9 @@ class ApiService {
   }
 
   // Wishlist methods
-  async addToWishlist(productId: string): Promise<void> {
-    await wishlistService.addToWishlist(productId);
-  }
 
-  async getWishlist(): Promise<WishlistItem[]> {
-    const response = await wishlistService.getWishlist();
-    return response.result;
-  }
+
+
 
   // Order methods
   async createOrder(orderData: { amount: number; currency: string; receipt?: string; notes?: Record<string, string> }) {
@@ -203,10 +197,10 @@ class ApiService {
     return response.result;
   }
 
-  async getUserOrders(): Promise<Order[]> {
-    const response = await userService.getUserOrders();
-    return response.result;
-  }
+  // async getUserOrders(): Promise<[]> {
+  //   const response = await userService.getUsersOrders();
+  //   return response.result;
+  // }
 
   // File upload methods
   async uploadFile(file: File): Promise<{ url: string }> {

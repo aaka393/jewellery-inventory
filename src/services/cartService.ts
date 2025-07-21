@@ -11,6 +11,8 @@ class CartService extends BaseService {
   async getCart(): Promise<ApiResponse<CartItem[]>> {
     return this.get<CartItem[]>(API_ENDPOINTS.GET_CART, true);
   }
+
+  
 }
 
 export const cartService = new CartService();

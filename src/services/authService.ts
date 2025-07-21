@@ -7,7 +7,6 @@ class AuthService extends BaseService {
   async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
     try {
       const response = await this.post<LoginResponse>(API_ENDPOINTS.LOGIN, credentials);
-      console.log('Login response:', response);
       return response;
     } catch (error) {
       console.error('Login service error:', error);
