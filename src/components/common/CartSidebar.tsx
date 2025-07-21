@@ -26,12 +26,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
     navigate('/cart');
   };
 
-  const handleQuantityUpdate = (id: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeItem(id);
-    } else {
-      updateQuantity(id, newQuantity);
-    }
+  const handleQuantityUpdate = (id: string, change: number) => {
+    const item = currentItems.find(item => item.id === id);
+    if (!item) return;
+      updateQuantity(id, change);
   };
 
   return (
@@ -43,17 +41,16 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
       <div className="absolute right-0 top-0 h-full w-full max-w-sm md:max-w-md bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">MY BAG ({currentItems.length})</h2>
-          <button onClick={onClose} className="hover:opacity-70 transition-opacity">
+          <h2 className="text-lg font-semibold text-black">MY BAG ({currentItems.length})</h2>
+          <button onClick={onClose} className="hover:opacity-70 transition-opacity text-black">
             <X className="h-6 w-6" />
           </button>
         </div>
 
         {/* Scrollable Cart Content */}
         <div
-          className={`flex-1 overflow-y-auto p-4 transition-opacity duration-700 ${
-            showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
+          className={`flex-1 overflow-y-auto p-4 transition-opacity duration-700 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
         >
           {currentItems.length === 0 ? (
             <div className="text-center mt-8 animate-fadeInSlow">
@@ -94,18 +91,21 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
+                          onClick={() => handleQuantityUpdate(item.id, -1)}
                           className="w-7 h-7 border rounded flex items-center justify-center text-sm hover:bg-gray-50"
                         >
                           -
                         </button>
+
                         <span className="text-sm w-6 text-center">{item.quantity}</span>
+
                         <button
-                          onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
+                          onClick={() => handleQuantityUpdate(item.id, +1)}
                           className="w-7 h-7 border rounded flex items-center justify-center text-sm hover:bg-gray-50"
                         >
                           +
                         </button>
+
                       </div>
                       <button
                         onClick={() => removeItem(item.id)}
@@ -124,9 +124,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
         {/* Footer */}
         {currentItems.length > 0 && (
           <div
-            className={`border-t p-4 bg-white transition-opacity duration-700 ${
-              showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
+            className={`border-t p-4 bg-white transition-opacity duration-700 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
           >
             <div className="flex justify-between items-center mb-4">
               <span className="font-semibold">SUBTOTAL:</span>
