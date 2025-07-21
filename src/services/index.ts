@@ -9,7 +9,6 @@ export { userService } from './userService';
 export { analyticsService } from './analyticsService';
 export { stockService } from './stockService';
 export { uploadService } from './uploadService';
-export { fileUploadService } from './fileUploadService';
 export { paymentService } from './paymentService';
 export { adminService } from './adminService';
 

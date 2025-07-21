@@ -7,7 +7,7 @@ import {
   orderService,
   userService,
   analyticsService,
-  fileUploadService,
+  uploadService,
   paymentService,
   adminService
 } from './index';
@@ -204,12 +204,12 @@ class ApiService {
 
   // File upload methods
   async uploadFile(file: File): Promise<{ url: string }> {
-    const response = await fileUploadService.uploadSingleFile(file);
+    const response = await uploadService.uploadFile(file);
     return response.result;
   }
 
   async uploadFiles(files: File[]): Promise<{ url: string }[]> {
-    const response = await fileUploadService.uploadMultipleFiles(files);
+    const response = await uploadService.uploadMultipleFiles(files);
     return response.result;
   }
 

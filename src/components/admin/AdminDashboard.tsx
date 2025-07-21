@@ -3,24 +3,27 @@ import {
   Package,
   ShoppingCart,
   TrendingUp,
-  Tag,
+  Users,
   Star,
   Eye,
   Edit,
   Trash2,
+  Plus,
+  Image as ImageIcon,
+  DollarSign
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { apiService } from '../../services/api';
 import { Product } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ConfirmDialog from '../common/ConfirmDialog';
+import { SITE_CONFIG, staticImageBaseUrl } from '../../constants/siteConfig';
 
 interface DashboardStats {
   products: {
     total: number;
     inStock: number;
-    outOfStock: number;
-    featured: number;
+    categories: Record<string, number>;
   };
   orders: {
     total: number;
@@ -30,7 +33,6 @@ interface DashboardStats {
   };
   users: {
     total: number;
-    active: number;
   };
 }
 
@@ -59,28 +61,27 @@ const AdminDashboard: React.FC = () => {
       setLoading(true);
 
       // Load stats and recent products
-      const [productsRes, ordersRes, allProducts] = await Promise.all([
+      const [productsStatsRes, ordersStatsRes, usersRes, allProducts] = await Promise.all([
         adminService.getProductStats(),
         adminService.getOrderStats(),
+        adminService.getAllUsers(),
         apiService.getProducts()
       ]);
 
       setStats({
         products: {
-          total: productsRes.result.totalProducts,
-          inStock: productsRes.result.inStock,
-          outOfStock: productsRes.result.outOfStock,
-          featured: productsRes.result.featured
+          total: productsStatsRes.result.totalProducts,
+          inStock: productsStatsRes.result.stock,
+          categories: productsStatsRes.result.categories
         },
         orders: {
-          total: ordersRes.result.totalOrders,
-          pending: ordersRes.result.pendingOrders,
-          completed: ordersRes.result.completedOrders,
-          revenue: ordersRes.result.totalRevenue
+          total: ordersStatsRes.result.totalOrders,
+          pending: ordersStatsRes.result.pendingOrders,
+          completed: ordersStatsRes.result.completedOrders,
+          revenue: ordersStatsRes.result.totalRevenue
         },
         users: {
-          total: 0, // Will be populated when user stats are available
-          active: 0
+          total: usersRes.result?.length || 0
         }
       });
 
@@ -91,17 +92,6 @@ const AdminDashboard: React.FC = () => {
       console.error('Error loading dashboard data:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const toggleProductVisibility = async (productId: string, currentVisibility: boolean) => {
-    try {
-      // await adminService.updateProductVisibility(productId, !currentVisibility);
-      console.log(`Toggling visibility for product ${productId} to ${!currentVisibility}`);
-      await loadDashboardData(); // Refresh data
-    } catch (error) {
-      console.error('Error updating product visibility:', error);
-      alert('Failed to update product visibility');
     }
   };
 
@@ -127,8 +117,6 @@ const AdminDashboard: React.FC = () => {
       await apiService.deleteProductById(productId);
       await loadDashboardData();
       setDeleteDialog({ isOpen: false, type: 'single' });
-      // Show success message
-      console.log('Product deleted successfully');
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('Failed to delete product. Please try again.');
@@ -140,12 +128,10 @@ const AdminDashboard: React.FC = () => {
   const handleBulkDelete = async () => {
     try {
       setActionLoading(true);
-      // Delete each selected product
       await Promise.all(selectedProducts.map(id => apiService.deleteProductById(id)));
       setSelectedProducts([]);
       await loadDashboardData();
       setDeleteDialog({ isOpen: false, type: 'bulk' });
-      console.log(`Successfully deleted ${selectedProducts.length} products`);
     } catch (error) {
       console.error('Error bulk deleting products:', error);
       alert('Failed to delete products. Please try again.');
@@ -174,7 +160,6 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div className="mt-4 flex items-center text-sm">
             <span className="text-green-600 font-medium">{stats?.products.inStock || 0} in stock</span>
-            <span className="text-gray-500 ml-2">• {stats?.products.outOfStock || 0} out of stock</span>
           </div>
         </div>
 
@@ -197,11 +182,11 @@ const AdminDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
             <div className="p-2 bg-[#D4B896] rounded-lg">
-              <TrendingUp className="h-6 w-6 text-[#5f3c2c]" />
+              <DollarSign className="h-6 w-6 text-[#5f3c2c]" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-[#5f3c2c]">Revenue</p>
-              <p className="text-2xl font-bold text-[#5f3c2c]">₹{(stats?.orders.revenue || 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold text-[#5f3c2c]">{SITE_CONFIG.currencySymbol}{(stats?.orders.revenue || 0).toLocaleString()}</p>
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-500">
@@ -212,16 +197,29 @@ const AdminDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
             <div className="p-2 bg-[#D4B896] rounded-lg">
-              <Star className="h-6 w-6 text-[#5f3c2c]" />
+              <Users className="h-6 w-6 text-[#5f3c2c]" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-[#5f3c2c]">Featured Products</p>
-              <p className="text-2xl font-bold text-[#5f3c2c]">{stats?.products.featured || 0}</p>
+              <p className="text-sm font-medium text-[#5f3c2c]">Total Users</p>
+              <p className="text-2xl font-bold text-[#5f3c2c]">{stats?.users.total || 0}</p>
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-500">
-            Products marked as featured
+            Registered users
           </div>
+        </div>
+      </div>
+
+      {/* Categories Overview */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h3 className="text-lg font-semibold text-[#5f3c2c] mb-4">Categories Overview</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats?.products.categories && Object.entries(stats.products.categories).map(([category, count]) => (
+            <div key={category} className="text-center p-4 bg-[#F8F5F1] rounded-lg">
+              <div className="text-2xl font-bold text-[#5f3c2c]">{count}</div>
+              <div className="text-sm text-[#8f674b] capitalize">{category}</div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -265,9 +263,6 @@ const AdminDashboard: React.FC = () => {
                   Stock
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -288,7 +283,7 @@ const AdminDashboard: React.FC = () => {
                       <img
                         src={product.images?.[0]?.startsWith('http')
                           ? product.images[0]
-                          : `${product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
+                          : `${staticImageBaseUrl}${product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                         alt={product.name}
                         className="h-10 w-10 rounded-full object-cover"
                       />
@@ -303,17 +298,18 @@ const AdminDashboard: React.FC = () => {
                     {product.category}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-[#5f3c2c]">
-                    ₹{(product.price || 0).toLocaleString()}
+                    {SITE_CONFIG.currencySymbol}{(product.price || 0).toLocaleString()}
                   </td>
-              
-                 
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      product.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {product.stock ? 'In Stock' : 'Out of Stock'}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <button
-                        onClick={() => toggleProductVisibility(product.id, true)}
-                        className="text-[#5f3c2c] hover:text-[#5f3c2c]"
-                        title="Toggle visibility"
-                      >
+                      <button className="text-[#5f3c2c] hover:text-[#5f3c2c]" title="View">
                         <Eye className="h-4 w-4" />
                       </button>
                       <button className="text-[#5f3c2c] hover:text-[#5f3c2c]" title="Edit">
@@ -340,51 +336,6 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center mb-4">
-            <Tag className="h-5 w-5 text-[#5f3c2c] mr-2" />
-            <h3 className="text-lg font-semibold text-[#5f3c2c]">Quick Tag Actions</h3>
-          </div>
-          <div className="space-y-2">
-            <button className="w-full text-left px-3 py-2 text-sm text-[#5f3c2c] hover:bg-[#F8E5D6] rounded">
-              Mark products as "Most Loved"
-            </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-[#5f3c2c] hover:bg-[#F8E5D6] rounded">
-              Mark products as "Trending Now"
-            </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-[#5f3c2c] hover:bg-[#F8E5D6] rounded">
-              Mark products as "New Launch"
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center mb-4">
-            <Package className="h-5 w-5 text-[#5f3c2c] mr-2" />
-            <h3 className="text-lg font-semibold text-[#5f3c2c]">Inventory Alerts</h3>
-          </div>
-          <div className="space-y-2 text-sm text-[#5f3c2c]">
-            <p>{stats?.products.outOfStock || 0} products out of stock</p>
-            <p>Low stock alerts: 5 products</p>
-            <p>Pending reviews: 12 items</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center mb-4">
-            <TrendingUp className="h-5 w-5 text-[#5f3c2c] mr-2" />
-            <h3 className="text-lg font-semibold text-[#5f3c2c]">Performance</h3>
-          </div>
-          <div className="space-y-2 text-sm text-[#5f3c2c]">
-            <p>Top category: Necklaces</p>
-            <p>Best selling: Silver Bangles</p>
-            <p>Conversion rate: 3.2%</p>
-          </div>
-        </div>
-      </div>
-
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteDialog.isOpen}
@@ -403,7 +354,6 @@ const AdminDashboard: React.FC = () => {
         loading={actionLoading}
       />
     </div>
-
   );
 };
 

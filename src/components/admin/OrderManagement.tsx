@@ -1,38 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Truck, CheckCircle, XCircle, Clock, Eye } from 'lucide-react';
-import { userService } from '../../services/userService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { SITE_CONFIG } from '../../constants/siteConfig';
+import { Order } from '../../types';
+import { adminService } from '../../services';
 
-interface Order {
-  orderId: string;
-  userId: string;
-  items: OrderItem[];
-  subtotal: number;
-  tax: number;
-  shipping: number;
-  discount: number;
-  total: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  paymentMethod: string;
-  shippingAddress: any;
-  trackingNumber?: string;
-  estimatedDelivery?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface OrderItem {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
+interface OrderStats {
+  totalOrders: number;
+  pendingOrders: number;
+  completedOrders: number;
+  totalRevenue: number;
 }
 
 const OrderManagement: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [stats, setStats] = useState<OrderStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -44,14 +26,14 @@ const OrderManagement: React.FC = () => {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      // This would be an admin endpoint to get all orders
-      // const response = await adminService.getAllOrders();
-      // setOrders(response.result || []);
-      
-      // For now, using mock data
-      setOrders([]);
+      const statsRes = await adminService.getOrderStats();
+      setStats(statsRes.result);
+
+      // Optionally load full orders list if needed
+      const ordersRes = await adminService.getAllOrders();
+      setOrders(ordersRes.result || []);
     } catch (error) {
-      console.error('Error loading orders:', error);
+      console.error('Error loading order stats:', error);
     } finally {
       setLoading(false);
     }
@@ -59,8 +41,8 @@ const OrderManagement: React.FC = () => {
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      // await adminService.updateOrderStatus(orderId, newStatus);
-      await loadOrders(); // Refresh orders
+      await adminService.updateOrderStatus(orderId, newStatus);
+      await loadOrders();
     } catch (error) {
       console.error('Error updating order status:', error);
     }
@@ -100,7 +82,7 @@ const OrderManagement: React.FC = () => {
     }
   };
 
-  const filteredOrders = orders.filter(order => 
+  const filteredOrders = orders.filter(order =>
     statusFilter === 'all' || order.status === statusFilter
   );
 
@@ -110,75 +92,32 @@ const OrderManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Order Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-gray-100 rounded-lg">
-              <Package className="h-6 w-6 text-gray-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock className="h-6 w-6 text-yellow-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Pending</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {orders.filter(o => o.status === 'pending').length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Truck className="h-6 w-6 text-purple-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Shipped</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {orders.filter(o => o.status === 'shipped').length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Delivered</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {orders.filter(o => o.status === 'delivered').length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Package className="h-6 w-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {SITE_CONFIG.currencySymbol}{orders.reduce((sum, o) => sum + o.total, 0).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <StatCard
+          label="Total Orders"
+          value={stats?.totalOrders ?? 0}
+          icon={<Package className="h-6 w-6 text-gray-600" />}
+          bg="bg-gray-100"
+        />
+        <StatCard
+          label="Pending"
+          value={stats?.pendingOrders ?? 0}
+          icon={<Clock className="h-6 w-6 text-yellow-600" />}
+          bg="bg-yellow-100"
+        />
+        <StatCard
+          label="Completed"
+          value={stats?.completedOrders ?? 0}
+          icon={<CheckCircle className="h-6 w-6 text-green-600" />}
+          bg="bg-green-100"
+        />
+        <StatCard
+          label="Revenue"
+          value={`${SITE_CONFIG.currencySymbol}${(stats?.totalRevenue ?? 0).toLocaleString()}`}
+          icon={<Package className="h-6 w-6 text-blue-600" />}
+          bg="bg-blue-100"
+        />
       </div>
 
       {/* Orders Table */}
@@ -207,61 +146,40 @@ const OrderManagement: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Order ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Items
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  {['Order ID', 'Customer', 'Items', 'Total', 'Status', 'Date', 'Actions'].map(header => (
+                    <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {header}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredOrders.map((order) => (
                   <tr key={order.orderId}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
                       #{order.orderId.slice(-8)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {order.userId}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {order.items.length} items
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900">{order.userId}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{order.items.length} items</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
                       {SITE_CONFIG.currencySymbol}{order.total.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                         {getStatusIcon(order.status)}
                         <span className="ml-1 capitalize">{order.status}</span>
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-500">
                       {new Date(order.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 text-sm font-medium flex items-center gap-2">
                       <button
                         onClick={() => setSelectedOrder(order)}
-                        className="text-purple-600 hover:text-purple-900 mr-3"
+                        className="text-purple-600 hover:text-purple-900"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
@@ -270,11 +188,9 @@ const OrderManagement: React.FC = () => {
                         onChange={(e) => updateOrderStatus(order.orderId, e.target.value)}
                         className="text-sm border border-gray-300 rounded px-2 py-1"
                       >
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
+                        {['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map(status => (
+                          <option key={status} value={status}>{status}</option>
+                        ))}
                       </select>
                     </td>
                   </tr>
@@ -282,11 +198,29 @@ const OrderManagement: React.FC = () => {
               </tbody>
             </table>
           </div>
-          </div>
         )}
       </div>
     </div>
   );
 };
+
+const StatCard: React.FC<{
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  bg: string;
+}> = ({ label, value, icon, bg }) => (
+  <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="flex items-center">
+      <div className={`p-2 rounded-lg ${bg}`}>
+        {icon}
+      </div>
+      <div className="ml-4">
+        <p className="text-sm font-medium text-gray-600">{label}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+      </div>
+    </div>
+  </div>
+);
 
 export default OrderManagement;

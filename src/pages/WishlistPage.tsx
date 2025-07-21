@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { useWishlistStore } from '../store/wishlistStore';
 import { useCartStore } from '../store/cartStore';
+import { staticImageBaseUrl } from '../constants/siteConfig';
 
 const WishlistPage: React.FC = () => {
   const { items, removeItem, clearWishlist } = useWishlistStore();
@@ -66,23 +67,13 @@ const WishlistPage: React.FC = () => {
                   <img
                     src={item.product.images[0]?.startsWith('http') 
                       ? item.product.images[0] 
-                      : `/api/static/images/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
+                      : `${staticImageBaseUrl}${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
                     alt={item.product.name}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </Link>
                 
-                {/* Tags */}
-                <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-                  {item.product.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full uppercase font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+             
 
                 {/* Remove from wishlist button */}
                 <button
@@ -100,18 +91,7 @@ const WishlistPage: React.FC = () => {
                   </h3>
                 </Link>
                 
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg font-bold text-gray-900">
-                      ₹{item.product.price.toLocaleString()}
-                    </span>
-                    {item.product.featured && (
-                      <span className="text-sm text-gray-500 line-through">
-                        ₹{Math.round(item.product.price * 1.2).toLocaleString()}
-                      </span>
-                    )}
-                  </div>
-                </div>
+              
 
                 <div className="mt-4 flex space-x-2">
                   <button

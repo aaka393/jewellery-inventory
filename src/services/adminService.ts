@@ -5,10 +5,8 @@ import { ApiResponse } from '../types/api';
 
 interface ProductStats {
   totalProducts: number;
-  inStock: number;
-  outOfStock: number;
-  featured: number;
-  categories: { [key: string]: number };
+  stock: number;
+  categories: Record<string, number>;
 }
 
 interface OrderStats {
