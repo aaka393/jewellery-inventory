@@ -90,9 +90,14 @@ class AdminService extends BaseService {
     return this.get<{ totalProducts: number }>(`${API_ENDPOINTS.ADMIN_USERS}/${userId}/order-count`, true);
   }
 
+  async getUserOrders(userId: string): Promise<ApiResponse<Order[]>> {
+  return this.get<Order[]>(`${API_ENDPOINTS.ADMIN_USERS}/${userId}/orders`, true);
+}
+
+
   // Send tracking ID
-  async sendTrackingId(userId: string, trackingNumber: string): Promise<ApiResponse<any>> {
-    return this.post<any>('/admin/send-tracking', { userId, trackingNumber }, true);
+  async sendTrackingId(userId: string, trackingNumber: string, orderId: string): Promise<ApiResponse<any>> {
+    return this.post<any>(`${API_ENDPOINTS.ADMIN_SEND_TRACKING}`, { userId, trackingNumber, orderId }, true);
   }
 }
 
