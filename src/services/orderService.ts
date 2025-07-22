@@ -38,6 +38,10 @@ class OrderService extends BaseService {
   async verifyPayment(paymentData: PaymentVerificationPayload): Promise<ApiResponse<{ status: string }>> {
     return this.post<{ status: string }>(API_ENDPOINTS.VERIFY_PAYMENT, paymentData, true);
   }
+  
+  async getUserOrders(): Promise<ApiResponse<Order[]>>{
+    return this.get<Order[]>(API_ENDPOINTS.GET_USER_ORDERS, true);
+  }
 }
 
   export const orderService = new OrderService();

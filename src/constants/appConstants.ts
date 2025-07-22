@@ -67,6 +67,7 @@ export const API_ENDPOINTS = {
   GET_ORDER_PAYMENTS: '/orders',
   LIST_ORDERS: '/orderservice',
   ADMIN_ORDERS: '/admin/orders',
+  GET_USER_ORDERS: '/user/orders',
 
   // Payment endpoints
   CREATE_PAYMENT_ORDER: '/payment/create-order',

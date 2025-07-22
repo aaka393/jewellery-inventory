@@ -198,10 +198,10 @@ class ApiService {
     return response.result;
   }
 
-  // async getUserOrders(): Promise<[]> {
-  //   const response = await userService.getUsersOrders();
-  //   return response.result;
-  // }
+  async getUserOrders(): Promise<[]> {
+    const response = await userService.getUsersOrders();
+    return response.result;
+  }
 
   // File upload methods
   async uploadFile(file: File): Promise<{ url: string }> {
