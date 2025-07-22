@@ -4,13 +4,12 @@ import { Category, Product } from '../types';
 import { apiService } from '../services/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
-import { SITE_CONFIG } from '../constants/siteConfig';
+import { SITE_CONFIG, staticImageBaseUrl } from '../constants/siteConfig';
 import Footer from '../components/common/Footer';
 import Neckless from '../assets/Neckless.jpg';
 import catalog from '../assets/Devi.jpg';
 import Header from '../components/common/Header';
 import { motion } from 'framer-motion';
-import { useCartStore } from '../store/cartStore';
 
 const container = {
   hidden: {},
@@ -28,12 +27,9 @@ const letter = {
 
 const HomePage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [latestProducts, setLatestProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasAnimated, setHasAnimated] = useState(false);
-
-  const addItem = useCartStore((state) => state.addItem);
-
 
   useEffect(() => {
     const alreadyShown = sessionStorage.getItem('heroAnimated');
@@ -43,43 +39,45 @@ const HomePage: React.FC = () => {
     }
   }, []);
 
-  const renderLetters = (text: string) =>
-    text.split('').map((char, index) => (
-      <motion.span key={index} variants={letter}>
-        {char === ' ' ? ' ' : char}
-      </motion.span>
-    ));
-
   useEffect(() => {
     loadData();
+    fetchProducts();
   }, []);
 
   const loadData = async () => {
     try {
       const categoriesRes = await apiService.getCategories();
-      const productsRes = await apiService.getProducts();
-
-      console.log('Raw Products:', productsRes); // ✅ log raw
-
-      const filtered = (productsRes || []).filter((p) => p.image);
-      console.log('Filtered Products:', filtered); // ✅ log filtered
-
       setCategories(categoriesRes || []);
-      setLatestProducts(filtered); // remove .slice(0, 4) for now
     } catch (error) {
       console.error('Error loading data:', error);
       setCategories([]);
-      setLatestProducts([]);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await apiService.getProducts();     
+      const sortedProducts = (response || []).sort((a: Product, b: Product) => {
+        if (a.createdAt && b.createdAt) {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }       
+        return Number(b.id) - Number(a.id);
+      });
+      
+      setProducts(sortedProducts.slice(0, 4));
+    } catch (error) {
+      console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
   };
 
-
-  const handleAddToCart = (product: Product) => {
-    addItem(product, 1);
-    alert(`${product.name} added to cart!`);
-  };
+  const renderLetters = (text: string) =>
+    text.split('').map((char, index) => (
+      <motion.span key={index} variants={letter}>
+        {char === ' ' ? '\u00A0' : char}
+      </motion.span>
+    ));
 
   if (loading) return <LoadingSpinner />;
 
@@ -90,10 +88,10 @@ const HomePage: React.FC = () => {
         description={`Discover exquisite handcrafted pure silver jewelry at ${SITE_CONFIG.name}. Shop necklaces, earrings, bangles, anklets and more. Free shipping within India.`}
         keywords={`silver jewelry, handcrafted jewelry, necklaces, earrings, bangles, anklets, rings, Indian jewelry, ${SITE_CONFIG.name}, pure silver, 925 silver`}
       />
-
-      <div className="text-[#F2E9D8] overflow-hidden">
+      <div className="text-[#F2E9D8] overflow-hidden bg-[#F6F5F1]">
         <Header />
 
+        {/* Hero Section */}
         <section className="min-h-screen relative flex items-center justify-center">
           <div className="grid grid-cols-1 lg:grid-cols-2 w-full h-screen">
             <div className="relative overflow-hidden">
@@ -105,7 +103,11 @@ const HomePage: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1C1A17]/30"></div>
             </div>
             <div className="relative overflow-hidden hidden lg:block">
-              <img src={Neckless} alt="Hero Right" className="w-full h-full object-cover" />
+              <img
+                src={Neckless}
+                alt="Hero Right"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 
@@ -119,7 +121,6 @@ const HomePage: React.FC = () => {
               >
                 {renderLetters(SITE_CONFIG.shortName)}
               </motion.h1>
-
               <motion.p
                 className="text-base md:text-xl font-light tracking-wide text-[#D4B896] max-w-md mx-auto"
                 initial={{ opacity: 0, y: 10 }}
@@ -132,79 +133,62 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        <section className="py-20 px-6 text-center max-w-4xl mx-auto">
+        {/* Intro Section */}
+        <section className="py-20 px-6 text-center max-w-4xl mx-auto bg-[#F6F5F1]">
           <div className="space-y-6">
-            <p className="text-lg md:text-xl font-light leading-relaxed text-[#804000] italic">
+            <p className="text-lg md:text-xl font-semibold font-light leading-relaxed text-[#804000] italic">
               {SITE_CONFIG.tagline}
             </p>
-            <p className="text-base md:text-lg font-light bold text-[#804000]">
+            <p className="text-base md:text-lg font-semibold font-light bold text-[#804000]">
               Discover our handcrafted pure silver jewelry collection.
             </p>
             <Link
               to="/products"
-              className="inline-block mt-8 text-sm text-[#804000] tracking-widest border-b border-[#D4B896] pb-1 hover:border-[#F2E9D8] transition-colors"
+              className="inline-block font-bold mt-8 text-sm text-[#804000] tracking-widest border-b border-[#D4B896] pb-1 hover:border-[#F2E9D8] transition-colors"
             >
               EXPLORE COLLECTION →
             </Link>
           </div>
         </section>
 
-        <section className="py-20 px-6">
+        {/* Product Cards Section */}
+        <section className="py-20 px-6 bg-[#F6F5F1]">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-20 font-serif italic">
               <h2 className="text-3xl md:text-4xl font-light text-[#804000] mb-4 tracking-wide">
-                Shop by Category
+                Latest Products
               </h2>
               <div className="w-24 h-[1px] bg-[#D4B896] mx-auto mb-4"></div>
               <p className="text-[#804000] font-light max-w-2xl mx-auto mb-6">
-                Each piece is meticulously crafted with attention to detail, using only the finest materials
+                Discover our newest arrivals - Each piece is meticulously crafted with attention to detail, using only the finest materials
               </p>
-              <div className="mt-10">
-                <h3 className="text-2xl text-[#804000] mb-2">Our Collections</h3>
-                <p className="text-[#804000]">Discover our handcrafted collections of silver jewelry</p>
-              </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
-              {latestProducts.map((product) => (
-                <div key={product.id} className="flex flex-col items-center">
-                  <div className="group relative w-full aspect-[3/4] border-2 border-[#d4b896] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-500 bg-white">
+            {/* ✅ Updated Grid for Mobile: Two Products per Row */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+              {products.map((product) => (
+                <Link
+                  to={`/product/${product.slug}`}
+                  key={product.id}
+                  className="flex flex-col items-center group"
+                >
+                  <div className="relative w-full aspect-[3/4] border-2 border-[#d4b896] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-500 bg-transparent">
                     <img
-                      src={product.hoverImage || product.image}
-                      alt={`${product.name} - Hover`}
-                      className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20"
+                      src={`${staticImageBaseUrl}/${product.images[0]}`}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="relative w-full h-full flex items-center justify-center z-10 p-4">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-auto object-contain max-h-full"
-                      />
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-[#D4B896] text-[#1C1A17] text-xs px-3 py-1 rounded-full font-medium">
+                        PreOrder
+                      </span>
                     </div>
-                    {product.isSoldOut && (
-                      <span className="absolute top-3 left-3 z-30 bg-white text-[#1d1a15] text-xs font-semibold px-2 py-1 rounded tracking-wide">
-                        SOLD OUT
-                      </span>
-                    )}
-                    {product.isNew && !product.isSoldOut && (
-                      <span className="absolute top-3 left-3 z-30 bg-[#d4b896] text-[#1d1a15] text-xs font-semibold px-2 py-1 rounded-full tracking-wide">
-                        NEW
-                      </span>
-                    )}
                   </div>
-                  <div className="text-center mt-4 space-y-2">
-                    <h3 className="text-sm sm:text-base text-[#aa732f]">{product.name}</h3>
+                  <div className="text-center mt-4">
+                    <h3 className="text-sm sm:text-base text-[#aa732f] font-medium">{product.name}</h3>
                     <p className="text-sm text-[#aa732f] font-semibold">₹{product.price}</p>
-                    {!product.isSoldOut && (
-                      <button
-                        className="mt-2 px-4 py-1 text-xs sm:text-sm text-white bg-[#aa732f] hover:bg-[#8f5f23] rounded-full transition-colors duration-300"
-                        onClick={() => handleAddToCart(product)}
-                      >
-                        Add to Cart
-                      </button>
-                    )}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
 
@@ -219,36 +203,41 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        <section className="relative min-h-screen flex items-center">
-          <div className="absolute inset-0">
-            <img src={catalog} alt="Brand" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-[#1C1A17]/40"></div>
-          </div>
-          <div className="relative z-10 w-full max-w-4xl px-6 text-left space-y-6">
-            <p className="text-lg md:text-xl font-light leading-relaxed text-[#F2E9D8]">
-              {SITE_CONFIG.name} is more than jewelry - it's a celebration of craftsmanship.
-            </p>
-            <p className="text-lg md:text-xl font-light leading-relaxed text-[#F2E9D8]">
-              Each piece is handcrafted with 92.5% pure silver, ensuring lasting quality and timeless beauty.
-            </p>
-            <p className="text-lg md:text-xl font-light leading-relaxed text-[#F2E9D8]">
-              From traditional designs to contemporary styles, our collection celebrates the art of silver jewelry making.
-            </p>
-          </div>
-        </section>
-
-        <section className="py-24 px-6 text-center bg-[#2A2721]">
+        {/* Catalog Section */}
+        <section className="relative min-h-screen flex items-end md:items-center">
+            <div className="absolute inset-0">
+              <img
+                src={catalog}
+                alt="Brand Catalog"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-[#1C1A17]/40"></div>
+            </div>
+            <div className="relative z-10 w-full max-w-4xl px-6 pb-10 md:pb-0 text-left space-y-6">
+              <p className="text-lg md:text-xl font-light leading-relaxed text-white">
+                {SITE_CONFIG.name} is more than jewelry - it's a celebration of craftsmanship.
+              </p>
+              <p className="text-lg md:text-xl font-light leading-relaxed text-white">
+                Each piece is handcrafted with 92.5% pure silver, ensuring lasting quality and timeless beauty.
+              </p>
+              <p className="text-lg md:text-xl font-light leading-relaxed text-white">
+                From traditional designs to contemporary styles, our collection celebrates the art of silver jewelry making.
+              </p>
+            </div>
+          </section>
+        {/* Footer */}
+        <section className="py-24 px-6 text-center bg-[#F2ECE4]">
           <div className="max-w-2xl mx-auto">
             <div className="mb-12">
-              <h2 className="text-4xl md:text-6xl font-serif italic text-[#aa732f] mb-8">{SITE_CONFIG.shortName}</h2>
-              <p className="text-lg font-light text-[#aa732f] mb-8">
+              <h2 className="text-4xl md:text-6xl font-serif italic text-[#4F3C2A] mb-8">{SITE_CONFIG.shortName}</h2>
+              <p className="text-lg font-light text-[#4F3C2A] mb-8">
                 Get exclusive updates on new collections and special offers
               </p>
             </div>
           </div>
         </section>
 
-        <div className="py-12 px-6 border-t border-[#ae742b] text-center bg-[#2A2721] text-xs text-[#aa732f]">
+        <div className="py-12 px-6 border-t border-[#ae742b] text-center bg-[#F2ECE4] text-xs text-[#4F3C2A]">
           <Footer />
         </div>
       </div>
