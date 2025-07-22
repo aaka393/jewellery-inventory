@@ -138,13 +138,13 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Bottom Section (Subscribe message) */}
-      <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 text-center mt-16 sm:mt-20 lg:mt-24 bg-[#f4f1e7]">
+      <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 text-center mt-16 sm:mt-20 lg:mt-24 bg-[#F2ECE4]">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif italic text-[#aa732f] mb-4 sm:mb-6">{SITE_CONFIG.shortName}</h2>
-          <p className="text-base sm:text-lg font-light text-[#aa732f] mb-4 sm:mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif italic text-[#4F3C2A] mb-4 sm:mb-6">{SITE_CONFIG.shortName}</h2>
+          <p className="text-base sm:text-lg font-light text-[#4F3C2A] mb-4 sm:mb-6">
             Get exclusive updates on new collections and special offers.
           </p>
-          <p className="text-xs sm:text-sm font-semibold text-[#aa732f] max-w-lg mx-auto leading-relaxed px-4">
+          <p className="text-xs sm:text-sm font-semibold text-[#4F3C2A] max-w-lg mx-auto leading-relaxed px-4">
             {SITE_CONFIG.name} may use your email address to send updates and offers. 
             You can always unsubscribe from marketing messages. Learn more via our Privacy Policy.
           </p>
@@ -152,7 +152,7 @@ const LoginPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#2A2621] text-center text-xs text-[#aa732f] py-4 sm:py-6 px-4">
+      <footer className="border-t border-[#2A2621] text-center text-xs text-[#aa732f] bg-[#F2ECE4] py-4 sm:py-6 px-4">
         <Footer />
       </footer>
     </div>

@@ -5,7 +5,7 @@ export const SITE_CONFIG = {
   name: process.env.VITE_SITE_NAME || 'Taanira',
   shortName: process.env.VITE_SITE_SHORT_NAME || ' 𝒯𝒶𝒶𝓃𝒾𝓇𝒶',
   description: process.env.VITE_SITE_DESCRIPTION || 'Handcrafted Pure Silver Jewelry',
-  tagline: process.env.VITE_SITE_TAGLINE || 'A Tanishq Partnership. JI is India\'s first omnichannel jeweller offering best-in-class jewellery.',
+  tagline: process.env.VITE_SITE_TAGLINE || 'Taanira is more than just jewellery — it’s a celebration of craft, culture, and connection. Thoughtfully created for those who cherish handmade beauty, every piece tells a story woven with love and tradition.',
   domain: process.env.VITE_SITE_DOMAIN || 'Taanira.com',
   supportEmail: process.env.VITE_SUPPORT_EMAIL || 'support@Taanira.com',
   supportPhone: process.env.VITE_SUPPORT_PHONE || '1800-102-0103',
