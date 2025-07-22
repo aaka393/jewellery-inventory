@@ -5,7 +5,6 @@ import { useAuthStore } from './authStore';
 import { cartService } from '../services/cartService';
 
 interface CartState {
-  addToCart: any;
   items: CartItem[];
   guestItems: CartItem[];
   addItem: (product: Product, quantity: number) => void;

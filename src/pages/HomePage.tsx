@@ -32,7 +32,8 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [hasAnimated, setHasAnimated] = useState(false);
 
-  const addToCart = useCartStore((state) => state.addToCart);
+  const addItem = useCartStore((state) => state.addItem);
+
 
   useEffect(() => {
     const alreadyShown = sessionStorage.getItem('heroAnimated');
@@ -53,30 +54,30 @@ const HomePage: React.FC = () => {
     loadData();
   }, []);
 
-const loadData = async () => {
-  try {
-    const categoriesRes = await apiService.getCategories();
-    const productsRes = await apiService.getProducts();
+  const loadData = async () => {
+    try {
+      const categoriesRes = await apiService.getCategories();
+      const productsRes = await apiService.getProducts();
 
-    console.log('Raw Products:', productsRes); // ✅ log raw
+      console.log('Raw Products:', productsRes); // ✅ log raw
 
-    const filtered = (productsRes || []).filter((p) => p.image);
-    console.log('Filtered Products:', filtered); // ✅ log filtered
+      const filtered = (productsRes || []).filter((p) => p.image);
+      console.log('Filtered Products:', filtered); // ✅ log filtered
 
-    setCategories(categoriesRes || []);
-    setLatestProducts(filtered); // remove .slice(0, 4) for now
-  } catch (error) {
-    console.error('Error loading data:', error);
-    setCategories([]);
-    setLatestProducts([]);
-  } finally {
-    setLoading(false);
-  }
-};
+      setCategories(categoriesRes || []);
+      setLatestProducts(filtered); // remove .slice(0, 4) for now
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setCategories([]);
+      setLatestProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleAddToCart = (product: Product) => {
-    addToCart(product);
+    addItem(product, 1);
     alert(`${product.name} added to cart!`);
   };
 
