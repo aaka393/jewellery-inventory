@@ -78,6 +78,13 @@ export const API_ENDPOINTS = {
   USER_ORDERS: '/user/orders',
   USER_CART: '/cart',
 
+  // Address endpoints
+  USER_ADDRESSES: '/user/addresses',
+  CREATE_ADDRESS: '/user/addresses',
+  UPDATE_ADDRESS: '/user/addresses',
+  DELETE_ADDRESS: '/user/addresses',
+  SET_DEFAULT_ADDRESS: '/user/addresses',
+
   // Admin endpoints
   ADMIN_PRODUCT_STATS: '/admin/stats/products',
   ADMIN_ORDER_STATS: '/admin/stats/orders',

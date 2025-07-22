@@ -10,6 +10,7 @@ export { stockService } from './stockService';
 export { uploadService } from './uploadService';
 export { paymentService } from './paymentService';
 export { adminService } from './adminService';
+export { addressService } from './addressService';
 
 // Export base service for extending
 export { default as BaseService } from './baseService';

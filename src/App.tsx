@@ -16,6 +16,7 @@ import RegisterPage from './pages/RegisterPage';
 import AdminPage from './pages/AdminPage';
 import UserOrdersPage from './pages/UserOrdersPage';
 import { useAuthStore } from './store/authStore';
+import AddressManagementPage from './pages/AddressManagementPage';
 
 function App() {
   const { isAuthenticated, user, initialize } = useAuthStore();
@@ -44,6 +45,7 @@ function App() {
               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/addresses" element={<AddressManagementPage />} />
               
               {/* Protected Admin Route */}
               {isAuthenticated && user?.role === 'Admin' && (

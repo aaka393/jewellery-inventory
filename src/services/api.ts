@@ -11,6 +11,7 @@ import {
   adminService
 } from './index';
 import { Product, Category, CartItem, ProductFilters, ProductImport, Order, User } from '../types';
+import { addressService } from '../services/addressService';
 
 class ApiService {
   // Auth methods
@@ -236,6 +237,35 @@ class ApiService {
 
   async getSalesSummary() {
     const response = await analyticsService.getSalesSummary();
+    return response.result;
+  }
+
+  // Address methods
+  async getUserAddresses() {
+    const response = await addressService.getUserAddresses();
+    return response.result;
+  }
+
+  async createAddress(addressData: any) {
+    const response = await addressService.createAddress(addressData);
+    return response.result;
+  }
+
+  async updateAddress(addressId: string, addressData: any) {
+    const response = await addressService.updateAddress(addressId, addressData);
+    return response.result;
+  }
+
+  async deleteAddress(addressId: string) {
+    await addressService.deleteAddress(addressId);
+  }
+
+  async setDefaultAddress(addressId: string) {
+    await addressService.setDefaultAddress(addressId);
+  }
+
+  async validatePincode(pincode: string) {
+    const response = await addressService.validatePincode(pincode);
     return response.result;
   }
 

@@ -4,12 +4,16 @@ import { Plus, Minus, ShoppingBag, X } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
 import PaymentHandler from '../components/payment/PaymentHandler';
+import AddressSelector from '../components/address/AddressSelector';
+import { useAddressStore } from '../store/addressStore';
 import { staticImageBaseUrl } from '../constants/siteConfig';
 
 const CartPage: React.FC = () => {
   const { items, guestItems, removeItem, updateQuantity, getTotalPrice } = useCartStore();
   const { isAuthenticated } = useAuthStore();
+  const { selectedAddress } = useAddressStore();
   const navigate = useNavigate();
+  const [showAddressSelector, setShowAddressSelector] = React.useState(false);
 
   // Use appropriate items based on auth status
   const currentItems = isAuthenticated ? items : guestItems;
@@ -64,126 +68,182 @@ const CartPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto mt-20 px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-light text-gray-800">
-            MY BAG ({currentItems.length})
-          </h1>
-          <button onClick={() => navigate('/')} className="text-gray-600 hover:text-black">
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
-          <div className="lg:col-span-2">
-            <div className="space-y-6">
-              {currentItems.map((item) => (
-                <div key={item.id} className="flex items-start space-x-4 pb-6 border-b border-gray-200">
-                  <img
-                    src={item.product.images[0]?.startsWith('http')
-                      ? item.product.images[0]
-                      : `${staticImageBaseUrl}/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
-                    alt={item.product.name}
-                    className="w-24 h-24 object-cover rounded"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-800 mb-2">{item.product.name}</h3>
-                    <div className="text-lg font-medium text-gray-900 mb-4">
-                      {item.quantity} x Rs. {item.product.price.toLocaleString()}
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleQuantityChange(item.id, -1)}
-                          className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
-                        >
-                          <Minus className="h-4 w-4" />
-                        </button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <button
-                          onClick={() => handleQuantityChange(item.id, 1)}
-                          className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </button>
-                      </div>
-
-                      <button
-                        onClick={() => handleRemoveItem(item.id, item.product.name)}
-                        className="text-gray-400 hover:text-red-500"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+        {!showAddressSelector ? (
+          <>
+            <div className="flex items-center justify-between mb-8">
+              <h1 className="text-2xl font-light text-gray-800">
+                MY BAG ({currentItems.length})
+              </h1>
+              <button onClick={() => navigate('/')} className="text-gray-600 hover:text-black">
+                <X className="h-6 w-6" />
+              </button>
             </div>
-          </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Cart Items */}
+              <div className="lg:col-span-2">
+                <div className="space-y-6">
+                  {currentItems.map((item) => (
+                    <div key={item.id} className="flex items-start space-x-4 pb-6 border-b border-gray-200">
+                      <img
+                        src={item.product.images[0]?.startsWith('http')
+                          ? item.product.images[0]
+                          : `${staticImageBaseUrl}/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
+                        alt={item.product.name}
+                        className="w-24 h-24 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-800 mb-2">{item.product.name}</h3>
+                        <div className="text-lg font-medium text-gray-900 mb-4">
+                          {item.quantity} x Rs. {item.product.price.toLocaleString()}
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleQuantityChange(item.id, -1)}
+                              className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="w-8 text-center">{item.quantity}</span>
+                            <button
+                              onClick={() => handleQuantityChange(item.id, 1)}
+                              className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
+
+                          <button
+                            onClick={() => handleRemoveItem(item.id, item.product.name)}
+                            className="text-gray-400 hover:text-red-500"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-gray-50 p-6 rounded">
               <h2 className="text-lg font-medium text-gray-800 mb-6">Order Summary</h2>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">SUBTOTAL:</span>
-                  <span className="font-medium">Rs. {getTotalPrice().toLocaleString()}</span>
-                </div>
-                <div className="text-xs text-gray-500">
-                  Taxes and shipping fee will be calculated at checkout.
-                </div>
-                <div className="flex items-center text-xs text-gray-600">
-                  <input type="checkbox" className="mr-2" />
-                  <span>I agree with the Terms and Conditions.</span>
-                </div>
-              </div>
-
-              {isAuthenticated ? (
-                <div className="space-y-3">
-                  <PaymentHandler
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                  />
-                  <Link
-                    to="/cart"
-                    className="block w-full text-center py-3 text-gray-600 hover:text-black text-sm"
-                  >
-                    VIEW CART
-                  </Link>
-                </div>
-              ) : (
-                <Link
-                  to="/login"
-                  className="block w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors text-center"
-                >
-                  LOGIN TO PROCEED
-                </Link>
-              )}
-
-              {/* Features */}
-              <div className="mt-8 space-y-4 text-xs text-gray-600">
-                <div className="flex items-center space-x-2">
-                  <span>🔄</span>
-                  <div>
-                    <div className="font-medium">NO RETURNS/EXCHANGES</div>
-                    <div>ONCE SOLD</div>
+                  <div className="space-y-4 mb-6">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">SUBTOTAL:</span>
+                      <span className="font-medium">Rs. {getTotalPrice().toLocaleString()}</span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Taxes and shipping fee will be calculated at checkout.
+                    </div>
+                    <div className="flex items-center text-xs text-gray-600">
+                      <input type="checkbox" className="mr-2" />
+                      <span>I agree with the Terms and Conditions.</span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span>🛡️</span>
-                  <div className="font-medium">PURE SILVER</div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span>🚚</span>
-                  <div className="font-medium">FREE SHIPPING WITHIN INDIA</div>
+
+                  {isAuthenticated ? (
+                    <div className="space-y-3">
+                      {selectedAddress ? (
+                        <>
+                          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-sm">
+                            <p className="font-medium text-green-800">Delivering to:</p>
+                            <p className="text-green-700">{selectedAddress.fullName}</p>
+                            <p className="text-green-700">{selectedAddress.city}, {selectedAddress.state}</p>
+                            <button
+                              onClick={() => setShowAddressSelector(true)}
+                              className="text-purple-600 hover:text-purple-700 text-xs mt-1"
+                            >
+                              Change Address
+                            </button>
+                          </div>
+                          <PaymentHandler
+                            onSuccess={handlePaymentSuccess}
+                            onError={handlePaymentError}
+                          />
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setShowAddressSelector(true)}
+                          className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors"
+                        >
+                          SELECT DELIVERY ADDRESS
+                        </button>
+                      )}
+                      <Link
+                        to="/cart"
+                        className="block w-full text-center py-3 text-gray-600 hover:text-black text-sm"
+                      >
+                        VIEW CART
+                      </Link>
+                    </div>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className="block w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors text-center"
+                    >
+                      LOGIN TO PROCEED
+                    </Link>
+                  )}
+
+                  {/* Features */}
+                  <div className="mt-8 space-y-4 text-xs text-gray-600">
+                    <div className="flex items-center space-x-2">
+                      <span>🔄</span>
+                      <div>
+                        <div className="font-medium">NO RETURNS/EXCHANGES</div>
+                        <div>ONCE SOLD</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span>🛡️</span>
+                      <div className="font-medium">PURE SILVER</div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span>🚚</span>
+                      <div className="font-medium">FREE SHIPPING WITHIN INDIA</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          </>
+        ) : (
+          <div>
+            <div className="flex items-center mb-6">
+              <button
+                onClick={() => setShowAddressSelector(false)}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 mr-4"
+              >
+                <X className="h-5 w-5" />
+                <span>Back to Cart</span>
+              </button>
+              <h1 className="text-2xl font-light text-gray-800">Select Delivery Address</h1>
+            </div>
+            
+            <AddressSelector
+              onAddressSelect={(address) => {
+                setShowAddressSelector(false);
+              }}
+            />
+            
+            {selectedAddress && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => setShowAddressSelector(false)}
+                  className="bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                >
+                  Continue to Payment
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
