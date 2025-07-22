@@ -67,7 +67,7 @@ const Footer: React.FC = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-[#aa732f] font-semibold mt-16 pt-8 flex flex-col md:flex-row justify-between items-center text-xs">
-          <p className="text-[#D4B896] mb-4 md:mb-0">© 2024 {SITE_CONFIG.name}. All rights reserved.</p>
+          <p className="text-[#41382a]  mb-4 md:mb-0">© 2024 {SITE_CONFIG.name}. All rights reserved.</p>
           <div className="flex space-x-6">
             <Link to="/privacy" className="hover:text-[#F2E9D8] font-semibold transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-[#F2E9D8] font-semibold transition-colors">Terms & Conditions</Link>

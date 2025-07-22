@@ -6,7 +6,7 @@ class ProductService extends BaseService {
   async getProducts(): Promise<ApiResponse<Product[]>> {
     return this.get<Product[]>('/public/products');
   }
-
+ 
   async getFeaturedProducts(): Promise<ApiResponse<Product[]>> {
     return this.get<Product[]>('/public/products/featured');
   }
