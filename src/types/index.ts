@@ -35,6 +35,11 @@ export interface RegisterRequest {
 }
 
 export interface Product {
+  image: string | undefined;
+  isNew: boolean;
+  isSoldOut: any;
+  isSoldOut: any;
+  hoverImage: string | undefined;
   id: string;
   name: string;
   slug?: string; // SEO-friendly URL

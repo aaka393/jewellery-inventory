@@ -164,6 +164,9 @@ const Header: React.FC = () => {
                     <Link to="/user/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Orders
                     </Link>
+                    <Link to="/addresses" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Addresses
+                    </Link>
                     {user?.role === 'Admin' && (
                       <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Admin Panel
@@ -187,8 +190,7 @@ const Header: React.FC = () => {
                   LOGIN
                 </Link>
               )}
-
-              {!isAdminPage && (
+{!isAdminPage && (
                 <button
                   onClick={() => setShowCartSidebar(true)}
                   className="flex items-center gap-2 hover:opacity-70 transition-opacity relative"
@@ -254,6 +256,10 @@ const Header: React.FC = () => {
                       )}
                     </Link>
                     <div className="border-t border-[#d4b896]/20 mt-2" />
+                    <Link to="/addresses" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
+                      ADDRESSES
+                    </Link>
+                    <div className="border-t border-[#d4b896]/20 mt-2" />
                     {user?.role === 'Admin' && (
                       <>
                         <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="block text-lg tracking-[0.2em] font-light hover:opacity-80">
@@ -317,3 +323,4 @@ const Header: React.FC = () => {
 };
 
 export default Header;
+
