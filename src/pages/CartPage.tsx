@@ -24,28 +24,32 @@ const CartPage: React.FC = () => {
     if (!item) return;
 
     if (item.quantity === 1 && delta === -1) {
-      removeItem(productId);
+      removeItem(item.id); // Use cartId instead of productId
     } else {
-      updateQuantity(productId, item.quantity + delta);
+      updateQuantity(item.id, item.quantity + delta); // Use cartId instead of productId
     }
   };
 
-  const handleRemoveItem = (productId: string, productName: string) => {
+  const handleRemoveItem = (cartId: string, productName: string) => {
     if (confirm(`Remove ${productName} from cart?`)) {
-      removeItem(productId);
+      removeItem(cartId); // Use cartId instead of productId
     }
   };
 
 
-  const handlePaymentSuccess = () => {
-    alert('Payment successful! Redirecting to order confirmation...');
-    navigate('/order-confirmation');
+  // const handlePaymentSuccess = () => {
+  //   onSuccess: (orderId: string) => {
+  //     navigate(`/order-confirmation/${orderId}`);
+  //   },
+  // };
+
+  const handlePaymentSuccess = (orderId: string) => {
+    navigate(`/order-confirmation/${orderId}`);
   };
 
   const handlePaymentError = (error: string) => {
     alert(`Payment failed: ${error}`);
   };
-
 
   if (currentItems.length === 0) {
     return (
@@ -116,7 +120,7 @@ const CartPage: React.FC = () => {
                           </div>
 
                           <button
-                            onClick={() => handleRemoveItem(item.productId, item.product.name)}
+                            onClick={() => handleRemoveItem(item.id, item.product.name)}
                             className="text-xs sm:text-sm text-gray-400 hover:text-red-500 order-2"
                           >
                             Remove

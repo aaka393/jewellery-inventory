@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { apiService } from '../../services/api';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { SITE_CONFIG } from '../../constants/siteConfig';
+import { useAddressStore } from '../../store/addressStore';
 
 declare global {
   interface Window {
@@ -12,13 +13,14 @@ declare global {
 }
 
 interface PaymentHandlerProps {
-  onSuccess: () => void;
+  onSuccess: (orderId: string) => void;
   onError: (error: string) => void;
 }
 
 const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) => {
-  const { getTotalPrice, clearCart } = useCartStore();
+  const { getTotalPrice, clearCart, items, guestItems } = useCartStore();
   const { user } = useAuthStore();
+  const { selectedAddress } = useAddressStore();
   const { trackPurchase } = useAnalytics();
 
   const loadRazorpayScript = (): Promise<boolean> => {
@@ -38,6 +40,19 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
 
   const handlePayment = async () => {
     try {
+      const { isAuthenticated } = useAuthStore.getState();
+      const currentItems = isAuthenticated ? items : guestItems;
+      
+      if (currentItems.length === 0) {
+        onError('Cart is empty');
+        return;
+      }
+
+      if (isAuthenticated && !selectedAddress) {
+        onError('Please select a delivery address');
+        return;
+      }
+
       // Load Razorpay script
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
@@ -57,9 +72,18 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
         amount: Math.round(totalAmount * 100), // Convert to paise
         currency: 'INR',
         receipt: `receipt_${Date.now()}`,
+        items: currentItems.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.product.price,
+          name: item.product.name,
+          image: item.product.images[0] || ''
+        })),
+        shippingAddress: selectedAddress,
         notes: {
           userId: user?.id || 'guest',
           userEmail: user?.email || '',
+          itemCount: currentItems.length.toString(),
         },
       });
 
@@ -96,7 +120,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
               // Track successful purchase
               trackPurchase(orderData.id, totalAmount);
               clearCart();
-              onSuccess();
+              onSuccess(orderData.id);
             } else {
               onError('Payment verification failed');
             }
@@ -109,6 +133,10 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
           name: user ? `${user.firstname} ${user.lastname}` : '',
           email: user?.email || '',
           contact: user?.contact || '',
+        },
+        notes: {
+          address_id: selectedAddress?.id || '',
+          user_id: user?.id || '',
         },
         theme: {
           color: '#000000',

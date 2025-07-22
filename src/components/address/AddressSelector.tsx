@@ -137,7 +137,7 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
       <div>
         <h3 className="text-lg sm:text-xl font-serif italic text-[#4A3F36] mb-2 flex items-center">
           <MapPin className="w-5 h-5 mr-2" />
-          📍 Saved Addresses
+           Saved Addresses
         </h3>
         <p className="text-sm font-light text-[#4A3F36] mb-4">
           Select one of your saved delivery addresses below. You can edit or remove any address, or add a new one if needed.
@@ -175,9 +175,6 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
         </div>
       ) : (
         <div className="border-t pt-6">
-          <h3 className="text-lg font-serif italic text-[#4A3F36] mb-2">
-            ➕ Add a New Address
-          </h3>
           <p className="text-sm font-light text-[#4A3F36] mb-4">
             Don&apos;t see your delivery location? Add a new address to continue.
           </p>
@@ -196,16 +193,7 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
       </button>
     </div>
 
-    {/* Selected Address Summary */}
-    {selectedAddress && (
-      <div className="bg-[#F4F1E7] border border-[#DEC9A3] rounded-lg p-4 text-sm text-[#4A3F36]">
-        <p className="font-medium">{selectedAddress.fullName}</p>
-        <p>{selectedAddress.houseNumber}, {selectedAddress.streetArea}</p>
-        {selectedAddress.landmark && <p>Landmark: {selectedAddress.landmark}</p>}
-        <p>{selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}</p>
-        <p>Mobile: {selectedAddress.mobileNumber}</p>
-      </div>
-    )}
+
 
     {/* Address Form Dialog */}
     <AddressForm

@@ -44,6 +44,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/addresses" element={<AddressManagementPage />} />
+              <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
               
               {/* Protected Admin Route */}
               {isAuthenticated && user?.role === 'Admin' && (

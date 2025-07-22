@@ -101,19 +101,34 @@ export interface Order {
   paymentMethod: string;
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
-  shippingAddress: Address;
-  billingAddress: Address;
+  shippingAddress: any; // Can be Address or other address format
+  billingAddress?: any;
   trackingNumber?: string;
   estimatedDelivery?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
+export interface OrderItemRequest {
+  productId: string;
+  quantity: number;
+  price: number;
+  name: string;
+  image: string;
+}
+
 export interface OrderRequest {
-  amount: number;
-  currency: string;
+  amount: number; // In paise (i.e., smallest currency unit)
+  currency: 'INR'; // Could be generalized if needed
   receipt?: string;
-  notes?: Record<string, string>;
+  items: OrderItem[]; 
+  shippingAddress: Address; // Define this below
+  notes?: {
+    userId: string;
+    userEmail: string;
+    itemCount: string;
+    [key: string]: string; // Allow additional note fields
+  };
 }
 
 export interface Payment {
