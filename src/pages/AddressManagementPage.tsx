@@ -19,17 +19,17 @@ const AddressManagementPage: React.FC = () => {
       {/* Header should be outside the inner layout */}
       <Header />
 
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen mt-10 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-800 transition"
+              className="inline-flex items-center text-sm font-medium text-[#4A3F36] hover:text-gray-800 transition"
             >
               <ArrowLeft className="h-4 w-4 mr-1" />
               Back
             </button>
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+            <h1 className="text-xl sm:text-2xl font-semibold text-[#4A3F36]">
               Manage Addresses
             </h1>
             <div className="w-8" />

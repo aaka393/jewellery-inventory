@@ -120,123 +120,119 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
   }
 
   return (
-    <div className="space-y-6">
-      {showTitle && (
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            ✨ Where should we deliver your jewelry?
-          </h2>
-          <p className="text-gray-600">
-            To ensure safe and timely delivery of your precious order, please choose a saved address or add a new one.
-          </p>
-        </div>
-      )}
-
-      {/* Saved Addresses */}
-      {addresses.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <MapPin className="h-5 w-5 mr-2" />
-            📍 Saved Addresses
-          </h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Select one of your saved delivery addresses below. You can edit or remove any address, or add a new one if needed.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {addresses.map((address) => (
-              <AddressCard
-                key={address.id}
-                address={address}
-                isSelected={selectedAddress?.id === address.id}
-                onSelect={() => handleAddressSelect(address)}
-                onEdit={() => {
-                  setEditingAddress(address);
-                  setShowAddressForm(true);
-                }}
-                onDelete={() => setDeleteDialog({ isOpen: true, address })}
-                onSetDefault={() => handleSetDefault(address.id)}
-                showSelectButton={true}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Add New Address */}
+  <div className="space-y-10 sm:space-y-12">
+    {showTitle && (
       <div className="text-center">
-        {addresses.length === 0 ? (
-          <div className="py-8">
-            <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No addresses found</h3>
-            <p className="text-gray-600 mb-6">
-              Don't see your delivery location? Add a new address to continue.
-            </p>
-          </div>
-        ) : (
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              ➕ Add a New Address
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Don't see your delivery location? Add a new address to continue.
-            </p>
-          </div>
-        )}
-
-        <button
-          onClick={() => {
-            setEditingAddress(null);
-            setShowAddressForm(true);
-          }}
-          className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center space-x-2 mx-auto"
-        >
-          <Plus className="h-5 w-5" />
-          <span>+ Add New Address</span>
-        </button>
+        <h2 className="text-2xl sm:text-3xl font-serif italic text-[#4A3F36] mb-3">
+          ✨ Where should we deliver your jewelry?
+        </h2>
+        <p className="text-sm sm:text-base font-light text-[#4A3F36] max-w-xl mx-auto">
+          To ensure safe and timely delivery of your precious order, please choose a saved address or add a new one.
+        </p>
       </div>
+    )}
 
-      {/* Selected Address Summary */}
-      {selectedAddress && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-green-800 mb-2">
-            🚚 Great! We're delivering to this address:
+    {/* Saved Addresses */}
+    {addresses.length > 0 && (
+      <div>
+        <h3 className="text-lg sm:text-xl font-serif italic text-[#4A3F36] mb-2 flex items-center">
+          <MapPin className="w-5 h-5 mr-2" />
+          📍 Saved Addresses
+        </h3>
+        <p className="text-sm font-light text-[#4A3F36] mb-4">
+          Select one of your saved delivery addresses below. You can edit or remove any address, or add a new one if needed.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {addresses.map((address) => (
+            <AddressCard
+              key={address.id}
+              address={address}
+              isSelected={selectedAddress?.id === address.id}
+              onSelect={() => handleAddressSelect(address)}
+              onEdit={() => {
+                setEditingAddress(address);
+                setShowAddressForm(true);
+              }}
+              onDelete={() => setDeleteDialog({ isOpen: true, address })}
+              onSetDefault={() => handleSetDefault(address.id)}
+              showSelectButton={true}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Add New Address */}
+    <div className="text-center">
+      {addresses.length === 0 ? (
+        <div className="py-10">
+          <MapPin className="h-10 w-10 text-[#aa732f] mx-auto mb-4" />
+          <h3 className="text-lg font-serif italic text-[#4A3F36] mb-2">No addresses found</h3>
+          <p className="text-sm text-[#4A3F36] font-light mb-6">
+            Don&apos;t see your delivery location? Add a new address to continue.
+          </p>
+        </div>
+      ) : (
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-serif italic text-[#4A3F36] mb-2">
+            ➕ Add a New Address
           </h3>
-          <div className="text-sm text-green-700">
-            <p className="font-medium">{selectedAddress.fullName}</p>
-            <p>{selectedAddress.houseNumber}, {selectedAddress.streetArea}</p>
-            {selectedAddress.landmark && <p>Landmark: {selectedAddress.landmark}</p>}
-            <p>{selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}</p>
-            <p>Mobile: {selectedAddress.mobileNumber}</p>
-          </div>
+          <p className="text-sm font-light text-[#4A3F36] mb-4">
+            Don&apos;t see your delivery location? Add a new address to continue.
+          </p>
         </div>
       )}
 
-      {/* Address Form Dialog */}
-      <AddressForm
-        isOpen={showAddressForm}
-        onClose={() => {
-          setShowAddressForm(false);
+      <button
+        onClick={() => {
           setEditingAddress(null);
+          setShowAddressForm(true);
         }}
-        onSave={editingAddress ? handleEditAddress : handleAddAddress}
-        address={editingAddress}
-        loading={loading}
-      />
-
-      {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={deleteDialog.isOpen}
-        onClose={() => setDeleteDialog({ isOpen: false, address: null })}
-        onConfirm={handleDeleteAddress}
-        title="Delete Address"
-        message={`Are you sure you want to delete this address for ${deleteDialog.address?.fullName}?`}
-        confirmText="Delete"
-        type="danger"
-        loading={loading}
-      />
+        className="bg-[#DEC9A3] text-[#4A3F36] px-6 py-2.5 rounded-md text-sm sm:text-base font-semibold hover:bg-[#d1b990] transition-colors flex items-center justify-center space-x-2 mx-auto"
+      >
+        <Plus className="h-5 w-5" />
+        <span>Add New Address</span>
+      </button>
     </div>
-  );
+
+    {/* Selected Address Summary */}
+    {selectedAddress && (
+      <div className="bg-[#F4F1E7] border border-[#DEC9A3] rounded-lg p-4 text-sm text-[#4A3F36]">
+        <p className="font-medium">{selectedAddress.fullName}</p>
+        <p>{selectedAddress.houseNumber}, {selectedAddress.streetArea}</p>
+        {selectedAddress.landmark && <p>Landmark: {selectedAddress.landmark}</p>}
+        <p>{selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}</p>
+        <p>Mobile: {selectedAddress.mobileNumber}</p>
+      </div>
+    )}
+
+    {/* Address Form Dialog */}
+    <AddressForm
+      isOpen={showAddressForm}
+      onClose={() => {
+        setShowAddressForm(false);
+        setEditingAddress(null);
+      }}
+      onSave={editingAddress ? handleEditAddress : handleAddAddress}
+      address={editingAddress}
+      loading={loading}
+    />
+
+    {/* Delete Confirmation Dialog */}
+    <ConfirmDialog
+      isOpen={deleteDialog.isOpen}
+      onClose={() => setDeleteDialog({ isOpen: false, address: null })}
+      onConfirm={handleDeleteAddress}
+      title="Delete Address"
+      message={`Are you sure you want to delete this address for ${deleteDialog.address?.fullName}?`}
+      confirmText="Delete"
+      type="danger"
+      loading={loading}
+    />
+  </div>
+);
+
 };
 
 export default AddressSelector;
