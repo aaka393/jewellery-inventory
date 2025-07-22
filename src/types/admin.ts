@@ -38,4 +38,5 @@ export interface RoleChangeDialog {
 export interface TrackingConfirmDialog {
   isOpen: boolean;
   userId?: string;
+  orderId?: string;
 }

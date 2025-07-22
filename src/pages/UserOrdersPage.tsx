@@ -5,6 +5,7 @@ import { apiService } from '../services/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { SITE_CONFIG, staticImageBaseUrl } from '../constants/siteConfig';
 import { Order } from '../types';
+import { formatReadableDate } from '../utils/dateUtils';
 
 const UserOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -105,7 +106,7 @@ const getStatusColor = (status: string) => {
                         Order #{order.id.slice(-8)}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        Placed on {new Date(order.createdAt * 1000).toLocaleDateString()}
+                        Placed on {formatReadableDate(order.createdAt)}
                       </p>
                     </div>
                     <div className="flex items-center space-x-4">

@@ -104,11 +104,6 @@ export const API_ENDPOINTS = {
   STOCK_ALERTS: '/products/stock/alerts',
   STOCK_HISTORY: '/products/stock/history',
 
-  // Analytics endpoints
-  ANALYTICS_TRACK: '/analytics/track',
-  ANALYTICS_POPULAR: '/analytics/products/popular',
-  ANALYTICS_SALES: '/analytics/sales/summary',
-  ANALYTICS_USERS: '/analytics/users/activity',
 
   // File upload
   UPLOAD_FILE: '/upload-file',

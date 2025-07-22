@@ -4,7 +4,6 @@ import {
   categoryService, 
   cartService,   
   orderService,
-  analyticsService,
   uploadService,
   paymentService,
   adminService
@@ -209,21 +208,6 @@ async getUserOrders(): Promise<Order[]> {
 
   async verifyPaymentSignature(paymentData: any) {
     const response = await paymentService.verifyPayment(paymentData);
-    return response.result;
-  }
-
-  // Analytics methods
-  async trackEvent(event: any) {
-    await analyticsService.trackEvent(event);
-  }
-
-  async getPopularProducts() {
-    const response = await analyticsService.getPopularProducts();
-    return response.result;
-  }
-
-  async getSalesSummary() {
-    const response = await analyticsService.getSalesSummary();
     return response.result;
   }
 

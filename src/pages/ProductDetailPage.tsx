@@ -10,7 +10,6 @@ import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
-import { useAnalytics } from '../hooks/useAnalytics';
 import { SITE_CONFIG, staticImageBaseUrl } from '../constants/siteConfig';
 
 const ProductDetailPage: React.FC = () => {
@@ -23,15 +22,10 @@ const ProductDetailPage: React.FC = () => {
 
   const { addItem } = useCartStore();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
-  const { trackProductView, trackAddToCart, trackAddToWishlist } = useAnalytics();
 
   useEffect(() => {
     if (slug) loadProduct();
   }, [slug]);
-
-  useEffect(() => {
-    if (product) trackProductView(product.id);
-  }, [product, trackProductView]);
 
   const loadProduct = async () => {
     try {
@@ -48,7 +42,6 @@ const ProductDetailPage: React.FC = () => {
   const handleAddToCart = () => {
     if (product) {
       addItem(product, quantity);
-      trackAddToCart(product.id);
       alert(`Added ${quantity} ${product.name} to cart!`);
     }
   };
@@ -60,7 +53,6 @@ const ProductDetailPage: React.FC = () => {
         alert('Removed from wishlist');
       } else {
         addToWishlist(product);
-        trackAddToWishlist(product.id);
         alert('Added to wishlist');
       }
     }

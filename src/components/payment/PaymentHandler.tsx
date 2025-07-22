@@ -2,9 +2,9 @@ import React from 'react';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { apiService } from '../../services/api';
-import { useAnalytics } from '../../hooks/useAnalytics';
 import { SITE_CONFIG } from '../../constants/siteConfig';
 import { useAddressStore } from '../../store/addressStore';
+import { AddressFormData } from '../../types/address';
 
 declare global {
   interface Window {
@@ -21,7 +21,6 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
   const { getTotalPrice, clearCart, items, guestItems } = useCartStore();
   const { user } = useAuthStore();
   const { selectedAddress } = useAddressStore();
-  const { trackPurchase } = useAnalytics();
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -42,7 +41,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
     try {
       const { isAuthenticated } = useAuthStore.getState();
       const currentItems = isAuthenticated ? items : guestItems;
-      
+
       if (currentItems.length === 0) {
         onError('Cart is empty');
         return;
@@ -79,7 +78,8 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
           name: item.product.name,
           image: item.product.images[0] || ''
         })),
-        shippingAddress: selectedAddress,
+        shippingAddress: selectedAddress as AddressFormData,
+
         notes: {
           userId: user?.id || 'guest',
           userEmail: user?.email || '',
@@ -116,9 +116,8 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
               razorpay_signature: response.razorpay_signature,
             });
 
-            if (verificationResult && (verificationResult.status === 'success' || verificationResult.code === 1000)) {
+            if (verificationResult && (verificationResult.status === 'success')) {
               // Track successful purchase
-              trackPurchase(orderData.id, totalAmount);
               clearCart();
               onSuccess(orderData.id);
             } else {

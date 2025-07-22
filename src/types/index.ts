@@ -9,6 +9,7 @@ export interface User {
   username: string;
   role?: 'Admin' | 'User';
   avatar?: string;
+  latestOrderId?: string;
 }
 
 export interface LoginRequest {

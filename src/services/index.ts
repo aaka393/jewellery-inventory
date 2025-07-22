@@ -4,7 +4,6 @@ export { productService } from './productService';
 export { categoryService } from './categoryService';
 export { cartService } from './cartService';
 export { orderService } from './orderService';
-export { analyticsService } from './analyticsService';
 export { stockService } from './stockService';
 export { uploadService } from './uploadService';
 export { paymentService } from './paymentService';
