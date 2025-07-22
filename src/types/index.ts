@@ -35,6 +35,7 @@ export interface RegisterRequest {
 }
 
 export interface Product {
+  updatedAt: string | number | Date;
   image: string | undefined;
   isNew: boolean;
   isSoldOut: any;
