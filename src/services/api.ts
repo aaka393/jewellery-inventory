@@ -4,7 +4,6 @@ import {
   categoryService, 
   cartService,   
   orderService,
-  userService,
   analyticsService,
   uploadService,
   paymentService,
@@ -156,10 +155,6 @@ class ApiService {
     return response.result;
   }
 
-  // Wishlist methods
-
-
-
 
   // Order methods
   async createOrder(orderData: { amount: number; currency: string; receipt?: string; notes?: Record<string, string> }) {
@@ -187,21 +182,11 @@ class ApiService {
     return response.result;
   }
 
-  // User methods
-  async getUserProfile() {
-    const response = await userService.getUserProfile();
-    return response.result;
-  }
 
-  async updateUserProfile(profileData: any) {
-    const response = await userService.updateUserProfile(profileData);
-    return response.result;
-  }
-
-  async getUserOrders(): Promise<[]> {
-    const response = await userService.getUsersOrders();
-    return response.result;
-  }
+async getUserOrders(): Promise<Order[]> {
+  const response = await orderService.getUserOrders();
+  return response.result;
+}
 
   // File upload methods
   async uploadFile(file: File): Promise<{ url: string }> {

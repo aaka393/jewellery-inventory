@@ -116,6 +116,13 @@ export interface OrderRequest {
   notes?: Record<string, string>;
 }
 
+export interface Payment {
+  id: string;
+  orderId: string;
+  amount: number;
+  status: string;
+}
+
 export interface PaymentVerificationPayload {
   razorpay_order_id: string;
   razorpay_payment_id: string;

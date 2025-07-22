@@ -1,22 +1,7 @@
 import BaseService from './baseService';
 import { API_ENDPOINTS } from '../constants/appConstants';
-import { OrderRequest, PaymentVerificationPayload } from '../types';
+import { Order, OrderRequest, Payment, PaymentVerificationPayload } from '../types';
 import { ApiResponse } from '../types/api';
-
-interface Order {
-  id: string;
-  amount: number;
-  currency: string;
-  receipt?: string;
-  status: string;
-}
-
-interface Payment {
-  id: string;
-  orderId: string;
-  amount: number;
-  status: string;
-}
 
 class OrderService extends BaseService {
   async createOrder(orderData: OrderRequest): Promise<ApiResponse<{ id: string; amount: number; currency: string }>> {
