@@ -38,35 +38,35 @@ const OrderConfirmationPage: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Clock className="h-5 w-5 text-yellow-500" />;
-      case 'confirmed':
-        return <CheckCircle className="h-5 w-5 text-blue-500" />;
-      case 'shipped':
-        return <Truck className="h-5 w-5 text-purple-500" />;
-      case 'delivered':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      default:
-        return <Package className="h-5 w-5 text-gray-500" />;
-    }
-  };
+  // const getStatusIcon = (status: string) => {
+  //   switch (status) {
+  //     case 'pending':
+  //       return <Clock className="h-5 w-5 text-yellow-500" />;
+  //     case 'confirmed':
+  //       return <CheckCircle className="h-5 w-5 text-blue-500" />;
+  //     case 'shipped':
+  //       return <Truck className="h-5 w-5 text-purple-500" />;
+  //     case 'delivered':
+  //       return <CheckCircle className="h-5 w-5 text-green-500" />;
+  //     default:
+  //       return <Package className="h-5 w-5 text-gray-500" />;
+  //   }
+  // };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'confirmed':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'shipped':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'delivered':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
+  // const getStatusColor = (status: string) => {
+  //   switch (status) {
+  //     case 'pending':
+  //       return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+  //     case 'confirmed':
+  //       return 'bg-blue-100 text-blue-800 border-blue-200';
+  //     case 'shipped':
+  //       return 'bg-purple-100 text-purple-800 border-purple-200';
+  //     case 'delivered':
+  //       return 'bg-green-100 text-green-800 border-green-200';
+  //     default:
+  //       return 'bg-gray-100 text-gray-800 border-gray-200';
+  //   }
+  // };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
@@ -135,7 +135,7 @@ const OrderConfirmationPage: React.FC = () => {
               Your payment was successful and your order has been confirmed.
             </p>
             <p className="text-sm text-gray-500">
-              Order #{order?.orderId?.slice(-8)} • Placed on {new Date(order.createdAt).toLocaleDateString()}
+              Order #{order?.id?.slice(-8)} • Placed on {new Date(order.createdAt).toLocaleDateString()}
             </p>
           </div>
 
@@ -147,19 +147,12 @@ const OrderConfirmationPage: React.FC = () => {
                 <h2 className="text-xl font-semibold text-gray-800 mb-6">Order Status</h2>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                  <div className={`flex items-center space-x-3 p-4 rounded-lg border ${getStatusColor(order.status)}`}>
-                    {getStatusIcon(order.status)}
-                    <div>
-                      <p className="font-medium">Order Status</p>
-                      <p className="text-sm capitalize">{order.status}</p>
-                    </div>
-                  </div>
                   
-                  <div className={`flex items-center space-x-3 p-4 rounded-lg border ${getPaymentStatusColor(order.paymentStatus)}`}>
+                  <div className={`flex items-center space-x-3 p-4 rounded-lg border ${getPaymentStatusColor(order.status)}`}>
                     <CheckCircle className="h-5 w-5" />
                     <div>
                       <p className="font-medium">Payment Status</p>
-                      <p className="text-sm capitalize">{order.paymentStatus}</p>
+                      <p className="text-sm capitalize">{order.status}</p>
                     </div>
                   </div>
                 </div>
@@ -179,11 +172,6 @@ const OrderConfirmationPage: React.FC = () => {
                         Track Package
                       </button>
                     </div>
-                    {order.estimatedDelivery && (
-                      <p className="text-sm text-blue-600 mt-2">
-                        Estimated delivery: {new Date(order.estimatedDelivery).toLocaleDateString()}
-                      </p>
-                    )}
                   </div>
                 ) : (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -258,10 +246,10 @@ const OrderConfirmationPage: React.FC = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal:</span>
-                    <span className="font-medium">{SITE_CONFIG.currencySymbol}{order?.subtotal?.toLocaleString()}</span>
+                    <span className="font-medium">{SITE_CONFIG.currencySymbol}{order?.amount?.toLocaleString()}</span>
                   </div>
                   
-                  {order.tax > 0 && (
+                  {/* {order.tax > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Tax:</span>
                       <span className="font-medium">{SITE_CONFIG.currencySymbol}{order.tax.toLocaleString()}</span>
@@ -280,13 +268,13 @@ const OrderConfirmationPage: React.FC = () => {
                       <span>Discount:</span>
                       <span className="font-medium">-{SITE_CONFIG.currencySymbol}{order.discount.toLocaleString()}</span>
                     </div>
-                  )}
+                  )} */}
                   
                   <div className="border-t border-gray-200 pt-3">
                     <div className="flex justify-between">
                       <span className="text-lg font-semibold text-gray-900">Total:</span>
                       <span className="text-lg font-semibold text-gray-900">
-                        {SITE_CONFIG.currencySymbol}{order?.total?.toLocaleString()}
+                        {SITE_CONFIG.currencySymbol}{order?.amount?.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -314,15 +302,6 @@ const OrderConfirmationPage: React.FC = () => {
                   >
                     Continue Shopping
                   </Link>
-                </div>
-
-                {/* Order Info */}
-                <div className="mt-6 pt-6 border-t border-gray-200 text-xs text-gray-500 space-y-2">
-                  <p><strong>Order ID:</strong> {order.orderId}</p>
-                  <p><strong>Payment Method:</strong> {order.paymentMethod || 'Razorpay'}</p>
-                  {order.razorpayPaymentId && (
-                    <p><strong>Payment ID:</strong> {order.razorpayPaymentId}</p>
-                  )}
                 </div>
               </div>
             </div>

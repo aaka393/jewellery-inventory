@@ -1,3 +1,5 @@
+import { AddressFormData } from "./address";
+
 export interface User {
   id: string;
   email: string;
@@ -7,17 +9,6 @@ export interface User {
   username: string;
   role?: 'Admin' | 'User';
   avatar?: string;
-}
-
-export interface Address {
-  id: string;
-  type: 'shipping' | 'billing';
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  isDefault: boolean;
 }
 
 export interface LoginRequest {
@@ -105,7 +96,8 @@ export interface Order {
   offer_id: string | null;
   createdAt: string; // Unix timestamp (in seconds)
   items: OrderItem[];
-  shippingAddress: Address;
+  trackingNumber:string | null;
+  shippingAddress: AddressFormData;
 }
 
 
@@ -122,7 +114,7 @@ export interface OrderRequest {
   currency: 'INR'; // Could be generalized if needed
   receipt?: string;
   items: OrderItem[]; 
-  shippingAddress: Address; // Define this below
+  shippingAddress: AddressFormData; // Define this below
   notes?: {
     userId: string;
     userEmail: string;
