@@ -16,7 +16,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card icon={Package} title="Total Products" value={stats.products.total} note={`${stats.products.inStock} in stock`} />
         <Card icon={ShoppingCart} title="Total Orders" value={stats.orders.total} note={`${stats.orders.pending} pending • ${stats.orders.completed} completed`} />
         <Card icon={DollarSign} title="Revenue" value={`${SITE_CONFIG.currencySymbol}${stats.orders.revenue.toLocaleString()}`} note="Total earnings" />
@@ -24,49 +24,49 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Categories Overview */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold mb-4">Categories Overview</h3>
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Categories Overview</h3>
         {Object.keys(stats.products.categories).length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
             {Object.keys(stats.products.categories).map(cat => (
-              <div key={cat} className="bg-[#F8F5F1] rounded-lg p-4 text-center text-sm capitalize">{cat}</div>
+              <div key={cat} className="bg-[#F8F5F1] rounded-lg p-2 sm:p-4 text-center text-xs sm:text-sm capitalize">{cat}</div>
             ))}
           </div>
         ) : (
-          <div className="text-sm text-gray-500">No category data available.</div>
+          <div className="text-xs sm:text-sm text-gray-500">No category data available.</div>
         )}
       </div>
 
       {/* Recent Products */}
       <div className="bg-white rounded-lg shadow-sm">
-        <div className="px-6 py-4 border-b flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Recent Products</h2>
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex items-center justify-between">
+          <h2 className="text-base sm:text-lg font-semibold">Recent Products</h2>
         </div>
-        <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-[#F8F5F1]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase">Stock</th>
+                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase">Product</th>
+                <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase">Category</th>
+                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase">Price</th>
+                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase">Stock</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {recentProducts.map(p => (
                 <tr key={p.id}>
-                  <td className="px-6 py-4 flex items-center">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 flex items-center">
                     <img
                       src={p.images?.[0]?.startsWith('http') ? p.images[0] : `${staticImageBaseUrl}${p.images[0]}`}
                       alt={p.name}
-                      className="h-10 w-10 rounded-full object-cover"
+                      className="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover flex-shrink-0"
                     />
-                    <span className="ml-4 text-sm font-medium">{p.name}</span>
+                    <span className="ml-2 sm:ml-4 text-xs sm:text-sm font-medium line-clamp-2">{p.name}</span>
                   </td>
-                  <td className="px-6 py-4 text-sm">{p.category}</td>
-                  <td className="px-6 py-4 text-sm">{SITE_CONFIG.currencySymbol}{p.price?.toLocaleString()}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${p.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm">{p.category}</td>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm">{SITE_CONFIG.currencySymbol}{p.price?.toLocaleString()}</td>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4">
+                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full ${p.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                       {p.stock ? 'In Stock' : 'Out of Stock'}
                     </span>
                   </td>
@@ -94,13 +94,13 @@ interface CardProps {
   note?: string;
 }
 const Card: React.FC<CardProps> = ({ icon: Icon, title, value, note }) => (
-  <div className="bg-white rounded-lg shadow-sm p-6">
+  <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6">
     <div className="flex items-center">
-      <div className="p-2 bg-[#D4B896] rounded-lg"><Icon className="h-6 w-6 text-[#5f3c2c]" /></div>
-      <div className="ml-4">
-        <p className="text-sm font-medium text-[#5f3c2c]">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        {note && <p className="text-sm text-gray-500">{note}</p>}
+      <div className="p-1.5 sm:p-2 bg-[#D4B896] rounded-lg flex-shrink-0"><Icon className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-[#5f3c2c]" /></div>
+      <div className="ml-2 sm:ml-3 lg:ml-4 min-w-0">
+        <p className="text-xs sm:text-sm font-medium text-[#5f3c2c] truncate">{title}</p>
+        <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{value}</p>
+        {note && <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">{note}</p>}
       </div>
     </div>
   </div>

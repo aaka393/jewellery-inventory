@@ -82,18 +82,18 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF9F6]">
-      <div className="container mx-auto px-4 py-20">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-16 sm:py-20">
         {/* Header with Animation */}
         <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 transform transition-all duration-1000 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-[#4A3F36]">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif font-semibold text-[#4A3F36]">
               {selectedCategory || searchParams.get('category')
                 ? `${(selectedCategory || searchParams.get('category'))?.replace(/\b\w/g, l => l.toUpperCase())} Collection`
                 : 'All Products'}
             </h1>
-            <p className="text-[#6D6258] mt-1 text-sm">{products.length} products found</p>
+            <p className="text-[#6D6258] mt-1 text-xs sm:text-sm">{products.length} products found</p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
@@ -101,7 +101,7 @@ const ProductsPage: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e) => handleSortChange(e.target.value)}
-              className="w-full sm:w-auto px-4 py-2 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-sm"
+              className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm"
             >
               <option value="featured">Featured</option>
               <option value="price-low">Price: Low to High</option>
@@ -112,15 +112,15 @@ const ProductsPage: React.FC = () => {
             <div className="flex border border-[#4A3F36] rounded-md overflow-hidden">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-2 transition ${viewMode === 'grid' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                className={`px-2 sm:px-3 py-2 transition ${viewMode === 'grid' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
               >
-                <Grid className="h-4 w-4" />
+                <Grid className="h-3 w-3 sm:h-4 sm:w-4" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-2 transition ${viewMode === 'list' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                className={`px-2 sm:px-3 py-2 transition ${viewMode === 'list' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
               >
-                <List className="h-4 w-4" />
+                <List className="h-3 w-3 sm:h-4 sm:w-4" />
               </button>
             </div>
 
@@ -135,13 +135,13 @@ const ProductsPage: React.FC = () => {
               <div className={`text-center py-12 transform transition-all duration-1000 delay-200 ${
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
               }`}>
-                <p className="text-[#6D6258] text-lg">No products found matching your criteria.</p>
+                <p className="text-[#6D6258] text-base sm:text-lg">No products found matching your criteria.</p>
               </div>
             ) : (
               <div
                 className={`grid gap-4 sm:gap-6 ${
                   viewMode === 'grid' 
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                    ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' 
                     : 'grid-cols-1'
                 }`}
               >
