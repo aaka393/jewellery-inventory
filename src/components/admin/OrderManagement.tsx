@@ -4,6 +4,7 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import { SITE_CONFIG } from '../../constants/siteConfig';
 import { Order } from '../../types';
 import { adminService } from '../../services';
+import { formatReadableDate } from '../../utils/dateUtils';
 
 interface OrderStats {
   totalOrders: number;
@@ -130,7 +131,6 @@ const OrderManagement: React.FC = () => {
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
           >
             <option value="all">All Orders</option>
-            <option value="pending">Pending</option>
             <option value="confirmed">Confirmed</option>
             <option value="shipped">Shipped</option>
             <option value="delivered">Delivered</option>
@@ -158,14 +158,14 @@ const OrderManagement: React.FC = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredOrders.map((order) => (
-                  <tr key={order.orderId}>
+                  <tr key={order.id}>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      #{order.orderId.slice(-8)}
+                      #{order.id.slice(-8)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{order.userId}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{order.notes.userId}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{order.items.length} items</td>
                     <td className="px-6 py-4 text-sm text-gray-900">
-                      {SITE_CONFIG.currencySymbol}{order.total.toLocaleString()}
+                      {SITE_CONFIG.currencySymbol}{order.amount.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
@@ -174,7 +174,7 @@ const OrderManagement: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                      {formatReadableDate(order.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium flex items-center gap-2">
                       <button
@@ -185,7 +185,7 @@ const OrderManagement: React.FC = () => {
                       </button>
                       <select
                         value={order.status}
-                        onChange={(e) => updateOrderStatus(order.orderId, e.target.value)}
+                        onChange={(e) => updateOrderStatus(order.id, e.target.value)}
                         className="text-sm border border-gray-300 rounded px-2 py-1"
                       >
                         {['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map(status => (

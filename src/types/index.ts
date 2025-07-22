@@ -103,7 +103,7 @@ export interface Order {
   };
   receipt: string;
   offer_id: string | null;
-  createdAt: String; // Unix timestamp (in seconds)
+  createdAt: string; // Unix timestamp (in seconds)
   items: OrderItem[];
   shippingAddress: Address;
 }
