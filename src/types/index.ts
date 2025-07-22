@@ -88,26 +88,26 @@ export interface OrderItem {
 }
 
 export interface Order {
-  orderId: string; // Unique order ID
-  userId: string;
+  id: string; // Razorpay order ID
+  amount: number; // Total amount in paisa
+  amount_due: number;
+  amount_paid: number;
+  attempts: number;
+  currency: string;
+  entity: string; // Always "order"
+  status: 'created' | 'attempted' | 'paid';
+  notes: {
+    itemCount: string;
+    userEmail: string;
+    userId: string;
+  };
+  receipt: string;
+  offer_id: string | null;
+  createdAt: String; // Unix timestamp (in seconds)
   items: OrderItem[];
-  subtotal: number;
-  tax: number;
-  shipping: number;
-  discount: number;
-  total: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  paymentMethod: string;
-  razorpayOrderId?: string;
-  razorpayPaymentId?: string;
-  shippingAddress: any; // Can be Address or other address format
-  billingAddress?: any;
-  trackingNumber?: string;
-  estimatedDelivery?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  shippingAddress: Address;
 }
+
 
 export interface OrderItemRequest {
   productId: string;

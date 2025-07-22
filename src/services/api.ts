@@ -9,7 +9,7 @@ import {
   paymentService,
   adminService
 } from './index';
-import { Product, Category, CartItem, ProductFilters, ProductImport, Order, User } from '../types';
+import { Product, Category, CartItem, ProductFilters, ProductImport, Order, User, OrderRequest } from '../types';
 import { addressService } from '../services/addressService';
 
 class ApiService {
@@ -157,10 +157,11 @@ class ApiService {
 
 
   // Order methods
-  async createOrder(orderData: { amount: number; currency: string; receipt?: string; notes?: Record<string, string> }) {
+  async createOrder(orderData: OrderRequest) {
     const response = await orderService.createOrder(orderData);
     return response.result;
   }
+
 
   async getOrder(orderId: string) {
     const response = await orderService.getOrder(orderId);
@@ -185,6 +186,7 @@ class ApiService {
 
 async getUserOrders(): Promise<Order[]> {
   const response = await orderService.getUserOrders();
+  console.log("getuser",response)
   return response.result;
 }
 
