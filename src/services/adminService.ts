@@ -96,8 +96,8 @@ class AdminService extends BaseService {
 
 
   // Send tracking ID
-  async sendTrackingId(userId: string, trackingNumber: string, orderId: string): Promise<ApiResponse<any>> {
-    return this.post<any>(`${API_ENDPOINTS.ADMIN_SEND_TRACKING}`, { userId, trackingNumber, orderId }, true);
+  async sendTrackingId(trackingNumber: string, orderId: string): Promise<ApiResponse<any>> {
+    return this.post<any>(`${API_ENDPOINTS.ADMIN_SEND_TRACKING}`, {trackingNumber, orderId }, true);
   }
 }
 
