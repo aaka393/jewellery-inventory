@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCategoryStore } from '../store/categoryStore';
-import { Filter, Grid, List } from 'lucide-react';
-import { Product, ProductFilters } from '../types';
+import { Grid, List } from 'lucide-react';
+import { Product} from '../types';
 import { apiService } from '../services/api';
 import ProductCard from '../components/common/ProductCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';

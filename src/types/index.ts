@@ -39,7 +39,6 @@ export interface Product {
   image: string | undefined;
   isNew: boolean;
   isSoldOut: any;
-  isSoldOut: any;
   hoverImage: string | undefined;
   id: string;
   name: string;
@@ -68,7 +67,12 @@ export interface CartItem {
   product: Product;
   addedAt?: Date;
 }
-
+export interface GuestCartItem {
+  id:string,
+  productId: string;
+  quantity: number;
+  product: Product;
+}
 export interface WishlistItem {
   id: string;
   productId: string;

@@ -4,7 +4,6 @@ import { User } from '../types';
 import { authService } from '../services';
 import { RESPONSE_CODES } from '../constants/appConstants';
 import { useCartStore } from './cartStore';
-import { useWishlistStore } from './wishlistStore';
 
 interface AuthState {
   user: User | null;
@@ -47,12 +46,10 @@ export const useAuthStore = create<AuthState>()(
               loading: false
             });
 
-            // Merge guest cart when user logs in
             const cartStore = useCartStore.getState();
-            const wishlistStore = useWishlistStore.getState();
-            cartStore.mergeGuestCart();
-            cartStore.syncWithServer();
-            wishlistStore.syncWithServer();
+            await cartStore.mergeGuestCart();
+            await cartStore.syncWithServer();
+            cartStore.resetCartStore(); // ✅ Clear guestItems and persisted cart data
 
             return true;
           }
@@ -89,10 +86,11 @@ export const useAuthStore = create<AuthState>()(
               loading: false
             });
 
-            // Merge guest cart when user registers
             const cartStore = useCartStore.getState();
-            cartStore.mergeGuestCart();
-            cartStore.syncWithServer();
+            await cartStore.mergeGuestCart();
+            await cartStore.syncWithServer();
+            cartStore.resetCartStore(); // ✅ Clear guest cart
+
             return true;
           }
 
@@ -107,13 +105,10 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
-          // Call logout endpoint to clear server-side cookies
           await authService.logout();
         } catch (error) {
           console.error('Logout API call failed:', error);
-          // Continue with client-side logout even if API fails
         } finally {
-          // Clear client-side state
           set({
             user: null,
             isAuthenticated: false
@@ -159,13 +154,10 @@ export const useAuthStore = create<AuthState>()(
       },
 
       initialize: async () => {
-        // Check if we have any stored auth state
         const state = get();
         if (state.user && state.isAuthenticated) {
-          // Verify the token is still valid
           const isValid = await get().verifyToken();
           if (!isValid) {
-            // Token is invalid, clear the state
             get().logout();
           }
         }

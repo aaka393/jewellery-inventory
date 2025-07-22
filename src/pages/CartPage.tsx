@@ -19,17 +19,23 @@ const CartPage: React.FC = () => {
   const currentItems = isAuthenticated ? items : guestItems;
   console.log(currentItems, "currentItems")
 
-const handleQuantityChange = (id: string, delta: number) => {
-    const item = currentItems.find(item => item.id === id);
-
+  const handleQuantityChange = (productId: string, delta: number) => {
+    const item = currentItems.find(item => item.productId === productId);
     if (!item) return;
 
     if (item.quantity === 1 && delta === -1) {
-      removeItem(item.id);
+      removeItem(productId);
     } else {
-      updateQuantity(item.id, delta);
+      updateQuantity(productId, item.quantity + delta);
     }
   };
+
+  const handleRemoveItem = (productId: string, productName: string) => {
+    if (confirm(`Remove ${productName} from cart?`)) {
+      removeItem(productId);
+    }
+  };
+
 
   const handlePaymentSuccess = () => {
     alert('Payment successful! Redirecting to order confirmation...');
@@ -40,11 +46,6 @@ const handleQuantityChange = (id: string, delta: number) => {
     alert(`Payment failed: ${error}`);
   };
 
-  const handleRemoveItem = (id: string, productName: string) => {
-    if (confirm(`Remove ${productName} from cart?`)) {
-      removeItem(id);
-    }
-  };
 
   if (currentItems.length === 0) {
     return (
@@ -100,14 +101,14 @@ const handleQuantityChange = (id: string, delta: number) => {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                           <div className="flex items-center space-x-2 order-1">
                             <button
-                              onClick={() => handleQuantityChange(item.id, -1)}
+                              onClick={() => handleQuantityChange(item.productId, -1)}
                               className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50 rounded"
                             >
                               <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
                             </button>
                             <span className="w-6 sm:w-8 text-center text-sm sm:text-base">{item.quantity}</span>
                             <button
-                              onClick={() => handleQuantityChange(item.id, 1)}
+                              onClick={() => handleQuantityChange(item.productId, 1)}
                               className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50 rounded"
                             >
                               <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -115,7 +116,7 @@ const handleQuantityChange = (id: string, delta: number) => {
                           </div>
 
                           <button
-                            onClick={() => handleRemoveItem(item.id, item.product.name)}
+                            onClick={() => handleRemoveItem(item.productId, item.product.name)}
                             className="text-xs sm:text-sm text-gray-400 hover:text-red-500 order-2"
                           >
                             Remove
@@ -127,10 +128,10 @@ const handleQuantityChange = (id: string, delta: number) => {
                 </div>
               </div>
 
-          {/* Order Summary */}
-          <div className="lg:col-span-1 order-1 lg:order-2">
-            <div className="bg-gray-50 p-4 sm:p-6 rounded sticky top-20">
-              <h2 className="text-base sm:text-lg font-medium text-gray-800 mb-4 sm:mb-6">Order Summary</h2>
+              {/* Order Summary */}
+              <div className="lg:col-span-1 order-1 lg:order-2">
+                <div className="bg-gray-50 p-4 sm:p-6 rounded sticky top-20">
+                  <h2 className="text-base sm:text-lg font-medium text-gray-800 mb-4 sm:mb-6">Order Summary</h2>
 
                   <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                     <div className="flex justify-between">
@@ -224,13 +225,13 @@ const handleQuantityChange = (id: string, delta: number) => {
               </button>
               <h1 className="text-xl sm:text-2xl font-light text-gray-800">Select Delivery Address</h1>
             </div>
-            
+
             <AddressSelector
               onAddressSelect={(address) => {
                 setShowAddressSelector(false);
               }}
             />
-            
+
             {selectedAddress && (
               <div className="mt-4 sm:mt-6 text-center">
                 <button
