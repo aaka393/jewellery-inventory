@@ -134,68 +134,76 @@ const HomePage: React.FC = () => {
         </section>
 
         {/* Intro Section */}
-        <section className="py-20 px-6 text-center max-w-4xl mx-auto bg-[#F6F5F1]">
-          <div className="space-y-6">
-            <p className="text-lg md:text-xl font-semibold font-light leading-relaxed text-[#804000] italic">
+       <section className="py-8 md:py-12 px-4 md:px-6 text-center max-w-4xl mx-auto bg-[#F6F5F1]">
+          <div>
+            <p className="text-base md:text-lg lg:text-xl font-semibold font-light leading-relaxed text-[#804000] italic mb-2 md:mb-3">
               {SITE_CONFIG.tagline}
             </p>
-            <p className="text-base md:text-lg font-semibold font-light bold text-[#804000]">
-              Discover our handcrafted pure silver jewelry collection.
-            </p>
+            
             <Link
               to="/products"
-              className="inline-block font-bold mt-8 text-sm text-[#804000] tracking-widest border-b border-[#D4B896] pb-1 hover:border-[#F2E9D8] transition-colors"
+              className="inline-block font-bold mt-12 md:mt-12 text-xs md:text-sm text-[#804000] tracking-widest border-b border-[#D4B896] pb-1 hover:border-[#F2E9D8] transition-colors"
             >
               EXPLORE COLLECTION →
             </Link>
           </div>
         </section>
 
+
+
+
         {/* Product Cards Section */}
-        <section className="py-20 px-6 bg-[#F6F5F1]">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20 font-serif italic">
-              <h2 className="text-3xl md:text-4xl font-light text-[#804000] mb-4 tracking-wide">
+       {/* Product Cards Section - Optimized Spacing */}
+        <section className="py-8 md:py-16 px-3 md:px-6 bg-[#F6F5F1]">
+          <div className="max-w-6xl mx-auto">
+            {/* Section Header - Reduced Margins */}
+            <div className="text-center mb-12 md:mb-12 font-serif italic">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-[#804000] mb-6 md:mb-6 tracking-wide">
                 Latest Products
               </h2>
-              <div className="w-24 h-[1px] bg-[#D4B896] mx-auto mb-4"></div>
-              <p className="text-[#804000] font-light max-w-2xl mx-auto mb-6">
-                Discover our newest arrivals - Each piece is meticulously crafted with attention to detail, using only the finest materials
-              </p>
             </div>
 
-            {/* ✅ Updated Grid for Mobile: Two Products per Row */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+            {/* Optimized Product Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
               {products.map((product) => (
                 <Link
                   to={`/product/${product.slug}`}
                   key={product.id}
-                  className="flex flex-col items-center group"
+                  className="group"
                 >
-                  <div className="relative w-full aspect-[3/4] border-2 border-[#d4b896] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-500 bg-transparent">
+                  {/* Product Image Container */}
+                  <div className="relative w-full aspect-[3/4] border border-[#d4b896] rounded-lg md:rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 bg-white">
                     <img
                       src={`${staticImageBaseUrl}/${product.images[0]}`}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
                     />
-                    <div className="absolute top-3 left-3">
-                      <span className="bg-[#D4B896] text-[#1C1A17] text-xs px-3 py-1 rounded-full font-medium">
+                    {/* Badge - Smaller on Mobile */}
+                    <div className="absolute top-2 left-2">
+                      <span className="bg-[#D4B896] text-[#1C1A17] text-[10px] md:text-xs px-2 md:px-3 py-1 rounded-full font-medium">
                         PreOrder
                       </span>
                     </div>
                   </div>
-                  <div className="text-center mt-4">
-                    <h3 className="text-sm sm:text-base text-[#aa732f] font-medium">{product.name}</h3>
-                    <p className="text-sm text-[#aa732f] font-semibold">₹{product.price}</p>
+                  
+                  {/* Product Info - Tighter Spacing */}
+                  <div className="text-center mt-2 md:mt-3 px-1">
+                    <h3 className="text-xs md:text-sm lg:text-base text-[#aa732f] font-medium leading-tight mb-1 line-clamp-2">
+                      {product.name}
+                    </h3>
+                    <p className="text-xs md:text-sm text-[#aa732f] font-semibold">
+                      ₹{product.price}
+                    </p>
                   </div>
                 </Link>
               ))}
             </div>
 
-            <div className="text-center mt-32">
+            {/* CTA Button - Reduced Top Margin */}
+            <div className="text-center mt-8 md:mt-12">
               <Link
                 to="/products"
-                className="bg-[#D4B896] text-[#1C1A17] px-12 py-4 text-sm tracking-widest hover:bg-[#F2E9D8] transition-colors"
+                className="inline-block bg-[#D4B896] text-[#1C1A17] px-8 md:px-12 py-3 md:py-4 text-xs md:text-sm tracking-widest hover:bg-[#F2E9D8] transition-colors rounded-sm"
               >
                 VIEW ALL PRODUCTS
               </Link>
@@ -203,43 +211,49 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* Catalog Section */}
-        <section className="relative min-h-screen flex items-end md:items-center">
-            <div className="absolute inset-0">
-              <img
-                src={catalog}
-                alt="Brand Catalog"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-[#1C1A17]/40"></div>
-            </div>
-            <div className="relative z-10 w-full max-w-4xl px-6 pb-10 md:pb-0 text-left space-y-6">
-              <p className="text-lg md:text-xl font-light leading-relaxed text-white">
+
+       {/* Catalog Section - Optimized for Mobile */}
+        <section className="relative h-[70vh] md:h-screen flex items-end md:items-center">
+          <div className="absolute inset-0">
+            <img
+              src={catalog}
+              alt="Brand Catalog"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-[#1C1A17]/40"></div>
+          </div>
+          <div className="relative z-10 w-full max-w-4xl px-4 md:px-6 pb-8 md:pb-0 text-left">
+            <div className="space-y-3 md:space-y-4 lg:space-y-6">
+              <p className="text-sm md:text-lg lg:text-xl font-light leading-relaxed text-white">
                 {SITE_CONFIG.name} is more than jewelry - it's a celebration of craftsmanship.
               </p>
-              <p className="text-lg md:text-xl font-light leading-relaxed text-white">
+              <p className="text-sm md:text-lg lg:text-xl font-light leading-relaxed text-white">
                 Each piece is handcrafted with 92.5% pure silver, ensuring lasting quality and timeless beauty.
               </p>
-              <p className="text-lg md:text-xl font-light leading-relaxed text-white">
+              <p className="text-sm md:text-lg lg:text-xl font-light leading-relaxed text-white">
                 From traditional designs to contemporary styles, our collection celebrates the art of silver jewelry making.
-              </p>
-            </div>
-          </section>
-        {/* Footer */}
-        <section className="py-24 px-6 text-center bg-[#F2ECE4]">
-          <div className="max-w-2xl mx-auto">
-            <div className="mb-12">
-              <h2 className="text-4xl md:text-6xl font-serif italic text-[#4F3C2A] mb-8">{SITE_CONFIG.shortName}</h2>
-              <p className="text-lg font-light text-[#4F3C2A] mb-8">
-                Get exclusive updates on new collections and special offers
               </p>
             </div>
           </div>
         </section>
 
-        <div className="py-12 px-6 border-t border-[#ae742b] text-center bg-[#F2ECE4] text-xs text-[#4F3C2A]">
-          <Footer />
-        </div>
+       {/* Footer Section - Optimized for minimal spacing and responsive layout */}
+          <section className="py-8 md:py-10 px-3 sm:px-4 text-center bg-[#F2ECE4]">
+            <div className="max-w-xl mx-auto">
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif italic text-[#4F3C2A] mb-3">
+                {SITE_CONFIG.shortName}
+              </h2>
+              <p className="text-xs sm:text-sm md:text-base font-light text-[#4F3C2A]">
+                Get exclusive updates on new collections and special offers
+              </p>
+            </div>
+          </section>
+
+          {/* Compact Footer Component */}
+          <div className="py-4 md:py-6 px-3 sm:px-4 border-t border-[#ae742b] text-center bg-[#F2ECE4] text-[11px] sm:text-xs text-[#4F3C2A]">
+            <Footer />
+          </div>
+
       </div>
     </>
   );

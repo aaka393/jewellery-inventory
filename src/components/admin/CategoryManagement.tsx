@@ -11,6 +11,7 @@ interface CategoryFormData {
   name: string;
   slug: string;
   image: string;
+  parentId: string;
 }
 
 interface ImageFile {
@@ -52,7 +53,8 @@ const CategoryManagement: React.FC = () => {
   const [formData, setFormData] = useState<CategoryFormData>({
     name: '',
     slug: '',
-    image: ''
+    image: '',
+    parentId: ''
   });
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -69,7 +71,8 @@ const CategoryManagement: React.FC = () => {
         setFormData({
           name: categoryDialog.category.name || '',
           slug: categoryDialog.category.slug || '',
-          image: categoryDialog.category.image || ''
+          image: categoryDialog.category.image || '',
+          parentId: categoryDialog.category.parentId || ''
         });
 
         // Set existing image if available
@@ -84,7 +87,7 @@ const CategoryManagement: React.FC = () => {
         }
       } else {
         // Reset form for create mode
-        setFormData({ name: '', slug: '', image: '' });
+        setFormData({ name: '', slug: '', image: '', parentId: '' });
         setImageFiles([]);
       }
     }
@@ -110,7 +113,7 @@ const CategoryManagement: React.FC = () => {
       .replace(/(^-|-$)/g, '');
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     if (name === 'name') {
@@ -125,6 +128,17 @@ const CategoryManagement: React.FC = () => {
         [name]: value
       }));
     }
+  };
+
+  // Get available parent categories (excluding current category and its descendants)
+  const getAvailableParentCategories = () => {
+    if (categoryDialog.mode === 'create') {
+      return categories;
+    }
+    
+    // For edit mode, exclude current category and its potential descendants
+    const currentCategoryId = categoryDialog.category?.id;
+    return categories.filter(category => category.id !== currentCategoryId);
   };
 
   // Image handling functions
@@ -232,7 +246,8 @@ const CategoryManagement: React.FC = () => {
       const categoryData = {
         name: formData.name,
         slug: formData.slug || generateSlug(formData.name),
-        image: imageUrl || formData.image
+        image: imageUrl || formData.image,
+        parentId: formData.parentId || ''
       };
 
       if (categoryDialog.mode === 'edit' && categoryDialog.category) {
@@ -304,6 +319,8 @@ const CategoryManagement: React.FC = () => {
   if (loading) {
     return <LoadingSpinner />;
   }
+
+  const availableParentCategories = getAvailableParentCategories();
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -465,6 +482,35 @@ const CategoryManagement: React.FC = () => {
             </div>
           </div>
 
+          {/* Parent Category Dropdown */}
+          <div>
+            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+              Parent Category
+            </label>
+            <select
+              name="parentId"
+              value={formData.parentId}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent bg-white"
+            >
+              <option value="">Select parent category (optional)</option>
+              {availableParentCategories.length > 0 ? (
+                availableParentCategories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>
+                  No categories available
+                </option>
+              )}
+            </select>
+            <p className="text-xs text-[#8f674b] mt-1">
+              Leave empty to create a top-level category
+            </p>
+          </div>
+
           {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
@@ -526,25 +572,10 @@ const CategoryManagement: React.FC = () => {
                 </div>
               </div>
             )}
-
-            {/* Manual URL Input */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                Or enter image URL
-              </label>
-              <input
-                type="url"
-                name="image"
-                value={formData.image}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
           </div>
 
           {/* Action Buttons */}
-          < div className="flex space-x-3 pt-4 border-t" >
+          <div className="flex space-x-3 pt-4 border-t">
             <button
               type="button"
               onClick={() => setCategoryDialog({ isOpen: false, category: null, mode: 'create' })}

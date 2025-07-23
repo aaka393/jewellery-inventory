@@ -140,7 +140,7 @@ const LoginPage: React.FC = () => {
       {/* Bottom Section (Subscribe message) */}
       <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 text-center mt-16 sm:mt-20 lg:mt-24 bg-[#F2ECE4]">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif italic text-[#4F3C2A] mb-4 sm:mb-6">{SITE_CONFIG.shortName}</h2>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif italic text-[#4F3C2A]  mb-4 sm:mb-6">{SITE_CONFIG.shortName}</h2>
           <p className="text-base sm:text-lg font-light text-[#4F3C2A] mb-4 sm:mb-6">
             Get exclusive updates on new collections and special offers.
           </p>
