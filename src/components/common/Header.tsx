@@ -24,7 +24,7 @@ const Header: React.FC = () => {
   const location = useLocation();
 
   const isHomePage = location.pathname === '/';
-  const isAdminPage = location.pathname.startsWith('/admin'); // ✅ Admin page check
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   const cartItemCount = getItemCount();
 
@@ -57,7 +57,6 @@ const Header: React.FC = () => {
   const styles = {
     background: 'transparent',
     textColor: isHomePage ? '#FFFFFF' : '#5f3c2c',
-    // ✅ Text color based on admin
     fontWeight: scrolled ? '500' : '700',
     borderColor: '#d4b896',
   };
@@ -66,8 +65,9 @@ const Header: React.FC = () => {
     <>
       <SEOHead />
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'
-          } ${isAdminPage ? 'border-b' : ''}`} // ✅ Only add border class for admin
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
+          isVisible ? 'translate-y-0' : '-translate-y-full'
+        } ${isAdminPage ? 'border-b' : ''}`}
         style={{
           backgroundColor: styles.background,
           borderColor: isAdminPage ? styles.borderColor : 'transparent',
@@ -75,144 +75,153 @@ const Header: React.FC = () => {
         }}
       >
         <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
-          <div className="relative flex items-center justify-between">
-            {/* Left - Menu */}
-            <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-8">
-              <button
-                onClick={() => setIsMenuOpen(true)}
-                style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                className={`hover:opacity-70 transition-opacity z-50 relative ${showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+          {/* Three-column grid layout for perfect centering */}
+          <div className="grid grid-cols-3 items-center h-8 sm:h-10 lg:h-12">
+            
+            {/* Left Section - Fixed width for symmetry */}
+            <div className="flex items-center justify-start">
+              <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-8">
+                <button
+                  onClick={() => setIsMenuOpen(true)}
+                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                  className={`hover:opacity-70 transition-opacity flex items-center ${
+                    showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
                   }`}
-              >
-                <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
-              </button>
+                >
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+                </button>
 
-              {!isAdminPage && (
-                <div className="hidden lg:flex space-x-6 xl:space-x-8 text-xs sm:text-sm tracking-widest transition-opacity duration-700">
-                  <Link
-                    to="/products"
-                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                    className="hover:opacity-70 transition-opacity"
-                  >
-                    SHOP
-                  </Link>
-                  <Link
-                    to="/about"
-                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                    className="hover:opacity-70 transition-opacity"
-                  >
-                    ABOUT
-                  </Link>
-                </div>
-              )}
-
+                {!isAdminPage && (
+                  <div className="hidden lg:flex items-center space-x-6 xl:space-x-8 text-xs sm:text-sm tracking-widest">
+                    <Link
+                      to="/products"
+                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                      className="hover:opacity-70 transition-opacity"
+                    >
+                      SHOP
+                    </Link>
+                    <Link
+                      to="/about"
+                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                      className="hover:opacity-70 transition-opacity"
+                    >
+                      ABOUT
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Center - Logo or Name */}
-            <Link
-              to="/"
-              className={`absolute left-1/2 transform -translate-x-1/2 ${showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+            {/* Center Section - Logo */}
+            <div className="flex items-center justify-center">
+              <Link
+                to="/"
+                className={`flex items-center justify-center ${
+                  showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
                 }`}
-            >
-              {isHomePage ? (
-                <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mt-1 sm:mt-2 lg:mt-4">
-                  <img
-                    src={Taanira}
-                    alt="Logo"
-                    className="w-full h-full object-contain transition-all duration-300"
-                    style={{
-                      filter: isAdminPage ? 'none' : 'brightness(0) invert(1)',
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center">
-                  <span
-                    className="text-lg sm:text-xl lg:text-2xl font-serif italic tracking-wide"
-                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                  >
-                    {SITE_CONFIG.shortName}
-                  </span>
-                </div>
-              )}
-            </Link>
-
-            {/* Right - Auth & Cart */}
-            <div
-              className={`flex items-center space-x-2 sm:space-x-3 lg:space-x-4 transition-opacity duration-700 ${
-                showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-              }`}
-            >
-              {isAuthenticated ? (
-                <div className="relative group hidden sm:block">
-                  <button
-                    className="flex items-center space-x-1 hover:opacity-70 transition-opacity"
-                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                  >
-                    <span className="text-xs lg:text-sm tracking-widest">
-                      {user?.firstname?.toUpperCase() || 'USER'}
-                    </span>
-                    <ChevronDown className="h-3 w-3" />
-                  </button>
-                  <div className="absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                      {user?.firstname} {user?.lastname}
-                      <div className="text-xs text-gray-500">{user?.email}</div>
-                    </div>
-                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Profile
-                    </Link>
-                    <Link to="/user/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Orders
-                    </Link>
-                    <Link to="/addresses" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Addresses
-                    </Link>
-                    {user?.role === 'Admin' && (
-                      <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Admin Panel
-                      </Link>
-                    )}
-                    <div className="border-t border-gray-100 my-1"></div>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                {isHomePage ? (
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 flex items-center justify-center">
+                    <img
+                      src={Taanira}
+                      alt="Logo"
+                      className="w-full h-full object-contain transition-all duration-300"
+                      style={{
+                        filter: isAdminPage ? 'none' : 'brightness(0) invert(1)',
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-8 sm:h-10 lg:h-12">
+                    <span
+                      className="text-lg sm:text-xl lg:text-2xl font-serif italic tracking-wide"
+                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
                     >
-                      Logout
-                    </button>
+                      {SITE_CONFIG.shortName}
+                    </span>
                   </div>
-                </div>
-              ) : (
-                <Link
-                  to="/login"
-                  className="hidden sm:block text-xs lg:text-sm tracking-widest hover:opacity-70 transition-opacity cursor-pointer"
-                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                >
-                  LOGIN
-                </Link>
-              )}
-{!isAdminPage && (
-                <button
-                  onClick={() => setShowCartSidebar(true)}
-                  className="flex items-center gap-2 hover:opacity-70 transition-opacity relative"
-                >
-                  <span
-                    className="hidden lg:inline text-xs tracking-widest"
+                )}
+              </Link>
+            </div>
+
+            {/* Right Section - Fixed width for symmetry */}
+            <div className="flex items-center justify-end">
+              <div
+                className={`flex items-center space-x-2 sm:space-x-3 lg:space-x-4 ${
+                  showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+                }`}
+              >
+                {isAuthenticated ? (
+                  <div className="relative group hidden sm:block">
+                    <button
+                      className="flex items-center space-x-1 hover:opacity-70 transition-opacity h-8 sm:h-10 lg:h-12"
+                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    >
+                      <span className="text-xs lg:text-sm tracking-widest">
+                        {user?.firstname?.toUpperCase() || 'USER'}
+                      </span>
+                      <ChevronDown className="h-3 w-3" />
+                    </button>
+                    <div className="absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                        {user?.firstname} {user?.lastname}
+                        <div className="text-xs text-gray-500">{user?.email}</div>
+                      </div>
+                      <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Profile
+                      </Link>
+                      <Link to="/user/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Orders
+                      </Link>
+                      <Link to="/addresses" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Addresses
+                      </Link>
+                      {user?.role === 'Admin' && (
+                        <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          Admin Panel
+                        </Link>
+                      )}
+                      <div className="border-t border-gray-100 my-1"></div>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="hidden sm:flex items-center text-xs lg:text-sm tracking-widest hover:opacity-70 transition-opacity h-8 sm:h-10 lg:h-12"
                     style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
                   >
-                    CART
-                  </span>
-                  <div className="relative">
-                    <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: styles.textColor }} />
-                    {cartItemCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-medium text-[10px] sm:text-xs">
-                        {cartItemCount > 99 ? '99+' : cartItemCount}
-                      </span>
-                    )}
-                  </div>
-                </button>
-              )}
+                    LOGIN
+                  </Link>
+                )}
 
+                {!isAdminPage && (
+                  <button
+                    onClick={() => setShowCartSidebar(true)}
+                    className="flex items-center gap-2 hover:opacity-70 transition-opacity relative h-8 sm:h-10 lg:h-12"
+                  >
+                    <span
+                      className="hidden lg:inline text-xs lg:text-sm tracking-widest"
+                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    >
+                      CART
+                    </span>
+                    <div className="relative flex items-center">
+                      <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: styles.textColor }} />
+                      {cartItemCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-medium text-[10px] sm:text-xs">
+                          {cartItemCount > 99 ? '99+' : cartItemCount}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -324,4 +333,3 @@ const Header: React.FC = () => {
 };
 
 export default Header;
-

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCategoryStore } from '../store/categoryStore';
-import { Grid, List } from 'lucide-react';
+import { Grid, List, ChevronDown } from 'lucide-react';
 import { Product} from '../types';
 import { apiService } from '../services/api';
 import ProductCard from '../components/common/ProductCard';
@@ -9,6 +9,8 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
@@ -26,36 +28,53 @@ const ProductsPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchParams]);
 
+  useEffect(() => {
+    filterProducts();
+  }, [selectedCategory, allProducts]);
+
   const loadProducts = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
+      const fetchedProducts = await apiService.getProducts();
+      setAllProducts(fetchedProducts);
+      
+      // Extract unique categories
+      const uniqueCategories = Array.from(
+        new Set(fetchedProducts.map(product => product.category).filter(Boolean))
+      ).sort();
+      setCategories(uniqueCategories);
 
+      // Apply initial filtering
+      filterProductsWithData(fetchedProducts);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      setProducts([]);
+      setAllProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filterProductsWithData = (productsData: Product[]) => {
     const category = searchParams.get('category');
-
-    const fetchedProducts = await apiService.getProducts(); // now returns Product[]
-
     const categoryToFilter = selectedCategory || category;
-    let filteredProducts = fetchedProducts;
-
+    
+    let filteredProducts = productsData;
     if (categoryToFilter) {
-      filteredProducts = fetchedProducts.filter(
+      filteredProducts = productsData.filter(
         (p) => p.category?.toLowerCase() === categoryToFilter.toLowerCase()
       );
     }
 
     const sortedProducts = sortProducts(filteredProducts, sortBy);
     setProducts(sortedProducts);
-  } catch (error) {
-    console.error('Error loading products:', error);
-    setProducts([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-
-
-
+  const filterProducts = () => {
+    if (allProducts.length > 0) {
+      filterProductsWithData(allProducts);
+    }
+  };
 
   const sortProducts = (products: Product[], sortBy: string) => {
     if (!products || !Array.isArray(products)) return [];
@@ -76,6 +95,25 @@ const ProductsPage: React.FC = () => {
     setProducts(sortProducts(products, newSortBy));
   };
 
+  const handleCategoryChange = (category: string) => {
+    if (category === 'all') {
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(category);
+    }
+  };
+
+  const getDisplayedCategoryName = () => {
+    if (selectedCategory) {
+      return selectedCategory.replace(/\b\w/g, l => l.toUpperCase());
+    }
+    const urlCategory = searchParams.get('category');
+    if (urlCategory) {
+      return urlCategory.replace(/\b\w/g, l => l.toUpperCase());
+    }
+    return 'All Products';
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -89,24 +127,43 @@ const ProductsPage: React.FC = () => {
         }`}>
           <div>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif font-semibold text-[#4A3F36]">
-              {selectedCategory || searchParams.get('category')
-                ? `${(selectedCategory || searchParams.get('category'))?.replace(/\b\w/g, l => l.toUpperCase())} Collection`
-                : 'All Products'}
+              {getDisplayedCategoryName()}
+              {(selectedCategory || searchParams.get('category')) && ' Collection'}
             </h1>
             <p className="text-[#6D6258] mt-1 text-xs sm:text-sm">{products.length} products found</p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+            {/* Category Dropdown */}
+            <div className="relative w-full sm:w-auto">
+              <select
+                value={selectedCategory || 'all'}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                className="w-full sm:w-auto appearance-none px-3 sm:px-4 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer"
+              >
+                <option value="all">All Categories</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category.replace(/\b\w/g, l => l.toUpperCase())}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#4A3F36] pointer-events-none" />
+            </div>
+
             {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => handleSortChange(e.target.value)}
-              className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm"
-            >
-              <option value="featured">Featured</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
+            <div className="relative w-full sm:w-auto">
+              <select
+                value={sortBy}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="w-full sm:w-auto appearance-none px-3 sm:px-4 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer"
+              >
+                <option value="featured">Featured</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#4A3F36] pointer-events-none" />
+            </div>
 
             {/* View Toggle */}
             <div className="flex border border-[#4A3F36] rounded-md overflow-hidden">
@@ -123,8 +180,6 @@ const ProductsPage: React.FC = () => {
                 <List className="h-3 w-3 sm:h-4 sm:w-4" />
               </button>
             </div>
-
-
           </div>
         </div>
 
