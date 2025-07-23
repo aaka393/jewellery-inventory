@@ -71,7 +71,7 @@ const UserManagement: React.FC = () => {
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm">
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <h2 className="text-lg sm:text-xl font-semibold text-[#4A3F36]">Users Management</h2>
           <select
@@ -93,138 +93,158 @@ const UserManagement: React.FC = () => {
             <p className="text-gray-500">Users will appear here once they register.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  {['User', 'Contact', 'Role', 'Actions'].map((heading, index) => (
-                    <th
-                      key={heading}
-                      className={`px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                        index > 1 ? 'hidden sm:table-cell' : ''
-                      }`}
-                    >
-                      {heading}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    {/* User Info */}
-                    <td className="px-3 sm:px-6 py-4">
-                      <div className="flex items-center">
-                        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-[#F9F6F1] flex items-center justify-center overflow-hidden flex-shrink-0">
-                          {user.avatar ? (
-                            <img src={user.avatar} alt={`${user.firstname} ${user.lastname}`} className="h-full w-full object-cover" />
-                          ) : (
-                            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-[#4A3F36]" />
-                          )}
-                        </div>
-                        <div className="ml-2 sm:ml-4 min-w-0 flex-1">
-                          <div className="text-xs sm:text-sm font-medium text-[#4A3F36] truncate">
-                            {user.firstname} {user.lastname}
-                          </div>
-                          <div className="text-xs sm:text-sm text-gray-500 truncate">@{user.username}</div>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Contact Info */}
-                    <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-[#4A3F36]">
-                      <div className="space-y-1">
-                        <div className="flex items-center">
-                          <Mail className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
-                          <span className="truncate">{user.email}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Phone className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
-                          <span>{user.contact}</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Role Select */}
-                    <td className="hidden sm:table-cell px-6 py-4">
-                      <select
-                        value={user.role || 'User'}
-                        onChange={(e) => confirmRoleChange(user.id, e.target.value)}
-                        className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] transition"
+          <div className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50 sticky top-0 z-10">
+                  <tr>
+                    {['User', 'Contact', 'Role', 'Actions'].map((heading, index) => (
+                      <th
+                        key={heading}
+                        className={`px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap ${
+                          index > 1 ? 'hidden sm:table-cell' : ''
+                        }`}
                       >
-                        <option value="User">User</option>
-                        <option value="Admin">Admin</option>
-                      </select>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="hidden sm:table-cell px-6 py-4">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-                        <button
-                          onClick={() =>
-                            setTrackingConfirmDialog({
-                              isOpen: true,
-                              userId: user.id,
-                              orderId: user?.latestOrderId, // or whatever field you have
-                            })
-                          }
-
-                          disabled={trackingLoading === user.id}
-                          className="inline-flex items-center px-2 sm:px-3 py-1 text-xs font-medium rounded-full bg-[#DEC9A3] text-[#4A3F36] hover:bg-[#c9b283] transition disabled:opacity-50 whitespace-nowrap"
-                        >
-                          {trackingLoading === user.id ? (
-                            <>
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
-                              Sending...
-                            </>
-                          ) : (
-                            <>
-                              <Send className="h-3 w-3 mr-1" />
-                              Send Tracking
-                            </>
-                          )}
-                        </button>
-
-                        {userOrderCounts[user.id] !== undefined && (
-                          <div className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full whitespace-nowrap">
-                            <Package className="h-3 w-3 mr-1" />
-                            {userOrderCounts[user.id]} products ordered
+                        {heading}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+              </table>
+            </div>
+            
+            <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {filteredUsers.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                      {/* User Info */}
+                      <td className="px-3 sm:px-6 py-4 min-w-[200px]">
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-[#F9F6F1] flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {user.avatar ? (
+                              <img 
+                                src={user.avatar} 
+                                alt={`${user.firstname} ${user.lastname}`} 
+                                className="h-full w-full object-cover" 
+                              />
+                            ) : (
+                              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-[#4A3F36]" />
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </td>
-                    
-                    {/* Mobile Actions Column */}
-                    <td className="sm:hidden px-3 py-4">
-                      <div className="flex flex-col gap-2">
+                          <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                            <div className="text-xs sm:text-sm font-medium text-[#4A3F36] truncate">
+                              {user.firstname} {user.lastname}
+                            </div>
+                            <div className="text-xs text-gray-500 truncate">@{user.username}</div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Contact Info */}
+                      <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-[#4A3F36] min-w-[180px]">
+                        <div className="space-y-1">
+                          <div className="flex items-center">
+                            <Mail className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
+                            <span className="truncate max-w-[140px]" title={user.email}>{user.email}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Phone className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
+                            <span>{user.contact}</span>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Role Select */}
+                      <td className="hidden sm:table-cell px-6 py-4 min-w-[120px]">
                         <select
                           value={user.role || 'User'}
                           onChange={(e) => confirmRoleChange(user.id, e.target.value)}
-                          className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#DEC9A3]"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] transition w-full"
                         >
                           <option value="User">User</option>
                           <option value="Admin">Admin</option>
                         </select>
-                        <button
-                          onClick={() =>
-                            setTrackingConfirmDialog({
-                              isOpen: true,
-                              userId: user.id,
-                              orderId: user?.latestOrderId,
-                            })
-                          }
-                          disabled={trackingLoading === user.id}
-                          className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded bg-[#DEC9A3] text-[#4A3F36] hover:bg-[#c9b283] transition disabled:opacity-50"
-                        >
-                          <Send className="h-3 w-3 mr-1" />
-                          Track
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="hidden sm:table-cell px-6 py-4 min-w-[200px]">
+                        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2">
+                          <button
+                            onClick={() =>
+                              setTrackingConfirmDialog({
+                                isOpen: true,
+                                userId: user.id,
+                                orderId: user?.latestOrderId, // or whatever field you have
+                              })
+                            }
+
+                            disabled={trackingLoading === user.id}
+                            className="inline-flex items-center px-2 sm:px-3 py-1 text-xs font-medium rounded-full bg-[#DEC9A3] text-[#4A3F36] hover:bg-[#c9b283] transition disabled:opacity-50 whitespace-nowrap min-w-max"
+                          >
+                            {trackingLoading === user.id ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-[#4A3F36] mr-1"></div>
+                                Sending...
+                              </>
+                            ) : (
+                              <>
+                                <Send className="h-3 w-3 mr-1" />
+                                Send Tracking
+                              </>
+                            )}
+                          </button>
+
+                          {userOrderCounts[user.id] !== undefined && (
+                            <div className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full whitespace-nowrap min-w-max">
+                              <Package className="h-3 w-3 mr-1" />
+                              {userOrderCounts[user.id]} products ordered
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      
+                      {/* Mobile Actions Column */}
+                      <td className="sm:hidden px-3 py-4 min-w-[120px]">
+                        <div className="flex flex-col gap-2">
+                          <select
+                            value={user.role || 'User'}
+                            onChange={(e) => confirmRoleChange(user.id, e.target.value)}
+                            className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] w-full"
+                          >
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                          </select>
+                          <button
+                            onClick={() =>
+                              setTrackingConfirmDialog({
+                                isOpen: true,
+                                userId: user.id,
+                                orderId: user?.latestOrderId,
+                              })
+                            }
+                            disabled={trackingLoading === user.id}
+                            className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded bg-[#DEC9A3] text-[#4A3F36] hover:bg-[#c9b283] transition disabled:opacity-50 w-full"
+                          >
+                            {trackingLoading === user.id ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-[#4A3F36] mr-1"></div>
+                                <span>Sending...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Send className="h-3 w-3 mr-1" />
+                                <span>Track</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

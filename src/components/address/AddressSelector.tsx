@@ -120,13 +120,13 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
   }
 
   return (
-  <div className="space-y-10 sm:space-y-12">
+    <div className="space-y-8 sm:space-y-10 lg:space-y-12">
     {showTitle && (
       <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-serif italic text-[#5f3c2c] mb-3">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif italic text-[#5f3c2c] mb-3">
           ✨ Where should we deliver your jewelry?
         </h2>
-        <p className="text-sm sm:text-base font-light text-[#5f3c2c] max-w-xl mx-auto">
+        <p className="text-sm sm:text-base font-light text-[#5f3c2c] max-w-xl mx-auto px-4">
           To ensure safe and timely delivery of your precious order, please choose a saved address or add a new one.
         </p>
       </div>
@@ -134,16 +134,16 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
 
     {/* Saved Addresses */}
     {addresses.length > 0 && (
-      <div>
-        <h3 className="text-lg sm:text-xl font-serif text-[#5f3c2c] mb-2 flex items-center">
+      <div className="px-4 sm:px-0">
+        <h3 className="text-base sm:text-lg lg:text-xl font-serif text-[#5f3c2c] mb-2 flex items-center">
           <MapPin className="w-5 h-5 mr-2" />
            Saved Addresses
         </h3>
-        <p className="text-sm font-light text-[#5f3c2c] mb-4">
+        <p className="text-sm font-light text-[#5f3c2c] mb-4 lg:mb-6">
           Select one of your saved delivery addresses below. You can edit or remove any address, or add a new one if needed.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
           {addresses.map((address) => (
             <AddressCard
               key={address.id}
@@ -164,18 +164,18 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
     )}
 
     {/* Add New Address */}
-    <div className="text-center">
+    <div className="text-center px-4 sm:px-0">
       {addresses.length === 0 ? (
-        <div className="py-10">
+        <div className="py-8 lg:py-10">
           <MapPin className="h-10 w-10 text-[#aa732f] mx-auto mb-4" />
-          <h3 className="text-lg font-serif text-[#5f3c2c] mb-2">No addresses found</h3>
-          <p className="text-sm text-[#5f3c2c] font-light mb-6">
+          <h3 className="text-base sm:text-lg font-serif text-[#5f3c2c] mb-2">No addresses found</h3>
+          <p className="text-sm text-[#5f3c2c] font-light mb-6 max-w-md mx-auto">
             Don&apos;t see your delivery location? Add a new address to continue.
           </p>
         </div>
       ) : (
-        <div className="border-t pt-6">
-          <p className="text-sm font-light text-[#5f3c2c] mb-4">
+        <div className="border-t pt-6 lg:pt-8">
+          <p className="text-sm font-light text-[#5f3c2c] mb-4 max-w-md mx-auto">
             Don&apos;t see your delivery location? Add a new address to continue.
           </p>
         </div>
@@ -186,7 +186,8 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
           setEditingAddress(null);
           setShowAddressForm(true);
         }}
-        className="bg-[#DEC9A3] text-[#5f3c2c] px-6 py-2.5 rounded-md text-sm sm:text-base font-semibold hover:bg-[#d1b990] transition-colors flex items-center justify-center space-x-2 mx-auto"
+        className="bg-[#DEC9A3] text-[#5f3c2c] px-6 py-2.5 rounded-md text-sm sm:text-base font-semibold hover:bg-[#d1b990] transition-colors flex items-center justify-center space-x-2 mx-auto min-w-[160px]"
+        title="Add new delivery address"
       >
         <Plus className="h-5 w-5" />
         <span>Add New Address</span>
@@ -218,8 +219,8 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
       type="danger"
       loading={loading}
     />
-  </div>
-);
+    </div>
+  );
 
 };
 

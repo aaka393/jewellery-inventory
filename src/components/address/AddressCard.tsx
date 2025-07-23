@@ -46,21 +46,21 @@ const AddressCard: React.FC<AddressCardProps> = ({
   };
 
   return (
-  <div
-    className={`w-full border rounded-xl p-4 sm:p-6 transition-all duration-200 ${
-      isSelected
-        ? 'border-[#DEC9A3] bg-[#f4f1e7] shadow-md'
-        : 'border-[#e5ded0] hover:border-[#DEC9A3] hover:shadow-sm'
-    }`}
-  >
-    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+    <div
+      className={`w-full border rounded-xl p-4 sm:p-6 transition-all duration-200 ${
+        isSelected
+          ? 'border-[#DEC9A3] bg-[#f4f1e7] shadow-md'
+          : 'border-[#e5ded0] hover:border-[#DEC9A3] hover:shadow-sm'
+      }`}
+    >
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
       <div className="flex-1">
         {/* Address Type and Default Label */}
-        <div className="flex items-center space-x-2 mb-2 text-sm font-serif text-[#4A3F36]">
+        <div className="flex items-center flex-wrap gap-2 mb-2 text-sm font-serif text-[#4A3F36]">
           {getAddressTypeIcon()}
           <span className="italic">{getAddressTypeLabel()}</span>
           {address.isDefault && (
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium">
+            <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
               Default
             </span>
           )}
@@ -68,15 +68,15 @@ const AddressCard: React.FC<AddressCardProps> = ({
 
         {/* Name and Contact */}
         <div className="mb-2">
-          <h3 className="font-semibold text-[#4A3F36]">{address.fullName}</h3>
+          <h3 className="font-semibold text-[#4A3F36] truncate">{address.fullName}</h3>
           <p className="text-sm text-[#4A3F36] font-light">{address.mobileNumber}</p>
         </div>
 
         {/* Address Details */}
-        <div className="text-sm text-[#4A3F36] leading-relaxed font-light">
-          <p>{address.houseNumber}</p>
-          <p>{address.streetArea}</p>
-          {address.landmark && <p>Landmark: {address.landmark}</p>}
+        <div className="text-sm text-[#4A3F36] leading-relaxed font-light space-y-1">
+          <p className="break-words">{address.houseNumber}</p>
+          <p className="break-words">{address.streetArea}</p>
+          {address.landmark && <p className="break-words">Landmark: {address.landmark}</p>}
           <p>
             {address.city}, {address.state} - {address.pincode}
           </p>
@@ -85,7 +85,7 @@ const AddressCard: React.FC<AddressCardProps> = ({
 
       {/* Edit / Delete */}
       {showActions && (
-        <div className="flex sm:flex-col items-start gap-2 sm:ml-4">
+        <div className="flex sm:flex-col items-center sm:items-start gap-2 sm:ml-4 flex-shrink-0">
           {onEdit && (
             <button
               onClick={onEdit}
@@ -109,11 +109,12 @@ const AddressCard: React.FC<AddressCardProps> = ({
     </div>
 
     {/* Footer Actions */}
-    <div className="flex flex-col sm:flex-row items-center justify-between mt-4 pt-4 border-t border-[#eae4d8] gap-3">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mt-4 pt-4 border-t border-[#eae4d8] gap-3">
       {!address.isDefault && onSetDefault && (
         <button
           onClick={onSetDefault}
-          className="text-sm text-[#aa732f] hover:text-[#8f5c20] font-medium font-serif italic"
+          className="text-sm text-[#aa732f] hover:text-[#8f5c20] font-medium font-serif italic transition-colors"
+          title="Set as default address"
         >
           Set as Default
         </button>
@@ -122,11 +123,12 @@ const AddressCard: React.FC<AddressCardProps> = ({
       {showSelectButton && onSelect && (
         <button
           onClick={onSelect}
-          className={`px-4 py-2 rounded-md font-medium text-sm transition-colors font-serif italic ${
+          className={`px-4 py-2 rounded-md font-medium text-sm transition-colors font-serif italic w-full sm:w-auto ${
             isSelected
               ? 'bg-[#aa732f] text-white'
               : 'bg-[#DEC9A3] text-[#4A3F36] hover:bg-[#d1b990]'
           }`}
+          title={isSelected ? 'Selected for delivery' : 'Select this address'}
         >
           {isSelected ? (
             <span className="flex items-center gap-1">
@@ -139,8 +141,8 @@ const AddressCard: React.FC<AddressCardProps> = ({
         </button>
       )}
     </div>
-  </div>
-);
+    </div>
+  );
 
 };
 

@@ -18,7 +18,7 @@ interface PaymentHandlerProps {
 }
 
 const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) => {
-  const { getTotalPrice, clearCart, items, guestItems } = useCartStore();
+  const { getTotalPrice, clearCart, items } = useCartStore();
   const { user } = useAuthStore();
   const { selectedAddress } = useAddressStore();
 
@@ -40,19 +40,22 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
   const handlePayment = async () => {
     try {
       const { isAuthenticated } = useAuthStore.getState();
-      const currentItems = isAuthenticated ? items : guestItems;
 
-      if (currentItems.length === 0) {
+      if (!isAuthenticated) {
+        onError('Please log in to proceed with payment');
+        return;
+      }
+
+      if (items.length === 0) {
         onError('Cart is empty');
         return;
       }
 
-      if (isAuthenticated && !selectedAddress) {
+      if (!selectedAddress) {
         onError('Please select a delivery address');
         return;
       }
 
-      // Load Razorpay script
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         onError('Failed to load payment gateway');
@@ -60,18 +63,16 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
       }
 
       const totalAmount = getTotalPrice();
-
       if (totalAmount <= 0) {
         onError('Cart is empty or invalid amount');
         return;
       }
 
-      // Create order
       const orderResponse = await apiService.createOrder({
-        amount: Math.round(totalAmount * 100), // Convert to paise
+        amount: Math.round(totalAmount * 100),
         currency: 'INR',
         receipt: `receipt_${Date.now()}`,
-        items: currentItems.map(item => ({
+        items: items.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
           price: item.product.price,
@@ -79,22 +80,19 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
           image: item.product.images[0] || ''
         })),
         shippingAddress: selectedAddress as AddressFormData,
-
         notes: {
-          userId: user?.id || 'guest',
+          userId: user?.id || '',
           userEmail: user?.email || '',
-          itemCount: currentItems.length.toString(),
+          itemCount: items.length.toString(),
         },
       });
 
       const orderData = orderResponse;
-
       if (!orderData || !orderData.id) {
         onError('Failed to create order');
         return;
       }
 
-      // Razorpay options
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_key',
         amount: orderData.amount,
@@ -109,15 +107,13 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
               return;
             }
 
-            // Verify payment
             const verificationResult = await apiService.verifyPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
 
-            if (verificationResult && (verificationResult.status === 'success')) {
-              // Track successful purchase
+            if (verificationResult && verificationResult.status === 'success') {
               clearCart();
               onSuccess(orderData.id);
             } else {
@@ -129,7 +125,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
           }
         },
         prefill: {
-          name: user ? `${user.firstname} ${user.lastname}` : '',
+          name: `${user?.firstname || ''} ${user?.lastname || ''}`,
           email: user?.email || '',
           contact: user?.contact || '',
         },
@@ -158,7 +154,8 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
   return (
     <button
       onClick={handlePayment}
-      className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors"
+      className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      title="Proceed to secure payment"
     >
       PROCEED TO CHECKOUT
     </button>

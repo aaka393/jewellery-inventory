@@ -119,27 +119,28 @@ const ProductsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6]">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-16 sm:py-20">
+    <div className="min-h-screen bg-[#FAF9F6] pt-16 sm:pt-20">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
         {/* Header with Animation */}
         <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 transform transition-all duration-1000 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}>
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif font-semibold text-[#4A3F36]">
+            <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-serif font-semibold text-[#4A3F36]">
               {getDisplayedCategoryName()}
               {(selectedCategory || searchParams.get('category')) && ' Collection'}
             </h1>
-            <p className="text-[#6D6258] mt-1 text-xs sm:text-sm">{products.length} products found</p>
+            <p className="text-[#6D6258] mt-1 text-xs sm:text-sm">{products.length} product{products.length !== 1 ? 's' : ''} found</p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
             {/* Category Dropdown */}
             <div className="relative w-full sm:w-auto">
               <select
                 value={selectedCategory || 'all'}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full sm:w-auto appearance-none px-3 sm:px-4 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer"
+                className="w-full sm:w-auto min-w-[140px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer"
+                title="Filter by category"
               >
                 <option value="all">All Categories</option>
                 {categories.map((category) => (
@@ -148,7 +149,7 @@ const ProductsPage: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#4A3F36] pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-[#4A3F36] pointer-events-none" />
             </div>
 
             {/* Sort */}
@@ -156,28 +157,31 @@ const ProductsPage: React.FC = () => {
               <select
                 value={sortBy}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className="w-full sm:w-auto appearance-none px-3 sm:px-4 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer"
+                className="w-full sm:w-auto min-w-[120px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer"
+                title="Sort products"
               >
                 <option value="featured">Featured</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#4A3F36] pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-[#4A3F36] pointer-events-none" />
             </div>
 
             {/* View Toggle */}
-            <div className="flex border border-[#4A3F36] rounded-md overflow-hidden">
+            <div className="flex border border-[#4A3F36] rounded-md overflow-hidden w-full sm:w-auto">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-2 sm:px-3 py-2 transition ${viewMode === 'grid' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                className={`flex-1 sm:flex-none px-3 py-2 transition ${viewMode === 'grid' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                title="Grid view"
               >
-                <Grid className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Grid className="h-4 w-4 mx-auto" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-2 sm:px-3 py-2 transition ${viewMode === 'list' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                className={`flex-1 sm:flex-none px-3 py-2 transition ${viewMode === 'list' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                title="List view"
               >
-                <List className="h-3 w-3 sm:h-4 sm:w-4" />
+                <List className="h-4 w-4 mx-auto" />
               </button>
             </div>
           </div>
@@ -190,24 +194,24 @@ const ProductsPage: React.FC = () => {
               <div className={`text-center py-12 transform transition-all duration-1000 delay-200 ${
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
               }`}>
-                <p className="text-[#6D6258] text-base sm:text-lg">No products found matching your criteria.</p>
+                <p className="text-[#6D6258] text-sm sm:text-base lg:text-lg">No products found matching your criteria.</p>
               </div>
             ) : (
               <div
                 className={`grid gap-4 sm:gap-6 ${
                   viewMode === 'grid' 
-                    ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' 
+                    ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6' 
                     : 'grid-cols-1'
                 }`}
               >
                 {products.map((product, index) => (
                   <div
                     key={product.id}
-                    className={`transform transition-all duration-700 hover:scale-105 ${
+                    className={`transform transition-all duration-700 ${
                       isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
                     }`}
                     style={{ 
-                      transitionDelay: `${Math.min(index * 100, 1000)}ms`,
+                      transitionDelay: `${Math.min(index * 50, 800)}ms`,
                       animationFillMode: 'both'
                     }}
                   >

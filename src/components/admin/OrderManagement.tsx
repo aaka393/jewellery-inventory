@@ -505,7 +505,7 @@ const OrderManagement: React.FC = () => {
         </div>
 
         {/* AG Grid */}
-        <div className="ag-theme-alpine-custom" style={{ height: '630px', width: '100%' }}>
+        <div className="ag-theme-alpine-custom overflow-hidden rounded-lg" style={{ height: '600px', width: '100%' }}>
           <AgGridReact
             ref={gridRef}
             rowData={orders}
@@ -519,6 +519,9 @@ const OrderManagement: React.FC = () => {
             rowSelection="multiple"
             suppressRowClickSelection={true}
             domLayout="normal"
+            suppressHorizontalScroll={false}
+            alwaysShowHorizontalScroll={false}
+            suppressColumnVirtualisation={false}
           />
         </div>
       </div>
