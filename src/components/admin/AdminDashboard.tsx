@@ -14,7 +14,7 @@ const AdminDashboard: React.FC = () => {
   if (!stats) return <div className="text-gray-600 p-4">No data available</div>;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 mt-0 px-3 sm:px-4 md:px-6 lg:px-8">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card icon={Package} title="Total Products" value={stats.products.total} note={`${stats.products.inStock} in stock`} />

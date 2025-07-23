@@ -49,8 +49,8 @@ const AdminPage: React.FC = () => {
       />
 
       {/* Main Layout */}
-      <div className="min-h-screen bg-[#F6F5F1] text-[#5f3c2c] font-serif pt-16 sm:pt-20">
-        <div className="flex h-[calc(100vh-4rem)]">
+      <div className="min-h-screen bg-[#F6F5F1] text-[#5f3c2c] font-serif">
+        <div className="flex h-screen">
           {/* Mobile Sidebar Overlay */}
           {sidebarOpen && (
             <div 

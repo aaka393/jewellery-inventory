@@ -25,6 +25,7 @@ const Header: React.FC = () => {
 
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname.startsWith('/admin');
+  if (isAdminPage) return null;
 
   const cartItemCount = getItemCount();
 
