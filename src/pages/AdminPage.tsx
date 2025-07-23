@@ -8,6 +8,7 @@ import {
   FileText,
   Menu,
   X,
+  UserCircle
 } from 'lucide-react';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import AdminDashboard from '../components/admin/AdminDashboard';
@@ -37,6 +38,8 @@ const AdminPage: React.FC = () => {
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'profile', label: 'Profile', icon: UserCircle  },
+    { id: 'logout', label: 'Logout', icon: UserCircle  },
   ];
 
   if (loading) return <LoadingSpinner />;
@@ -50,7 +53,7 @@ const AdminPage: React.FC = () => {
 
       {/* Main Layout */}
       <div className="min-h-screen bg-[#F6F5F1] text-[#5f3c2c] font-serif">
-        <div className="flex h-screen">
+        <div className="flex ">
           {/* Mobile Sidebar Overlay */}
           {sidebarOpen && (
             <div 
@@ -65,7 +68,7 @@ const AdminPage: React.FC = () => {
             bg-white border-r border-[#e2cbb5] shadow-lg lg:shadow-none
             transform transition-transform duration-300 ease-in-out lg:transform-none
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            flex flex-col h-full lg:h-[calc(100vh-4rem)]
+            flex flex-col h-full]
           `}>
             <div className="flex-1 overflow-y-auto">
               <div className="p-4 lg:p-6">

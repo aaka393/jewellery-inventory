@@ -123,10 +123,10 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
   <div className="space-y-10 sm:space-y-12">
     {showTitle && (
       <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-serif italic text-[#4A3F36] mb-3">
+        <h2 className="text-2xl sm:text-3xl font-serif italic text-[#5f3c2c] mb-3">
           ✨ Where should we deliver your jewelry?
         </h2>
-        <p className="text-sm sm:text-base font-light text-[#4A3F36] max-w-xl mx-auto">
+        <p className="text-sm sm:text-base font-light text-[#5f3c2c] max-w-xl mx-auto">
           To ensure safe and timely delivery of your precious order, please choose a saved address or add a new one.
         </p>
       </div>
@@ -135,11 +135,11 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
     {/* Saved Addresses */}
     {addresses.length > 0 && (
       <div>
-        <h3 className="text-lg sm:text-xl font-serif italic text-[#4A3F36] mb-2 flex items-center">
+        <h3 className="text-lg sm:text-xl font-serif text-[#5f3c2c] mb-2 flex items-center">
           <MapPin className="w-5 h-5 mr-2" />
            Saved Addresses
         </h3>
-        <p className="text-sm font-light text-[#4A3F36] mb-4">
+        <p className="text-sm font-light text-[#5f3c2c] mb-4">
           Select one of your saved delivery addresses below. You can edit or remove any address, or add a new one if needed.
         </p>
 
@@ -168,14 +168,14 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
       {addresses.length === 0 ? (
         <div className="py-10">
           <MapPin className="h-10 w-10 text-[#aa732f] mx-auto mb-4" />
-          <h3 className="text-lg font-serif italic text-[#4A3F36] mb-2">No addresses found</h3>
-          <p className="text-sm text-[#4A3F36] font-light mb-6">
+          <h3 className="text-lg font-serif text-[#5f3c2c] mb-2">No addresses found</h3>
+          <p className="text-sm text-[#5f3c2c] font-light mb-6">
             Don&apos;t see your delivery location? Add a new address to continue.
           </p>
         </div>
       ) : (
         <div className="border-t pt-6">
-          <p className="text-sm font-light text-[#4A3F36] mb-4">
+          <p className="text-sm font-light text-[#5f3c2c] mb-4">
             Don&apos;t see your delivery location? Add a new address to continue.
           </p>
         </div>
@@ -186,7 +186,7 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
           setEditingAddress(null);
           setShowAddressForm(true);
         }}
-        className="bg-[#DEC9A3] text-[#4A3F36] px-6 py-2.5 rounded-md text-sm sm:text-base font-semibold hover:bg-[#d1b990] transition-colors flex items-center justify-center space-x-2 mx-auto"
+        className="bg-[#DEC9A3] text-[#5f3c2c] px-6 py-2.5 rounded-md text-sm sm:text-base font-semibold hover:bg-[#d1b990] transition-colors flex items-center justify-center space-x-2 mx-auto"
       >
         <Plus className="h-5 w-5" />
         <span>Add New Address</span>
