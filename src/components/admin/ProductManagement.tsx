@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import {
     Package,
     Plus,
@@ -6,7 +6,6 @@ import {
     Trash2,
     Search,
 } from 'lucide-react';
-import { Product } from '../../types';
 import { DeleteDialogState, EditDialogState } from '../../types/admin';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ProductDialog from './ProductDialog';
