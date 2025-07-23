@@ -108,7 +108,7 @@ const AdminPage: React.FC = () => {
             </div>
 
             <div className="p-4 border-t border-[#e2cbb5]">
-              <UserMenu />
+             <UserMenu dropdownPosition="top" />
             </div>
           </aside>
 

@@ -4,7 +4,11 @@ import { ChevronDown, ChevronUp, UserCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import LogoutButton from './LogoutButton';
 
-const UserMenu: React.FC = () => {
+interface UserMenuProps {
+  dropdownPosition?: 'top' | 'bottom';
+}
+
+const UserMenu: React.FC<UserMenuProps> = ({ dropdownPosition = 'bottom' }) => {
   const { user, isAuthenticated } = useAuthStore();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
@@ -61,8 +65,9 @@ const UserMenu: React.FC = () => {
 
       {isOpen && (
         <div
-          className={`absolute ${isAdmin ? 'bottom-full mb-2' : 'mt-2'
-            } right-0 w-44 sm:w-48 bg-white rounded-md shadow-lg py-1 z-50`}
+          className={`absolute ${
+            dropdownPosition === 'top' ? 'bottom-full mb-2' : 'mt-2'
+          } right-0 w-44 sm:w-48 bg-white rounded-md shadow-lg py-1 z-50`}
         >
           <div className="px-4 py-2 text-sm text-gray-700 border-b">
             {user?.firstname} {user?.lastname}
