@@ -5,7 +5,6 @@ import { SITE_CONFIG, staticImageBaseUrl } from '../../constants/siteConfig';
 import { useAdminDashboard } from '../../hooks/useAdminDashboard';
 import Card from './dashboard/Card';
 
-
 const AdminDashboard: React.FC = () => {
   const { stats, recentProducts, loading, error } = useAdminDashboard();
 
@@ -48,19 +47,19 @@ const AdminDashboard: React.FC = () => {
           <h2 className="text-base sm:text-lg font-semibold text-[#5f3c2c]">Recent Products</h2>
           <span className="text-xs sm:text-sm text-gray-500">{recentProducts.length} items</span>
         </div>
-        <div className="relative">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-[#F8F5F1] sticky top-0 z-10">
-              <tr>
-                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Product</th>
-                <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Category</th>
-                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Price</th>
-                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Stock</th>
-              </tr>
-            </thead>
-          </table>
-          <div className="overflow-auto max-h-[400px]">
-            <table className="min-w-full divide-y divide-gray-200">
+
+        {/* Scrollable table with sticky header */}
+        <div className="overflow-x-auto">
+          <div className="max-h-[400px] overflow-y-auto">
+            <table className="min-w-full table-fixed divide-y divide-gray-200">
+              <thead className="bg-[#F8F5F1] sticky top-0 z-10">
+                <tr>
+                  <th className="w-1/2 px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Product</th>
+                  <th className="w-1/6 px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Category</th>
+                  <th className="w-1/6 px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Price</th>
+                  <th className="w-1/6 px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Stock</th>
+                </tr>
+              </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {recentProducts.map(p => (
                   <tr key={p.id} className="hover:bg-gray-50">
@@ -72,10 +71,9 @@ const AdminDashboard: React.FC = () => {
                       />
                       <div className="ml-2 sm:ml-4 min-w-0 flex-1">
                         <div className="text-xs sm:text-sm font-medium text-gray-900 line-clamp-2">{p.name}</div>
-                        <div className="md:hidden text-xs text-gray-500 mt-1">{p.category}</div>
                       </div>
                     </td>
-                    <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-700">{p.category}</td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-700">{p.category}</td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-900">
                       {SITE_CONFIG.currencySymbol}{p.price?.toLocaleString()}
                     </td>
@@ -94,8 +92,5 @@ const AdminDashboard: React.FC = () => {
     </div>
   );
 };
-
-
-
 
 export default AdminDashboard;

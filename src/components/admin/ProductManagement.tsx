@@ -164,7 +164,7 @@ const ProductManagement: React.FC = () => {
                         <table className="min-w-full table-fixed">
                             <thead className="bg-[#f5e9dc] sticky top-0 z-10">
                                 <tr>
-                                    <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                                    <th className="w-[40px] px-2 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                                         <input
                                             type="checkbox"
                                             checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
@@ -172,19 +172,19 @@ const ProductManagement: React.FC = () => {
                                             className="rounded border-gray-300 text-[#5f3c2c] focus:ring-[#D4B896]"
                                         />
                                     </th>
-                                    <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                                    <th className="w-2/5 px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                                         Product
                                     </th>
-                                    <th className="hidden md:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                                    <th className="hidden md:table-cell w-1/5 px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                                         Category
                                     </th>
-                                    <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                                    <th className="w-1/5 px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                                         Price
                                     </th>
-                                    <th className="hidden lg:table-cell px-2 sm:px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                                    <th className="hidden lg:table-cell w-1/6 px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                                         Stock
                                     </th>
-                                    <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                                    <th className="w-[100px] px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                                         Actions
                                     </th>
                                 </tr>
@@ -197,7 +197,7 @@ const ProductManagement: React.FC = () => {
                                 <tbody className="bg-white">
                                     {filteredProducts.map((product) => (
                                         <tr key={product.id} className={selectedProducts.includes(product.id) ? 'bg-[#F4E1D2]' : ''}>
-                                            <td className="px-2 sm:px-3 py-4">
+                                            <td className="w-[40px] px-2 py-4 align-middle">
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedProducts.includes(product.id)}
@@ -205,7 +205,7 @@ const ProductManagement: React.FC = () => {
                                                     className="rounded border-gray-300 text-[#5f3c2c] focus:ring-[#D4B896]"
                                                 />
                                             </td>
-                                            <td className="px-2 sm:px-3 py-4">
+                                            <td className="w-2/5 px-3 py-4 align-middle">
                                                 <div className="flex items-center">
                                                     <img
                                                         src={
@@ -217,42 +217,38 @@ const ProductManagement: React.FC = () => {
                                                         alt={product.name}
                                                         className="h-8 w-8 sm:h-10 sm:w-10 rounded object-cover flex-shrink-0"
                                                     />
-                                                    <div className="ml-2 sm:ml-3 min-w-0 flex-1">
-                                                        <div className="text-xs sm:text-sm font-medium text-[#5f3c2c] line-clamp-2">
-                                                            {product.name}
-                                                        </div>
-                                                        <div className="md:hidden text-xs text-[#8f674b] mt-1">
-                                                            {product.category}
-                                                        </div>
+                                                    <div className="ml-3 min-w-0">
+                                                        <div className="text-xs sm:text-sm font-medium text-[#5f3c2c] line-clamp-2">{product.name}</div>
+                                                        <div className="md:hidden text-xs text-[#8f674b] mt-1">{product.category}</div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="hidden md:table-cell px-2 sm:px-3 py-4 text-xs text-[#5f3c2c]">
+                                            <td className="hidden md:table-cell w-1/5 px-3 py-4 align-middle text-xs text-[#5f3c2c]">
                                                 {product.category}
                                             </td>
-                                            <td className="px-2 sm:px-3 py-4">
+                                            <td className="w-1/5 px-3 py-4 align-middle">
                                                 <div className="text-xs sm:text-sm font-medium text-[#5f3c2c]">
                                                     ₹{(product.price || 0).toLocaleString()}
                                                 </div>
-                                                <div className="lg:hidden">
+                                                <div className="lg:hidden mt-1">
                                                     <span className={`inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full ${product.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                                         {product.stock ? 'In Stock' : 'Out'}
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="hidden lg:table-cell px-2 sm:px-3 py-4 text-xs font-medium text-[#5f3c2c]">
+                                            <td className="hidden lg:table-cell w-1/6 px-3 py-4 align-middle text-xs font-medium text-[#5f3c2c]">
                                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                                     {product.stock ? 'In Stock' : 'Out of Stock'}
                                                 </span>
                                             </td>
-                                            <td className="px-2 sm:px-3 py-4 text-xs font-medium">
-                                                <div className="flex items-center gap-1 sm:gap-2">
+                                            <td className="w-[100px] px-3 py-4 align-middle text-xs font-medium">
+                                                <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => setEditDialog({ isOpen: true, product })}
                                                         className="text-[#d2b79f] hover:text-[#5f3c2c]"
                                                         title="Edit"
                                                     >
-                                                        <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                        <Edit className="h-4 w-4" />
                                                     </button>
                                                     <button
                                                         onClick={() =>
@@ -267,7 +263,7 @@ const ProductManagement: React.FC = () => {
                                                         className="text-red-600 hover:text-red-900"
                                                         title="Delete"
                                                     >
-                                                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                        <Trash2 className="h-4 w-4" />
                                                     </button>
                                                 </div>
                                             </td>
@@ -295,6 +291,7 @@ const ProductManagement: React.FC = () => {
                         </div>
                     )}
                 </div>
+
 
 
                 {/* Edit Product Dialog */}
