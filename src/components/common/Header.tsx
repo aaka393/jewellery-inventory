@@ -20,14 +20,14 @@ const Header: React.FC = () => {
 
   const { user, isAuthenticated, logout } = useAuthStore();
   const { loadCategories } = useCategoryStore();
-  const { getItemCount } = useCartStore();
+  const { getUniqueItemCount } = useCartStore();
   const navigate = useNavigate();
   const location = useLocation();
 
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname.startsWith('/admin');
 
-  const cartItemCount = getItemCount();
+  const cartItemCount = getUniqueItemCount();
 
   useEffect(() => {
     loadCategories().catch(console.error);

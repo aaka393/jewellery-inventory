@@ -58,7 +58,6 @@ export interface CartItem {
   productId: string;
   quantity: number;
   product: Product;
-  addedAt?: Date;
 }
 export interface GuestCartItem {
   id:string,

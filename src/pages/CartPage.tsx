@@ -9,51 +9,51 @@ import { useAddressStore } from '../store/addressStore';
 import { staticImageBaseUrl } from '../constants/siteConfig';
 
 const CartPage: React.FC = () => {
-  const { items, guestItems, removeItem, updateQuantity, getTotalPrice } = useCartStore();
+  const { items, removeItem, updateQuantity, getTotalPrice } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   const { selectedAddress } = useAddressStore();
   const navigate = useNavigate();
   const [showAddressSelector, setShowAddressSelector] = React.useState(false);
 
-  // Use appropriate items based on auth status
-  const currentItems = isAuthenticated ? items : guestItems;
-  console.log(currentItems, "currentItems")
+  // Redirect unauthenticated users to login
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 text-center">
+        <ShoppingBag className="h-16 w-16 text-gray-400 mb-4" />
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Please log in to view your cart</h2>
+        <p className="text-gray-600 mb-8">You need to be logged in to manage your cart and proceed with checkout.</p>
+        <Link
+          to="/login"
+          className="bg-black text-white px-8 py-3 rounded font-semibold hover:bg-gray-800 transition-colors"
+        >
+          Login
+        </Link>
+      </div>
+    );
+  }
 
-  const handleQuantityChange = (productId: string, delta: number) => {
-    const item = currentItems.find(item => item.productId === productId);
+  const handleQuantityChange = (cartItemId: string, delta: number) => {
+    const item = items.find(i => i.id === cartItemId);
     if (!item) return;
 
-    if (item.quantity === 1 && delta === -1) {
-      removeItem(item.id); // Use cartId instead of productId
+    const newQty = item.quantity + delta;
+
+    if (newQty <= 0) {
+      removeItem(cartItemId);
     } else {
-      updateQuantity(item.id, item.quantity + delta); // Use cartId instead of productId
+      updateQuantity(cartItemId, delta); // IMPORTANT: use `item.id` here
     }
   };
 
-  const handleRemoveItem = (cartId: string, productName: string) => {
+  const handleRemoveItem = (cartItemId: string, productName: string) => {
     if (confirm(`Remove ${productName} from cart?`)) {
-      removeItem(cartId); // Use cartId instead of productId
+      removeItem(cartItemId);
     }
   };
 
-
-  // const handlePaymentSuccess = () => {
-  //   onSuccess: (orderId: string) => {
-  //     navigate(`/order-confirmation/${orderId}`);
-  //   },
-  // };
-
-  const handlePaymentSuccess = (orderId: string) => {
-    navigate(`/order-confirmation/${orderId}`);
-  };
-
-  const handlePaymentError = (error: string) => {
-    alert(`Payment failed: ${error}`);
-  };
-
-  if (currentItems.length === 0) {
+  if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center">
           <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Cart is Empty</h2>
@@ -76,7 +76,7 @@ const CartPage: React.FC = () => {
           <>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
               <h1 className="text-xl sm:text-2xl font-light text-gray-800">
-                MY BAG ({currentItems.length})
+                MY BAG ({items.length})
               </h1>
               <button onClick={() => navigate('/')} className="text-gray-600 hover:text-black p-2 -mr-2">
                 <X className="h-6 w-6" />
@@ -87,12 +87,14 @@ const CartPage: React.FC = () => {
               {/* Cart Items */}
               <div className="lg:col-span-2 order-2 lg:order-1">
                 <div className="space-y-4 sm:space-y-6">
-                  {currentItems.map((item) => (
+                  {items.map((item) => (
                     <div key={item.id} className="flex items-start space-x-3 sm:space-x-4 pb-4 sm:pb-6 border-b border-gray-200">
                       <img
-                        src={item.product.images[0]?.startsWith('http')
-                          ? item.product.images[0]
-                          : `${staticImageBaseUrl}/${item.product.images[0]}` || 'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'}
+                        src={
+                          item.product.images[0]?.startsWith('http')
+                            ? item.product.images[0]
+                            : `${staticImageBaseUrl}/${item.product.images[0]}`
+                        }
                         alt={item.product.name}
                         className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded flex-shrink-0"
                       />
@@ -105,14 +107,14 @@ const CartPage: React.FC = () => {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                           <div className="flex items-center space-x-2 order-1">
                             <button
-                              onClick={() => handleQuantityChange(item.productId, -1)}
+                              onClick={() => handleQuantityChange(item.id, -1)}
                               className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50 rounded"
                             >
                               <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
                             </button>
                             <span className="w-6 sm:w-8 text-center text-sm sm:text-base">{item.quantity}</span>
                             <button
-                              onClick={() => handleQuantityChange(item.productId, 1)}
+                              onClick={() => handleQuantityChange(item.id, 1)}
                               className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50 rounded"
                             >
                               <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -151,48 +153,31 @@ const CartPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {isAuthenticated ? (
-                    <div className="space-y-2 sm:space-y-3">
-                      {selectedAddress ? (
-                        <>
-                          <div className="mb-3 sm:mb-4 p-3 bg-green-50 border border-green-200 rounded text-xs sm:text-sm">
-                            <p className="font-medium text-green-800">Delivering to:</p>
-                            <p className="text-green-700">{selectedAddress.fullName}</p>
-                            <p className="text-green-700">{selectedAddress.city}, {selectedAddress.state}</p>
-                            <button
-                              onClick={() => setShowAddressSelector(true)}
-                              className="text-purple-600 hover:text-purple-700 text-xs mt-1 underline"
-                            >
-                              Change Address
-                            </button>
-                          </div>
-                          <PaymentHandler
-                            onSuccess={handlePaymentSuccess}
-                            onError={handlePaymentError}
-                          />
-                        </>
-                      ) : (
+                  {selectedAddress ? (
+                    <>
+                      <div className="mb-3 sm:mb-4 p-3 bg-green-50 border border-green-200 rounded text-xs sm:text-sm">
+                        <p className="font-medium text-green-800">Delivering to:</p>
+                        <p className="text-green-700">{selectedAddress.fullName}</p>
+                        <p className="text-green-700">{selectedAddress.city}, {selectedAddress.state}</p>
                         <button
                           onClick={() => setShowAddressSelector(true)}
-                          className="w-full bg-black text-white py-2.5 sm:py-3 text-sm sm:text-base rounded font-medium hover:bg-gray-800 transition-colors"
+                          className="text-purple-600 hover:text-purple-700 text-xs mt-1 underline"
                         >
-                          SELECT DELIVERY ADDRESS
+                          Change Address
                         </button>
-                      )}
-                      <Link
-                        to="/cart"
-                        className="block w-full text-center py-2 sm:py-3 text-gray-600 hover:text-black text-xs sm:text-sm"
-                      >
-                        VIEW CART
-                      </Link>
-                    </div>
+                      </div>
+                      <PaymentHandler
+                        onSuccess={(orderId) => navigate(`/order-confirmation/${orderId}`)}
+                        onError={(error) => alert(`Payment failed: ${error}`)}
+                      />
+                    </>
                   ) : (
-                    <Link
-                      to="/login"
-                      className="block w-full bg-black text-white py-2.5 sm:py-3 text-sm sm:text-base rounded font-medium hover:bg-gray-800 transition-colors text-center"
+                    <button
+                      onClick={() => setShowAddressSelector(true)}
+                      className="w-full bg-black text-white py-2.5 sm:py-3 text-sm sm:text-base rounded font-medium hover:bg-gray-800 transition-colors"
                     >
-                      LOGIN TO PROCEED
-                    </Link>
+                      SELECT DELIVERY ADDRESS
+                    </button>
                   )}
 
                   {/* Features */}
@@ -231,9 +216,7 @@ const CartPage: React.FC = () => {
             </div>
 
             <AddressSelector
-              onAddressSelect={(address) => {
-                setShowAddressSelector(false);
-              }}
+              onAddressSelect={() => setShowAddressSelector(false)}
             />
 
             {selectedAddress && (

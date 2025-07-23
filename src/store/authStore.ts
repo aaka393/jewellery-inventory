@@ -47,7 +47,6 @@ export const useAuthStore = create<AuthState>()(
             });
 
             const cartStore = useCartStore.getState();
-            await cartStore.mergeGuestCart();
             await cartStore.syncWithServer();
             cartStore.resetCartStore(); // ✅ Clear guestItems and persisted cart data
 
@@ -87,7 +86,6 @@ export const useAuthStore = create<AuthState>()(
             });
 
             const cartStore = useCartStore.getState();
-            await cartStore.mergeGuestCart();
             await cartStore.syncWithServer();
             cartStore.resetCartStore(); // ✅ Clear guest cart
 

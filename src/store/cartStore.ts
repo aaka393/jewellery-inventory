@@ -6,189 +6,130 @@ import { cartService } from '../services/cartService';
 
 interface CartState {
   items: CartItem[];
-  guestItems: CartItem[];
 
   addItem: (product: Product, quantity: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
 
   clearCart: () => void;
-  mergeGuestCart: () => void;
-
   getTotalPrice: () => number;
   getItemCount: () => number;
   getProductQuantity: (productId: string) => number;
   isProductInCart: (productId: string) => boolean;
   syncWithServer: () => Promise<void>;
   resetCartStore: () => void;
+  getUniqueItemCount: () => number;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      guestItems: [],
 
       addItem: async (product, quantity) => {
         const { isAuthenticated } = useAuthStore.getState();
+        if (!isAuthenticated) return;
+
         const state = get();
-        const targetItems = isAuthenticated ? state.items : state.guestItems;
-        const existingItem = targetItems.find(item => item.productId === product.id);
+        const existingItem = state.items.find(item => item.productId === product.id);
 
         if (existingItem) {
-          const updatedItems = targetItems.map(item =>
+          const updatedItems = state.items.map(item =>
             item.productId === product.id
               ? { ...item, quantity: item.quantity + quantity }
               : item
           );
+          set({ items: updatedItems });
 
-          if (isAuthenticated) {
-            set({ items: updatedItems });
-            try {
-              await cartService.updateCartItem(product.id, existingItem.quantity + quantity);
-              await get().syncWithServer();
-            } catch (err) {
-              console.error(err);
-            }
-          } else {
-            set({ guestItems: updatedItems });
+          try {
+            await cartService.updateCartItem(product.id, existingItem.quantity + quantity);
+            await get().syncWithServer();
+          } catch (err) {
+            console.error(err);
           }
         } else {
           const newItem: CartItem = {
-            id: isAuthenticated ? product.id : `${product.id}-${Date.now()}`,
+            id: product.id,
             productId: product.id,
             quantity,
             product,
           };
 
-          if (isAuthenticated) {
-            set({ items: [...state.items, newItem] });
-            try {
-              await cartService.addToCart(product.id, quantity);
-              await get().syncWithServer();
-            } catch (err) {
-              console.error(err);
-            }
-          } else {
-            set({ guestItems: [...state.guestItems, newItem] });
+          set({ items: [...state.items, newItem] });
+
+          try {
+            await cartService.addToCart(product.id, quantity);
+            await get().syncWithServer();
+          } catch (err) {
+            console.error(err);
           }
         }
       },
 
       removeItem: async (productId) => {
         const { isAuthenticated } = useAuthStore.getState();
+        if (!isAuthenticated) return;
 
-        if (isAuthenticated) {
-          set({ items: get().items.filter(item => item.productId !== productId) });
-          try {
-            await cartService.removeFromCart(productId);
-            await get().syncWithServer();
-          } catch (err) {
-            console.error(err);
-          }
-        } else {
-          set({ guestItems: get().guestItems.filter(item => item.productId !== productId) });
+        set({ items: get().items.filter(item => item.productId !== productId) });
+
+        try {
+          await cartService.removeFromCart(productId);
+          await get().syncWithServer();
+        } catch (err) {
+          console.error(err);
         }
       },
 
       updateQuantity: (productId, quantity) => {
         const { isAuthenticated } = useAuthStore.getState();
+        if (!isAuthenticated) return;
 
-        if (isAuthenticated) {
-          set({
-            items: get().items.map(item =>
-              item.productId === productId ? { ...item, quantity } : item
-            ),
-          });
-          cartService.updateCartItem(productId, quantity)
-            .then(() => get().syncWithServer())
-            .catch(console.error);
-        } else {
-          const guestItems = get().guestItems;
-          const item = guestItems.find(item => item.productId === productId);
-          if (!item) return;
+        const prevItems = get().items;
+        const newItems = prevItems.map(item =>
+          item.productId === productId ? { ...item, quantity } : item
+        );
 
-          if (quantity <= 0) {
-            set({ guestItems: guestItems.filter(item => item.productId !== productId) });
-          } else {
-            set({
-              guestItems: guestItems.map(item =>
-                item.productId === productId ? { ...item, quantity } : item
-              ),
-            });
-          }
-        }
+        set({ items: newItems });
+
+        cartService.updateCartItem(productId, quantity)
+          .then(() => get().syncWithServer())
+          .catch(err => console.error(err));
       },
 
       clearCart: () => {
         const { isAuthenticated } = useAuthStore.getState();
-        set({ [isAuthenticated ? 'items' : 'guestItems']: [] });
-      },
+        if (!isAuthenticated) return;
 
-      mergeGuestCart: async () => {
-        const { guestItems, items } = get();
-        const { isAuthenticated } = useAuthStore.getState();
-
-        if (!isAuthenticated || guestItems.length === 0) return;
-
-        try {
-          await cartService.mergeCart(
-            guestItems.map(item => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              product: item.product, // only used for frontend
-            }))
-          );
-
-          const mergedItems = [...items];
-
-          guestItems.forEach(guestItem => {
-            const existing = mergedItems.find(i => i.productId === guestItem.productId);
-            if (existing) {
-              existing.quantity += guestItem.quantity;
-            } else {
-              mergedItems.push({
-                ...guestItem,
-                id: `${guestItem.productId}-${Date.now()}`,
-              });
-            }
-          });
-
-          set({ items: mergedItems, guestItems: [] });
-        } catch (err) {
-          console.error('Failed to merge guest cart:', err);
-        }
+        set({ items: [] });
       },
 
       getTotalPrice: () => {
-        const { isAuthenticated } = useAuthStore.getState();
-        const targetItems = isAuthenticated ? get().items : get().guestItems;
-        return targetItems.reduce(
+        return get().items.reduce(
           (total, item) => total + (item.product?.price || 0) * item.quantity,
           0
         );
       },
 
       getItemCount: () => {
-        const { isAuthenticated } = useAuthStore.getState();
-        const targetItems = isAuthenticated ? get().items : get().guestItems;
-        return targetItems.reduce((count, item) => count + item.quantity, 0);
+        return get().items.reduce((count, item) => count + item.quantity, 0);
+      },
+
+      getUniqueItemCount: () => {
+        return get().items.length;
       },
 
       getProductQuantity: (productId: string) => {
-        const { isAuthenticated } = useAuthStore.getState();
-        const targetItems = isAuthenticated ? get().items : get().guestItems;
-        return targetItems.find(item => item.productId === productId)?.quantity || 0;
+        return get().items.find(item => item.productId === productId)?.quantity || 0;
       },
 
       isProductInCart: (productId: string) => {
-        const { isAuthenticated } = useAuthStore.getState();
-        const targetItems = isAuthenticated ? get().items : get().guestItems;
-        return targetItems.some(item => item.productId === productId);
+        return get().items.some(item => item.productId === productId);
       },
+
       resetCartStore: () => {
-        set({ items: [], guestItems: [] });
+        set({ items: [] });
       },
+
       syncWithServer: async () => {
         const { isAuthenticated } = useAuthStore.getState();
         if (!isAuthenticated) return;
@@ -203,7 +144,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'cart-storage',
-      partialize: state => ({ guestItems: state.guestItems }), // persist only guest cart
+      partialize: state => ({ items: state.items }), // persist only auth cart
     }
   )
 );

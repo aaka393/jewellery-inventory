@@ -4,7 +4,6 @@ import { X, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { staticImageBaseUrl } from '../../constants/siteConfig';
-import { CartItem, GuestCartItem } from '../../types';
 
 interface CartSidebarProps {
   onClose: () => void;
@@ -13,7 +12,6 @@ interface CartSidebarProps {
 const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
   const {
     items,
-    guestItems,
     removeItem,
     updateQuantity,
     getTotalPrice
@@ -21,8 +19,6 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
 
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
-
-  const currentItems: (CartItem | GuestCartItem)[] = isAuthenticated ? items : guestItems;
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
@@ -36,15 +32,42 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
   };
 
   const handleQuantityUpdate = (id: string, delta: number) => {
-    const item = currentItems.find(item => item.id === id);
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    const item = items.find(item => item.id === id);
     if (!item) return;
 
-    if (item.quantity === 1 && delta === -1) {
-      removeItem(id); // Remove if quantity would become 0
+    const newQuantity = item.quantity + delta;
+    if (newQuantity <= 0) {
+      removeItem(item.productId);
     } else {
-      updateQuantity(id, delta); // Pass delta (+1 or -1)
+      updateQuantity(item.productId, delta);
     }
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-hidden">
+        <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
+        <div className="absolute right-0 top-0 h-full w-full max-w-xs sm:max-w-sm lg:max-w-md bg-white shadow-xl flex flex-col items-center justify-center text-center px-4">
+          <ShoppingBag className="w-16 h-16 text-gray-400 mb-4" />
+          <p className="text-gray-600 text-sm sm:text-base mb-2">You need to be logged in to access your cart.</p>
+          <button
+            onClick={() => {
+              onClose();
+              navigate('/login');
+            }}
+            className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800"
+          >
+            Login to Continue
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -53,7 +76,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
       <div className="absolute right-0 top-0 h-full w-full max-w-xs sm:max-w-sm lg:max-w-md bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out">
         <div className="flex items-center justify-between p-3 sm:p-4 border-b">
           <h2 className="text-base sm:text-lg font-semibold text-black">
-            MY BAG ({currentItems.length})
+            MY BAG ({items.length})
           </h2>
           <button onClick={onClose} className="hover:opacity-70 transition-opacity text-black">
             <X className="h-6 w-6" />
@@ -65,7 +88,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
             showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          {currentItems.length === 0 ? (
+          {items.length === 0 ? (
             <div className="text-center mt-6 sm:mt-8 animate-fadeInSlow">
               <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">Your bag is empty</p>
@@ -79,7 +102,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
             </div>
           ) : (
             <div className="space-y-3 sm:space-y-4">
-              {currentItems.map((item, index) => (
+              {items.map((item, index) => (
                 <div
                   key={item.id}
                   className="flex items-start space-x-2 sm:space-x-3 border-b pb-3 sm:pb-4 animate-fadeInSlow"
@@ -121,7 +144,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
                         </button>
                       </div>
                       <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.productId)}
                         className="text-xs text-gray-400 hover:text-red-500 transition-colors whitespace-nowrap"
                       >
                         Remove
@@ -134,7 +157,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
           )}
         </div>
 
-        {currentItems.length > 0 && (
+        {items.length > 0 && (
           <div
             className={`border-t p-3 sm:p-4 bg-white transition-opacity duration-700 ${
               showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'

@@ -1,27 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import {
-  Heart, ChevronLeft, ChevronRight, Truck, Shield, RefreshCw,
-  Minus, Plus, Facebook, Twitter, ZoomIn as Zoom, Maximize
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react';
 import { Product } from '../types';
 import { apiService } from '../services/api';
 import { useCartStore } from '../store/cartStore';
-import { useWishlistStore } from '../store/wishlistStore';
+import { useAuthStore } from '../store/authStore';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
-import { SITE_CONFIG, staticImageBaseUrl } from '../constants/siteConfig';
+import { staticImageBaseUrl } from '../constants/siteConfig';
+import LoginPromptModal from '../components/common/LoginPromptModal';
 
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [currentTab, setTab] = useState<'About' | 'Ingredients' | 'Details'>('About');
+  const [currentTab, setTab] = useState<'About' | 'Details'>('About');
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
-  const { addItem } = useCartStore();
-  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
+  const {
+    addItem,
+    removeItem,
+    updateQuantity,
+    getProductQuantity,
+    isProductInCart
+  } = useCartStore();
+
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     if (slug) loadProduct();
@@ -39,22 +44,48 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
-  const handleAddToCart = () => {
-    if (product) {
-      addItem(product, quantity);
-      alert(`Added ${quantity} ${product.name} to cart!`);
+  const productQuantity = product ? getProductQuantity(product.id) : 0;
+  const inCart = product ? isProductInCart(product.id) : false;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    if (product && product.stock) {
+      addItem(product, 1);
+      const button = e.currentTarget as HTMLButtonElement;
+      const originalText = button.textContent;
+      button.textContent = 'ADDED!';
+      button.style.backgroundColor = '#10b981';
+      setTimeout(() => {
+        button.textContent = originalText!;
+        button.style.backgroundColor = '';
+      }, 1200);
     }
   };
 
-  const handleToggleWishlist = () => {
-    if (product) {
-      if (isInWishlist(product.id)) {
-        removeFromWishlist(product.id);
-        alert('Removed from wishlist');
-      } else {
-        addToWishlist(product);
-        alert('Added to wishlist');
-      }
+  const handleQuantityChange = (e: React.MouseEvent, change: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    if (!product) return;
+
+    const newQuantity = productQuantity + change;
+
+    if (newQuantity <= 0) {
+      removeItem(product.id);
+    } else {
+      updateQuantity(product.id, change);
     }
   };
 
@@ -68,26 +99,6 @@ const ProductDetailPage: React.FC = () => {
     if (product?.images) {
       setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
     }
-  };
-
-  const handleShare = (platform: 'facebook' | 'twitter' | 'pinterest') => {
-    const url = window.location.href;
-    const title = product?.name || 'Check out this jewelry piece';
-    let shareUrl = '';
-
-    switch (platform) {
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-        break;
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-        break;
-      case 'pinterest':
-        shareUrl = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&description=${encodeURIComponent(title)}`;
-        break;
-    }
-
-    window.open(shareUrl, '_blank', 'width=600,height=400');
   };
 
   if (loading) return <LoadingSpinner />;
@@ -140,11 +151,6 @@ const ProductDetailPage: React.FC = () => {
                 <div className="aspect-square">
                   <img src={productImages[currentImageIndex]} alt={product.name} className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute top-4 left-4">
-                  <span className={`text-xs px-2 py-1 rounded ${product.stock ? 'bg-teal-500' : 'bg-red-500'} text-white`}>
-                    {product.stock ? 'In stock' : 'Out of stock'}
-                  </span>
-                </div>
                 {productImages.length > 1 && (
                   <>
                     <button onClick={prevImage} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:shadow-lg">
@@ -155,64 +161,58 @@ const ProductDetailPage: React.FC = () => {
                     </button>
                   </>
                 )}
-                <div className="absolute bottom-4 right-4 flex space-x-2">
-                  <button className="bg-white rounded-full p-2 shadow-md hover:shadow-lg flex items-center space-x-1">
-                    <Zoom className="h-4 w-4" />
-                    <span className="text-sm">Zoom</span>
-                  </button>
-                  <button className="bg-white rounded-full p-2 shadow-md hover:shadow-lg">
-                    <Maximize className="h-4 w-4" />
-                  </button>
-                </div>
               </div>
             </div>
 
             {/* Product Info */}
             <div className="space-y-6">
-              <div>
-                <h1 className="text-2xl font-light text-gray-800 mb-4">{product.name}</h1>
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="text-2xl font-medium text-gray-900">
-                    {SITE_CONFIG.currencySymbol} {product.price.toLocaleString()}
-                  </div>
-                  {product.comparePrice && product.comparePrice > product.price && (
-                    <div className="text-lg text-gray-500 line-through">
-                      {SITE_CONFIG.currencySymbol} {product.comparePrice.toLocaleString()}
-                    </div>
-                  )}
+              <h1 className="text-2xl font-light text-gray-800">{product.name}</h1>
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="text-2xl font-medium text-gray-900">
+                  ₹ {product.price.toLocaleString()}
                 </div>
+                {product.comparePrice && product.comparePrice > product.price && (
+                  <div className="text-lg text-gray-500 line-through">
+                    ₹ {product.comparePrice.toLocaleString()}
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50">
+              {product.stock && inCart && (
+                <div className="flex items-center gap-2 mb-3">
+                  <button
+                    onClick={(e) => handleQuantityChange(e, -1)}
+                    className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                  >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="text-lg font-medium w-8 text-center">{quantity}</span>
-                  <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50">
+                  <span className="w-8 text-center">{productQuantity}</span>
+                  <button
+                    onClick={(e) => handleQuantityChange(e, 1)}
+                    className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                  >
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
+              )}
 
-                <button
-                  onClick={handleAddToCart}
-                  disabled={!product.stock}
-                  className="w-full bg-black text-white py-3 px-6 font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {product.stock ? 'ADD TO CART' : 'OUT OF STOCK'}
-                </button>
-              </div>
+              <button
+                onClick={handleAddToCart}
+                disabled={!product.stock}
+                className="w-full mt-4 bg-black text-white py-3 px-6 font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+              >
+                {product.stock
+                  ? inCart ? 'CONFIRM ADD TO CART' : 'ADD TO CART'
+                  : 'OUT OF STOCK'}
+              </button>
 
-              {/* Tabbed Product Info */}
               <div className="pt-6 border-t border-gray-200">
                 <div className="flex space-x-6 border-b border-gray-200 mb-4">
                   {['About', 'Details'].map((tab) => (
                     <button
                       key={tab}
-                      onClick={() => setTab(tab as any)}
-                      className={`pb-2 font-medium uppercase tracking-wide text-sm ${
-                        currentTab === tab ? 'border-b-2 border-black text-black' : 'text-gray-500 hover:text-black'
-                      }`}
+                      onClick={() => setTab(tab as 'About' | 'Details')}
+                      className={`pb-2 font-medium uppercase tracking-wide text-sm ${currentTab === tab ? 'border-b-2 border-black text-black' : 'text-gray-500 hover:text-black'}`}
                     >
                       {tab}
                     </button>
@@ -220,19 +220,7 @@ const ProductDetailPage: React.FC = () => {
                 </div>
 
                 <div className="text-sm text-gray-700 leading-relaxed">
-                  {currentTab === 'About' && (
-                    <p>
-                      Inspired by the delicate crepes found in Parisian cafés, our mix brings a touch of everyday elegance into your home. Whether filled with fresh fruit, a drizzle of fruit spread, or something savory, it’s a pantry staple we reach for again and again. Easy to prepare and endlessly adaptable, it’s made to turn ordinary mornings (and evenings!) into something special.
-                    </p>
-                  )}
-                  {currentTab === 'Ingredients' && (
-                    <ul className="list-disc ml-5">
-                      <li>Wheat flour</li>
-                      <li>Cane sugar</li>
-                      <li>Sea salt</li>
-                      <li>Natural vanilla flavor</li>
-                    </ul>
-                  )}
+                  {currentTab === 'About' && <p>{product.description}</p>}
                   {currentTab === 'Details' && (
                     <p>
                       Net Weight: 16oz (1 lb) / 454g<br />
@@ -246,6 +234,12 @@ const ProductDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <LoginPromptModal
+          show={showLoginPrompt}
+          onClose={() => setShowLoginPrompt(false)}
+          onLogin={() => setShowLoginPrompt(false)}
+        />
       </div>
     </>
   );
