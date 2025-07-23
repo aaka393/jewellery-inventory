@@ -116,16 +116,6 @@ const ProductManagement: React.FC = () => {
                         </button>
                     </div>
                 </div>
-                <div className="sm:w-48">
-                    <select
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value as 'latest' | 'oldest')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
-                    >
-                        <option value="latest">Latest First</option>
-                        <option value="oldest">Oldest First</option>
-                    </select>
-                </div>
 
                 {/* Filters */}
                 <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">

@@ -91,12 +91,8 @@ const StatusCellRenderer = (params: any) => {
 const OrderIdCellRenderer = (params: any) => {
   return (
     <div className="flex items-center space-x-2">
-      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
-        <Package className="h-4 w-4 text-white" />
-      </div>
       <div>
-        <div className="font-semibold text-gray-900 text-sm">#{params.value.slice(-8)}</div>
-        <div className="text-xs text-gray-500">Order ID</div>
+        <div className="font-semibold text-gray-900 text-sm">{params.value}</div>
       </div>
     </div>
   );
@@ -108,9 +104,6 @@ const CustomerCellRenderer = (params: any) => {
 
   return (
     <div className="flex items-center space-x-3">
-      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-sm">
-        <User className="h-4 w-4 text-white" />
-      </div>
       <div className="min-w-0 flex-1">
         <div className="font-medium text-gray-900 text-sm truncate">{userId}</div>
         {userEmail && (
@@ -327,7 +320,7 @@ const OrderManagement: React.FC = () => {
     {
       headerName: 'Order',
       field: 'id',
-      width: 160,
+      width: 200,
       pinned: 'left',
       cellRenderer: OrderIdCellRenderer,
       filter: 'agTextColumnFilter',
@@ -423,47 +416,43 @@ const OrderManagement: React.FC = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-<div className="space-y-6">
-  {/* Beautiful Stats Cards */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-6">
+      {/* Beautiful Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-    <div className="bg-gray-100 rounded-lg">
-      <Card 
-        icon={Package} 
-        title="Total Orders" 
-        value={stats?.totalOrders ?? 0} 
-      />
-    </div>
+        <div className="bg-gray-100 rounded-lg">
+          <Card
+            icon={Package}
+            title="Total Orders"
+            value={stats?.totalOrders ?? 0}
+          />
+        </div>
 
-    <div className="bg-yellow-100 rounded-lg">
-      <Card 
-        icon={() => <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-600" />} 
-        title="Pending" 
-        value={stats?.pendingOrders ?? 0} 
-      />
-    </div>
+        <div className="bg-yellow-100 rounded-lg">
+          <Card
+            icon={() => <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-[#5f3c2c]" />}
+            title="Pending"
+            value={stats?.pendingOrders ?? 0}
+          />
+        </div>
 
-    <div className="bg-green-100 rounded-lg">
-      <Card 
-        icon={() => <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />} 
-        title="Completed" 
-        value={stats?.completedOrders ?? 0} 
-      />
-    </div>
+        <div className="bg-green-100 rounded-lg">
+          <Card
+            icon={() => <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-[#5f3c2c]" />}
+            title="Completed"
+            value={stats?.completedOrders ?? 0}
+          />
+        </div>
 
-    <div className="bg-blue-100 rounded-lg">
-      <Card 
-        icon={() => <Download className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />} 
-        title="Revenue" 
-        value={`${SITE_CONFIG.currencySymbol}${(stats?.totalRevenue ?? 0).toLocaleString()}`} 
-      />
-    </div>
+        <div className="bg-blue-100 rounded-lg">
+          <Card
+            icon={() => <Download className="h-5 w-5 sm:h-6 sm:w-6 text-[#5f3c2c]" />}
+            title="Revenue"
+            value={`${SITE_CONFIG.currencySymbol}${(stats?.totalRevenue ?? 0).toLocaleString()}`}
+          />
+        </div>
 
-  </div>
-
-
-
-
+      </div>
 
       {/* Orders Grid */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
@@ -504,7 +493,7 @@ const OrderManagement: React.FC = () => {
 
                 <button
                   onClick={onExportCsv}
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl hover:from-indigo-600 hover:to-indigo-700 focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm"
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium  text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 transition-all duration-200 shadow-sm"
                   title="Export to CSV"
                 >
                   <FileDown className="h-4 w-4" />
