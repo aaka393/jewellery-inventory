@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, ShoppingBag } from 'lucide-react';
+import { Menu, X, ShoppingBag } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useCategoryStore } from '../../store/categoryStore';
 import { useCartStore } from '../../store/cartStore';
@@ -8,6 +8,7 @@ import SEOHead from '../seo/SEOHead';
 import { SITE_CONFIG } from '../../constants/siteConfig';
 import Taanira from '../../assets/Taanira-logo.png';
 import CartSidebar from './CartSidebar';
+import UserMenu from './UserMenu';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -25,7 +26,6 @@ const Header: React.FC = () => {
 
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname.startsWith('/admin');
-  if (isAdminPage) return null;
 
   const cartItemCount = getItemCount();
 
@@ -65,21 +65,20 @@ const Header: React.FC = () => {
   return (
     <>
       <SEOHead />
+        {!isAdminPage && (
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
           isVisible ? 'translate-y-0' : '-translate-y-full'
-        } ${isAdminPage ? 'border-b' : ''}`}
+        }`}
         style={{
           backgroundColor: styles.background,
-          borderColor: isAdminPage ? styles.borderColor : 'transparent',
-          borderBottomWidth: isAdminPage ? '1px' : '0px',
+          borderColor: 'transparent',
+          borderBottomWidth: '0px',
         }}
       >
         <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
-          {/* Three-column grid layout for perfect centering */}
           <div className="grid grid-cols-3 items-center h-8 sm:h-10 lg:h-12">
-            
-            {/* Left Section - Fixed width for symmetry */}
+            {/* Left */}
             <div className="flex items-center justify-start">
               <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-8">
                 <button
@@ -91,29 +90,26 @@ const Header: React.FC = () => {
                 >
                   <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
-
-                {!isAdminPage && (
-                  <div className="hidden lg:flex items-center space-x-6 xl:space-x-8 text-xs sm:text-sm tracking-widest">
-                    <Link
-                      to="/products"
-                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                      className="hover:opacity-70 transition-opacity"
-                    >
-                      SHOP
-                    </Link>
-                    <Link
-                      to="/about"
-                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                      className="hover:opacity-70 transition-opacity"
-                    >
-                      ABOUT
-                    </Link>
-                  </div>
-                )}
+                <div className="hidden lg:flex items-center space-x-6 xl:space-x-8 text-xs sm:text-sm tracking-widest">
+                  <Link
+                    to="/products"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    SHOP
+                  </Link>
+                  <Link
+                    to="/about"
+                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    ABOUT
+                  </Link>
+                </div>
               </div>
             </div>
 
-            {/* Center Section - Logo */}
+            {/* Center - Logo */}
             <div className="flex items-center justify-center">
               <Link
                 to="/"
@@ -127,9 +123,7 @@ const Header: React.FC = () => {
                       src={Taanira}
                       alt="Logo"
                       className="w-full h-full object-contain transition-all duration-300"
-                      style={{
-                        filter: isAdminPage ? 'none' : 'brightness(0) invert(1)',
-                      }}
+                      style={{ filter: 'brightness(0) invert(1)' }}
                     />
                   </div>
                 ) : (
@@ -145,88 +139,39 @@ const Header: React.FC = () => {
               </Link>
             </div>
 
-            {/* Right Section - Fixed width for symmetry */}
+            {/* Right */}
             <div className="flex items-center justify-end">
               <div
                 className={`flex items-center space-x-2 sm:space-x-3 lg:space-x-4 ${
                   showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
                 }`}
               >
-                {isAuthenticated ? (
-                  <div className="relative group hidden sm:block">
-                    <button
-                      className="flex items-center space-x-1 hover:opacity-70 transition-opacity h-8 sm:h-10 lg:h-12"
-                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                    >
-                      <span className="text-xs lg:text-sm tracking-widest">
-                        {user?.firstname?.toUpperCase() || 'USER'}
-                      </span>
-                      <ChevronDown className="h-3 w-3" />
-                    </button>
-                    <div className="absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                        {user?.firstname} {user?.lastname}
-                        <div className="text-xs text-gray-500">{user?.email}</div>
-                      </div>
-                      <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Profile
-                      </Link>
-                      <Link to="/user/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Orders
-                      </Link>
-                      <Link to="/addresses" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Addresses
-                      </Link>
-                      {user?.role === 'Admin' && (
-                        <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                          Admin Panel
-                        </Link>
-                      )}
-                      <div className="border-t border-gray-100 my-1"></div>
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <Link
-                    to="/login"
-                    className="hidden sm:flex items-center text-xs lg:text-sm tracking-widest hover:opacity-70 transition-opacity h-8 sm:h-10 lg:h-12"
+                <UserMenu />
+                <button
+                  onClick={() => setShowCartSidebar(true)}
+                  className="flex items-center gap-2 hover:opacity-70 transition-opacity relative h-8 sm:h-10 lg:h-12"
+                >
+                  <span
+                    className="hidden lg:inline text-xs lg:text-sm tracking-widest"
                     style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
                   >
-                    LOGIN
-                  </Link>
-                )}
-
-                {!isAdminPage && (
-                  <button
-                    onClick={() => setShowCartSidebar(true)}
-                    className="flex items-center gap-2 hover:opacity-70 transition-opacity relative h-8 sm:h-10 lg:h-12"
-                  >
-                    <span
-                      className="hidden lg:inline text-xs lg:text-sm tracking-widest"
-                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                    >
-                      CART
-                    </span>
-                    <div className="relative flex items-center">
-                      <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: styles.textColor }} />
-                      {cartItemCount > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-medium text-[10px] sm:text-xs">
-                          {cartItemCount > 99 ? '99+' : cartItemCount}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                )}
+                    CART
+                  </span>
+                  <div className="relative flex items-center">
+                    <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: styles.textColor }} />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-medium text-[10px] sm:text-xs">
+                        {cartItemCount > 99 ? '99+' : cartItemCount}
+                      </span>
+                    )}
+                  </div>
+                </button>
               </div>
             </div>
           </div>
         </div>
       </header>
+        )}
 
       {/* Sidebar Menu */}
       {isMenuOpen && (
@@ -246,7 +191,6 @@ const Header: React.FC = () => {
                 </button>
                 <span className="tracking-widest text-xs sm:text-sm">CLOSE</span>
               </div>
-
               <div className="flex flex-col gap-6 sm:gap-8 lg:gap-10 text-center pl-2">
                 {isAuthenticated ? (
                   <>
@@ -258,7 +202,7 @@ const Header: React.FC = () => {
                       SHOP
                     </Link>
                     <div className="border-t border-[#d4b896]/20 mt-2" />
-                    <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="block text-base sm:text-lg tracking-[0.2em] font-light hover:opacity-80 flex items-center justify-center space-x-2 py-2">
+                    <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="block text-base sm:text-lg tracking-[0.2em] font-light hover:opacity-80 items-center justify-center space-x-2 py-2">
                       <span>CART</span>
                       {cartItemCount > 0 && (
                         <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
@@ -294,7 +238,7 @@ const Header: React.FC = () => {
                         <div className="border-t border-[#d4b896]/20 mt-2" />
                       </div>
                     ))}
-                    <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="block text-base sm:text-lg tracking-[0.2em] font-light hover:opacity-80 flex items-center justify-center space-x-2 py-2">
+                    <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="text-base sm:text-lg tracking-[0.2em] font-light hover:opacity-80 flex items-center justify-center space-x-2 py-2">
                       <span>CART</span>
                       {cartItemCount > 0 && (
                         <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">

@@ -48,9 +48,9 @@ const AdminDashboard: React.FC = () => {
           <h2 className="text-base sm:text-lg font-semibold text-[#5f3c2c]">Recent Products</h2>
           <span className="text-xs sm:text-sm text-gray-500">{recentProducts.length} items</span>
         </div>
-        <div className="overflow-x-auto">
+        <div className="relative">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-[#F8F5F1]">
+            <thead className="bg-[#F8F5F1] sticky top-0 z-10">
               <tr>
                 <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Product</th>
                 <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Category</th>
@@ -58,31 +58,37 @@ const AdminDashboard: React.FC = () => {
                 <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Stock</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {recentProducts.map(p => (
-                <tr key={p.id} className="hover:bg-gray-50">
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 flex items-center">
-                    <img
-                      src={p.images?.[0]?.startsWith('http') ? p.images[0] : `${staticImageBaseUrl}${p.images[0]}`}
-                      alt={p.name}
-                      className="h-8 w-8 sm:h-10 sm:w-10 rounded object-cover flex-shrink-0"
-                    />
-                    <div className="ml-2 sm:ml-4 min-w-0 flex-1">
-                      <div className="text-xs sm:text-sm font-medium text-gray-900 line-clamp-2">{p.name}</div>
-                      <div className="md:hidden text-xs text-gray-500 mt-1">{p.category}</div>
-                    </div>
-                  </td>
-                  <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-700">{p.category}</td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-900">{SITE_CONFIG.currencySymbol}{p.price?.toLocaleString()}</td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <span className={`px-1.5 sm:px-2 py-0.5 text-xs font-medium rounded-full ${p.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {p.stock ? 'In Stock' : 'Out'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
           </table>
+          <div className="overflow-auto max-h-[400px]">
+            <table className="min-w-full divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-200">
+                {recentProducts.map(p => (
+                  <tr key={p.id} className="hover:bg-gray-50">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 flex items-center">
+                      <img
+                        src={p.images?.[0]?.startsWith('http') ? p.images[0] : `${staticImageBaseUrl}${p.images[0]}`}
+                        alt={p.name}
+                        className="h-8 w-8 sm:h-10 sm:w-10 rounded object-cover flex-shrink-0"
+                      />
+                      <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                        <div className="text-xs sm:text-sm font-medium text-gray-900 line-clamp-2">{p.name}</div>
+                        <div className="md:hidden text-xs text-gray-500 mt-1">{p.category}</div>
+                      </div>
+                    </td>
+                    <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-700">{p.category}</td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-900">
+                      {SITE_CONFIG.currencySymbol}{p.price?.toLocaleString()}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <span className={`px-1.5 sm:px-2 py-0.5 text-xs font-medium rounded-full ${p.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {p.stock ? 'In Stock' : 'Out'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

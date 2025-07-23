@@ -516,7 +516,7 @@ const OrderManagement: React.FC = () => {
         </div>
 
         {/* AG Grid */}
-        <div className="ag-theme-alpine-custom" style={{ height: '700px', width: '100%' }}>
+        <div className="ag-theme-alpine-custom" style={{ height: '630px', width: '100%' }}>
           <AgGridReact
             ref={gridRef}
             rowData={orders}
