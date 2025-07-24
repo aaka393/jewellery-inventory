@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCategoryStore } from '../store/categoryStore';
 import { Grid, List, ChevronDown } from 'lucide-react';
-import { Product} from '../types';
+import { Product, Category } from '../types';
 import { apiService } from '../services/api';
 import ProductCard from '../components/common/ProductCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -10,7 +10,10 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedParentCategoryId, setSelectedParentCategoryId] = useState<string>('');
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>('');
+  const [showSubcategories, setShowSubcategories] = useState(false);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
@@ -30,19 +33,15 @@ const ProductsPage: React.FC = () => {
 
   useEffect(() => {
     filterProducts();
-  }, [selectedCategory, allProducts]);
+  }, [selectedParentCategoryId, selectedSubcategoryId, allProducts]);
 
   const loadProducts = async () => {
     try {
       setLoading(true);
       const fetchedProducts = await apiService.getProducts();
+      const fetchedCategories = await apiService.getCategories();
       setAllProducts(fetchedProducts);
-      
-      // Extract unique categories
-      const uniqueCategories = Array.from(
-        new Set(fetchedProducts.map(product => product.category).filter(Boolean))
-      ).sort();
-      setCategories(uniqueCategories);
+      setCategories(fetchedCategories);
 
       // Apply initial filtering
       filterProductsWithData(fetchedProducts);
@@ -55,12 +54,41 @@ const ProductsPage: React.FC = () => {
     }
   };
 
+  // Get parent categories (categories with no parentId or parentId is empty)
+  const getParentCategories = (): Category[] => {
+    return categories.filter(cat => !cat.parentId || cat.parentId === '').sort((a, b) => a.name.localeCompare(b.name));
+  };
+
+  // Get subcategories for a given parent category ID
+  const getSubcategories = (parentId: string): Category[] => {
+    return categories.filter(cat => cat.parentId === parentId).sort((a, b) => a.name.localeCompare(b.name));
+  };
+
+  // Get category by ID
+  const getCategoryById = (id: string): Category | undefined => {
+    return categories.find(cat => cat.id === id);
+  };
+
   const filterProductsWithData = (productsData: Product[]) => {
     const category = searchParams.get('category');
     const categoryToFilter = selectedCategory || category;
     
     let filteredProducts = productsData;
-    if (categoryToFilter) {
+    
+    if (selectedSubcategoryId) {
+      // Filter by subcategory
+      const subcategory = getCategoryById(selectedSubcategoryId);
+      filteredProducts = productsData.filter(
+        (p) => p.category?.toLowerCase() === subcategory?.name.toLowerCase()
+      );
+    } else if (selectedParentCategoryId) {
+      // Filter by parent category
+      const parentCategory = getCategoryById(selectedParentCategoryId);
+      filteredProducts = productsData.filter(
+        (p) => p.category?.toLowerCase() === parentCategory?.name.toLowerCase()
+      );
+    } else if (categoryToFilter) {
+      // Legacy filtering for existing category parameter
       filteredProducts = productsData.filter(
         (p) => p.category?.toLowerCase() === categoryToFilter.toLowerCase()
       );
@@ -95,17 +123,40 @@ const ProductsPage: React.FC = () => {
     setProducts(sortProducts(products, newSortBy));
   };
 
-  const handleCategoryChange = (category: string) => {
-    if (category === 'all') {
+  const handleParentCategoryChange = (categoryId: string) => {
+    if (categoryId === 'all') {
+      setSelectedParentCategoryId('');
+      setSelectedSubcategoryId('');
+      setShowSubcategories(false);
       setSelectedCategory(null);
     } else {
-      setSelectedCategory(category);
+      setSelectedParentCategoryId(categoryId);
+      setSelectedSubcategoryId('');
+      const category = getCategoryById(categoryId);
+      setSelectedCategory(category?.name || null);
+      
+      // Show subcategories if the selected category has them
+      const hasSubcategories = getSubcategories(categoryId).length > 0;
+      setShowSubcategories(hasSubcategories);
+    }
+  };
+
+  const handleSubcategoryChange = (subcategoryId: string) => {
+    if (subcategoryId === 'all-sub') {
+      setSelectedSubcategoryId('');
+    } else {
+      setSelectedSubcategoryId(subcategoryId);
     }
   };
 
   const getDisplayedCategoryName = () => {
-    if (selectedCategory) {
-      return selectedCategory.replace(/\b\w/g, l => l.toUpperCase());
+    if (selectedSubcategoryId) {
+      const subcategory = getCategoryById(selectedSubcategoryId);
+      return subcategory?.name || '';
+    }
+    if (selectedParentCategoryId) {
+      const parentCategory = getCategoryById(selectedParentCategoryId);
+      return parentCategory?.name || '';
     }
     const urlCategory = searchParams.get('category');
     if (urlCategory) {
@@ -113,6 +164,7 @@ const ProductsPage: React.FC = () => {
     }
     return 'All Products';
   };
+
 
   if (loading) {
     return <LoadingSpinner />;
@@ -128,28 +180,51 @@ const ProductsPage: React.FC = () => {
           <div>
             <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-serif font-semibold text-[#4A3F36]">
               {getDisplayedCategoryName()}
-              {(selectedCategory || searchParams.get('category')) && ' Collection'}
+              {(selectedParentCategoryId || selectedSubcategoryId || searchParams.get('category')) && ' Collection'}
             </h1>
             <p className="text-[#6D6258] mt-1 text-xs sm:text-sm">{products.length} product{products.length !== 1 ? 's' : ''} found</p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
-            {/* Category Dropdown */}
-            <div className="relative w-full sm:w-auto">
-              <select
-                value={selectedCategory || 'all'}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full sm:w-auto min-w-[140px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer"
-                title="Filter by category"
-              >
-                <option value="all">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category.replace(/\b\w/g, l => l.toUpperCase())}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-[#4A3F36] pointer-events-none" />
+            {/* Hierarchical Category Dropdown */}
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+              {/* Parent Category Dropdown */}
+              <div className="relative w-full sm:w-auto">
+                <select
+                  value={selectedParentCategoryId || 'all'}
+                  onChange={(e) => handleParentCategoryChange(e.target.value)}
+                  className="w-full sm:w-auto min-w-[140px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer"
+                  title="Select category"
+                >
+                  <option value="all">All Categories</option>
+                  {getParentCategories().map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-[#4A3F36] pointer-events-none" />
+              </div>
+
+              {/* Subcategory Dropdown */}
+              {showSubcategories && getSubcategories(selectedParentCategoryId).length > 0 && (
+                <div className="relative w-full sm:w-auto">
+                  <select
+                    value={selectedSubcategoryId || 'all-sub'}
+                    onChange={(e) => handleSubcategoryChange(e.target.value)}
+                    className="w-full sm:w-auto min-w-[140px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer transition-all duration-300 ease-in-out"
+                    title="Select subcategory"
+                  >
+                    <option value="all-sub">All {getCategoryById(selectedParentCategoryId)?.name}</option>
+                    {getSubcategories(selectedParentCategoryId).map((subcategory) => (
+                      <option key={subcategory.id} value={subcategory.id}>
+                        {subcategory.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-[#4A3F36] pointer-events-none" />
+                </div>
+              )}
             </div>
 
             {/* Sort */}

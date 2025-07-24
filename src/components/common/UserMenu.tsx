@@ -84,29 +84,13 @@ const UserMenu: React.FC<UserMenuProps> = ({ dropdownPosition = 'bottom' }) => {
             Profile
           </Link>
           <Link 
-            to="/user/orders" 
-            className="block px-3 sm:px-4 py-2 text-sm font-serif italic text-rich-brown hover:bg-subtle-beige transition-all duration-200 ease-in-out"
-            title="View Orders"
+            to="/products" 
+            className="block px-3 sm:px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            title="View Shopping Products"
           >
-            Orders
+            Shop
           </Link>
-          <Link 
-            to="/addresses" 
-            className="block px-3 sm:px-4 py-2 text-sm font-serif italic text-rich-brown hover:bg-subtle-beige transition-all duration-200 ease-in-out"
-            title="Manage Addresses"
-          >
-            Addresses
-          </Link>
-          {isAdmin && (
-            <Link 
-              to="/admin" 
-              className="block px-3 sm:px-4 py-2 text-sm font-serif italic text-rich-brown hover:bg-subtle-beige transition-all duration-200 ease-in-out"
-              title="Admin Panel"
-            >
-              Admin Panel
-            </Link>
-          )}
-          <div className="border-t border-subtle-beige my-2 mx-3"></div>
+          <div className="border-t border-gray-100 my-1 mx-2"></div>
           <LogoutButton />
         </div>
       )}

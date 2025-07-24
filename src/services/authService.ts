@@ -1,7 +1,13 @@
 import BaseService from './baseService';
 import { API_ENDPOINTS } from '../constants/appConstants';
 import { LoginRequest, RegisterRequest } from '../types';
-import { ApiResponse, LoginResponse, RegisterResponse, TokenVerificationResponse } from '../types/api';
+import {
+  ApiResponse,
+  LoginResponse,
+  RegisterResponse,
+  SendEmailResponse,
+  TokenVerificationResponse,
+} from '../types/api';
 
 class AuthService extends BaseService {
   async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
@@ -15,8 +21,42 @@ class AuthService extends BaseService {
   }
 
   async register(userData: RegisterRequest): Promise<ApiResponse<RegisterResponse>> {
-    return this.post<RegisterResponse>(API_ENDPOINTS.REGISTER, userData);
+    try {
+      const response = await this.post<RegisterResponse>(API_ENDPOINTS.REGISTER, userData);
+
+      // ✅ Call new email endpoint after successful register
+      if (response.success && userData.email) {
+        try {
+          await this.sendRegistrationEmail(userData.email);
+        } catch (emailError) {
+          console.error('Email sending failed:', emailError);
+        }
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Register service error:', error);
+      throw error;
+    }
   }
+
+        async sendRegistrationEmail(email: string): Promise<SendEmailResponse> {
+          const url = API_ENDPOINTS.SEND_EMAIL;
+
+          try {
+            const response = await this.post<SendEmailResponse>(url, {
+              userName: email.split('@')[0],
+              email,
+            });
+           console.log('✅ Email sent successfully:', response);
+            return response.data;
+          } catch (error) {
+            console.error('❌ sendEmail API error:', error);
+            throw error;
+          }
+        }
+
+
 
   async verifyToken(): Promise<ApiResponse<TokenVerificationResponse>> {
     return this.post<TokenVerificationResponse>(API_ENDPOINTS.VERIFY_TOKEN, true);

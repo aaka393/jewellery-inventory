@@ -4,13 +4,17 @@ import { User } from '../types';
 import { authService } from '../services';
 import { RESPONSE_CODES } from '../constants/appConstants';
 import { useCartStore } from './cartStore';
+import { SendEmailResponse } from '../types/api';
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
+  emailStatus: SendEmailResponse | null;
+
   login: (credentials: { username: string; password: string }) => Promise<boolean>;
   register: (userData: any) => Promise<boolean>;
+  sendEmailConfirmation: (email: string) => Promise<void>;
   logout: () => void;
   verifyToken: () => Promise<boolean>;
   updateUser: (user: User) => void;
@@ -23,6 +27,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       loading: false,
+      emailStatus: null,
 
       login: async (credentials) => {
         set({ loading: true });
@@ -48,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
 
             const cartStore = useCartStore.getState();
             await cartStore.syncWithServer();
-            cartStore.resetCartStore(); // ✅ Clear guestItems and persisted cart data
+            cartStore.resetCartStore();
 
             return true;
           }
@@ -87,7 +92,7 @@ export const useAuthStore = create<AuthState>()(
 
             const cartStore = useCartStore.getState();
             await cartStore.syncWithServer();
-            cartStore.resetCartStore(); // ✅ Clear guest cart
+            cartStore.resetCartStore();
 
             return true;
           }
@@ -98,6 +103,17 @@ export const useAuthStore = create<AuthState>()(
           console.error('Registration failed:', error);
           set({ loading: false });
           return false;
+        }
+      },
+
+      sendEmailConfirmation: async (email) => {
+        try {
+          const response = await authService.sendRegistrationEmail(email);
+          set({ emailStatus: response });
+          console.log('✅ Email status saved to store:', response);
+        } catch (error) {
+          console.error('❌ Failed to send email:', error);
+          set({ emailStatus: null });
         }
       },
 
