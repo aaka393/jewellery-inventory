@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Product } from '../../types';
 import Dialog from '../common/Dialog';
-import { Upload, X, Move, Eye } from 'lucide-react';
+import { Upload, X,Move, Eye } from 'lucide-react';
 import { staticImageBaseUrl } from '../../constants/siteConfig';
-import { apiService } from '../../services/api';
-import { Category } from '../../types';
-import { ProductFormData } from '../../types/forms';
-import { ImageFile } from '../../types/index';
 
 interface ProductDialogProps {
     isOpen: boolean;
@@ -19,7 +15,25 @@ interface ProductDialogProps {
     uploadProductImage?: (file: File) => Promise<string | null>;
 }
 
+interface ImageFile {
+    id: string;
+    file: File;
+    preview: string;
+    uploaded?: boolean;
+    url?: string;
+}
 
+interface ProductFormData {
+    name: string;
+    slug: string;
+    category: string;
+    description: string;
+    initialPrice: number;
+    price: number;
+    comparePrice: number;
+    images: string[];
+    stock: boolean;
+}
 
 const ProductDialog: React.FC<ProductDialogProps> = ({
     isOpen,
@@ -33,7 +47,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
     const [dragActive, setDragActive] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [allCategories, setAllCategories] = useState<Category[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const dragRef = useRef<HTMLDivElement>(null);
 
@@ -48,23 +61,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         images: [],
         stock: true,
     });
-
-    // Load all categories
-    useEffect(() => {
-        const loadCategories = async () => {
-            try {
-                const response = await apiService.getCategories();
-                setAllCategories(response || []);
-            } catch (error) {
-                console.error('Error loading categories:', error);
-                setAllCategories([]);
-            }
-        };
-        
-        if (isOpen) {
-            loadCategories();
-        }
-    }, [isOpen]);
 
     useEffect(() => {
         if (isOpen) {
@@ -88,9 +84,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
 
     useEffect(() => {
         if (product && mode === 'edit') {
-            // Find the category object and its parent
-            const productCategoryObj = allCategories.find(cat => cat.name === product.category);
-            
             setFormData({
                 name: product.name || '',
                 slug: product.slug || '',
@@ -113,11 +106,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
             }));
             setImageFiles(existingImages);
         }
-    }, [product, mode, allCategories]);
-
-    // Get parent categories (categories that are marked as parent categories - no parentId)
-
-    // Get categories filtered by parent category (required filtering)
+    }, [product, mode]);
 
     const handleDrag = (e: React.DragEvent) => {
         e.preventDefault();
@@ -221,14 +210,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
 
-        if (name === 'parentCategory') {
-            // Clear category when parent category changes
-            setFormData(prev => ({
-                ...prev,
-                parentCategory: value,
-                category: ''
-            }));
-        } else if (name.includes('.')) {
+        if (name.includes('.')) {
             const [parent, child] = name.split('.');
             setFormData(prev => ({
                 ...prev,
@@ -288,16 +270,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
             // Upload images first
             const uploadedImageUrls = await uploadImages();
 
-            // Get the category name from the selected category ID or use the category value directly
-            const selectedCategory = allCategories.find(cat => cat.id === formData.category);
-            const categoryName = selectedCategory ? selectedCategory.name : formData.category;
-
             // Prepare the final product data matching ProductImportModel
             const productData: any = {
                 ...(mode === 'edit' && product?.id ? { id: product.id } : {}),
                 name: formData.name,
                 slug: formData.slug || generateSlug(formData.name),
-                category: categoryName, // Use category name instead of ID
+                category: formData.category,
                 description: formData.description,
                 initialPrice: formData.initialPrice,
                 price: formData.price,
@@ -338,6 +316,24 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             required
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+                            Category *
+                        </label>
+                        <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
+                        >
+                            <option value="">Select Category</option>
+                            {categories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
                     </div>
 
                     <div>
