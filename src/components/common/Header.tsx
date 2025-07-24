@@ -57,9 +57,9 @@ const Header: React.FC = () => {
 
   const styles = {
     background: 'transparent',
-    textColor: isHomePage ? '#FFFFFF' : '#5f3c2c',
+    textColor: isHomePage ? '#FFFFFF' : '#4A3F36',
     fontWeight: scrolled ? '500' : '700',
-    borderColor: '#d4b896',
+    borderColor: '#DEC9A3',
   };
 
   return (
@@ -95,7 +95,7 @@ const Header: React.FC = () => {
                   <Link
                     to="/products"
                     style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                    className="hover:opacity-70 transition-opacity whitespace-nowrap"
+                    className="hover:opacity-70 transition-all duration-200 ease-in-out whitespace-nowrap font-serif italic"
                     title="Shop Products"
                   >
                     SHOP
@@ -103,7 +103,7 @@ const Header: React.FC = () => {
                   <Link
                     to="/about"
                     style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                    className="hover:opacity-70 transition-opacity whitespace-nowrap"
+                    className="hover:opacity-70 transition-all duration-200 ease-in-out whitespace-nowrap font-serif italic"
                     title="About Us"
                   >
                     ABOUT
@@ -116,7 +116,7 @@ const Header: React.FC = () => {
             <div className="flex items-center justify-center">
               <Link
                 to="/"
-                className={`flex items-center justify-center ${
+                className={`flex items-center justify-center transition-all duration-200 ease-in-out ${
                   showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
                 }`}
                 title={`${SITE_CONFIG.name} - Home`}
@@ -126,14 +126,14 @@ const Header: React.FC = () => {
                     <img
                       src={Taanira}
                       alt="Logo"
-                      className="w-full h-full object-contain transition-all duration-300"
+                      className="w-full h-full object-contain transition-all duration-200 ease-in-out"
                       style={{ filter: 'brightness(0) invert(1)' }}
                     />
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-6 sm:h-8 lg:h-10">
                     <span
-                      className="text-base sm:text-lg lg:text-xl xl:text-2xl font-serif italic tracking-wide whitespace-nowrap"
+                      className="text-base sm:text-lg lg:text-xl xl:text-2xl font-serif italic font-semibold tracking-wide whitespace-nowrap"
                       style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
                     >
                       {SITE_CONFIG.shortName}

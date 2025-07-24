@@ -3,6 +3,24 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      colors: {
+        'rich-brown': '#4A3F36',
+        'soft-gold': '#DEC9A3',
+        'subtle-beige': '#F2ECE4',
+        'mocha': '#8F6C43',
+        'rose-sand': '#E5CFB5',
+        'linen': '#F6F5F1',
+        'burntumber': '#804000',
+        'champagne': '#D4B896',
+        'coal': '#1C1A17',
+        'copper': '#AA732F',
+        'sand': '#F2E9D8',
+        'espresso': '#4F3C2A',
+        'bronze': '#AE742B',
+      },
+      fontFamily: {
+        serif: ['Merriweather', 'Georgia', 'serif'],
+      },
       screens: {
         'xs': '475px',
         '3xl': '1600px',

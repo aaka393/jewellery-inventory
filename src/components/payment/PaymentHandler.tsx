@@ -154,7 +154,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError }) =
   return (
     <button
       onClick={handlePayment}
-      className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="btn-primary w-full"
       title="Proceed to secure payment"
     >
       PROCEED TO CHECKOUT

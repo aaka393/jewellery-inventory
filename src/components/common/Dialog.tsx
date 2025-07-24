@@ -26,6 +26,19 @@ const Dialog: React.FC<DialogProps> = ({
     '2xl': 'max-w-2xl'
   };
 
+  // Prevent body scroll when modal is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [isOpen]);
+
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -34,20 +47,20 @@ const Dialog: React.FC<DialogProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      className="modal-overlay"
       onClick={handleBackdropClick}
     >
-      <div className={`bg-white rounded-lg shadow-xl w-full ${maxWidthClasses[maxWidth]} transform transition-all`}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
+      <div className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl border border-subtle-beige w-full ${maxWidthClasses[maxWidth]} mx-4 max-h-[90vh] overflow-y-auto transform transition-all`}>
+        <div className="flex items-center justify-between p-6 border-b border-subtle-beige">
+          <h2 className="text-xl font-serif font-semibold italic text-rich-brown">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-mocha hover:text-rich-brown transition-all duration-200 ease-in-out p-2 rounded-xl hover:bg-subtle-beige"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
-        <div className="p-6">
+        <div className="p-6 font-serif text-rich-brown">
           {children}
         </div>
       </div>

@@ -49,18 +49,18 @@ const AddressCard: React.FC<AddressCardProps> = ({
     <div
       className={`w-full border rounded-xl p-4 sm:p-6 transition-all duration-200 ${
         isSelected
-          ? 'border-[#DEC9A3] bg-[#f4f1e7] shadow-md'
-          : 'border-[#e5ded0] hover:border-[#DEC9A3] hover:shadow-sm'
+          ? 'border-soft-gold bg-rose-sand/20 shadow-md'
+          : 'border-subtle-beige hover:border-soft-gold hover:shadow-sm'
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
       <div className="flex-1">
         {/* Address Type and Default Label */}
-        <div className="flex items-center flex-wrap gap-2 mb-2 text-sm font-serif text-[#4A3F36]">
+        <div className="flex items-center flex-wrap gap-2 mb-2 text-sm font-serif italic text-rich-brown">
           {getAddressTypeIcon()}
-          <span className="italic">{getAddressTypeLabel()}</span>
+          <span className="font-semibold">{getAddressTypeLabel()}</span>
           {address.isDefault && (
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+            <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-xl font-serif font-semibold italic whitespace-nowrap">
               Default
             </span>
           )}
@@ -68,12 +68,12 @@ const AddressCard: React.FC<AddressCardProps> = ({
 
         {/* Name and Contact */}
         <div className="mb-2">
-          <h3 className="font-semibold text-[#4A3F36] truncate">{address.fullName}</h3>
-          <p className="text-sm text-[#4A3F36] font-light">{address.mobileNumber}</p>
+          <h3 className="font-serif font-semibold italic text-rich-brown truncate">{address.fullName}</h3>
+          <p className="text-sm font-serif text-rich-brown font-light">{address.mobileNumber}</p>
         </div>
 
         {/* Address Details */}
-        <div className="text-sm text-[#4A3F36] leading-relaxed font-light space-y-1">
+        <div className="text-sm font-serif text-rich-brown leading-relaxed font-light space-y-1">
           <p className="break-words">{address.houseNumber}</p>
           <p className="break-words">{address.streetArea}</p>
           {address.landmark && <p className="break-words">Landmark: {address.landmark}</p>}
@@ -90,7 +90,7 @@ const AddressCard: React.FC<AddressCardProps> = ({
             <button
               onClick={onEdit}
               title="Edit address"
-              className="p-2 text-[#4A3F36] hover:text-[#aa732f] hover:bg-[#f4f1e7] rounded-lg transition-colors"
+              className="p-2 text-rich-brown hover:text-mocha hover:bg-rose-sand/20 rounded-xl transition-all duration-200 ease-in-out"
             >
               <Edit className="h-4 w-4" />
             </button>
@@ -99,7 +99,7 @@ const AddressCard: React.FC<AddressCardProps> = ({
             <button
               onClick={onDelete}
               title="Delete address"
-              className="p-2 text-[#4A3F36] hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="p-2 text-rich-brown hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 ease-in-out"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -109,11 +109,11 @@ const AddressCard: React.FC<AddressCardProps> = ({
     </div>
 
     {/* Footer Actions */}
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mt-4 pt-4 border-t border-[#eae4d8] gap-3">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mt-4 pt-4 border-t border-subtle-beige gap-3">
       {!address.isDefault && onSetDefault && (
         <button
           onClick={onSetDefault}
-          className="text-sm text-[#aa732f] hover:text-[#8f5c20] font-medium font-serif italic transition-colors"
+          className="text-sm text-mocha hover:text-rich-brown font-serif font-semibold italic transition-all duration-200 ease-in-out"
           title="Set as default address"
         >
           Set as Default
@@ -123,10 +123,10 @@ const AddressCard: React.FC<AddressCardProps> = ({
       {showSelectButton && onSelect && (
         <button
           onClick={onSelect}
-          className={`px-4 py-2 rounded-md font-medium text-sm transition-colors font-serif italic w-full sm:w-auto ${
+          className={`px-4 py-3 rounded-xl font-serif font-semibold italic text-sm transition-all duration-200 ease-in-out w-full sm:w-auto shadow-sm hover:shadow-md ${
             isSelected
-              ? 'bg-[#aa732f] text-white'
-              : 'bg-[#DEC9A3] text-[#4A3F36] hover:bg-[#d1b990]'
+              ? 'bg-mocha text-white'
+              : 'bg-soft-gold text-rich-brown hover:bg-rose-sand'
           }`}
           title={isSelected ? 'Selected for delivery' : 'Select this address'}
         >

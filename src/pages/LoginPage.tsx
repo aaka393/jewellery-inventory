@@ -48,15 +48,15 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
+    <div className="min-h-screen flex flex-col bg-subtle-beige font-serif">
       {/* Main Content */}
       <div className="flex-grow flex items-center mt-20 sm:mt-24 lg:mt-32 justify-center px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-xs sm:max-w-sm lg:max-w-md">
-          <h2 className="text-3xl sm:text-4xl font-serif text-[#4A3F36] text-center mb-8 sm:mb-10">Login</h2>
+          <h2 className="text-3xl sm:text-4xl font-serif italic font-semibold text-rich-brown text-center mb-8 sm:mb-10">Login</h2>
 
           <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-100 border border-red-300 text-red-800 px-3 sm:px-4 py-2 rounded text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm font-serif italic">
                 {error}
               </div>
             )}
@@ -65,7 +65,7 @@ const LoginPage: React.FC = () => {
             <div className="relative">
               <motion.label
                 htmlFor="username"
-                className="absolute left-0 text-[#4A3F36] text-sm sm:text-base italic font-light pointer-events-none origin-left"
+                className="absolute left-0 text-rich-brown text-sm sm:text-base font-serif italic font-light pointer-events-none origin-left"
                 animate={focusedField === 'username' || formData.username ? 'active' : 'inactive'}
                 variants={floatingLabelVariants}
               >
@@ -80,7 +80,7 @@ const LoginPage: React.FC = () => {
                 onChange={handleChange}
                 onFocus={() => setFocusedField('username')}
                 onBlur={() => setFocusedField(null)}
-                className="w-full bg-transparent border-b border-[#4A3F36] text-[#4A3F36] placeholder-transparent focus:outline-none pt-4 sm:pt-5 pb-1 text-sm sm:text-base"
+                className="w-full bg-transparent border-b-2 border-rich-brown text-rich-brown placeholder-transparent focus:outline-none focus:border-soft-gold pt-4 sm:pt-5 pb-2 text-sm sm:text-base font-serif transition-all duration-200 ease-in-out"
                 placeholder="Email"
               />
             </div>
@@ -89,7 +89,7 @@ const LoginPage: React.FC = () => {
             <div className="relative">
               <motion.label
                 htmlFor="password"
-                className="absolute left-0 text-[#4A3F36] text-sm sm:text-base italic font-light pointer-events-none origin-left"
+                className="absolute left-0 text-rich-brown text-sm sm:text-base font-serif italic font-light pointer-events-none origin-left"
                 animate={focusedField === 'password' || formData.password ? 'active' : 'inactive'}
                 variants={floatingLabelVariants}
               >
@@ -104,18 +104,18 @@ const LoginPage: React.FC = () => {
                 onChange={handleChange}
                 onFocus={() => setFocusedField('password')}
                 onBlur={() => setFocusedField(null)}
-                className="w-full bg-transparent border-b border-[#4A3F36] text-[#4A3F36] placeholder-transparent focus:outline-none pt-4 sm:pt-5 pb-1 text-sm sm:text-base"
+                className="w-full bg-transparent border-b-2 border-rich-brown text-rich-brown placeholder-transparent focus:outline-none focus:border-soft-gold pt-4 sm:pt-5 pb-2 text-sm sm:text-base font-serif transition-all duration-200 ease-in-out"
                 placeholder="Password"
               />
               <div
-                className="absolute right-0 top-4 sm:top-5 cursor-pointer text-[#4A3F36] p-1"
+                className="absolute right-0 top-4 sm:top-5 cursor-pointer text-rich-brown p-2 rounded-xl hover:bg-subtle-beige transition-all duration-200 ease-in-out"
                 onClick={() => setShowPassword(prev => !prev)}
               >
                 {showPassword ? <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />}
               </div>
             </div>
 
-            <div className="text-right text-xs sm:text-sm uppercase tracking-widest text-[#4A3F36] font-medium mt-2">
+            <div className="text-right text-xs sm:text-sm uppercase tracking-widest text-rich-brown font-serif font-semibold italic mt-2">
               <Link to="/forgot-password">Forgot your password?</Link>
             </div>
 
@@ -123,14 +123,14 @@ const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#DEC9A3] text-[#4A3F36] text-xs sm:text-sm font-semibold py-2.5 sm:py-3 rounded-md flex justify-between items-center px-4 sm:px-5 tracking-wider hover:bg-[#d1b990] transition"
+                className="btn-primary w-full flex justify-between items-center"
               >
                 <span>{loading ? 'Signing in...' : 'SIGN IN'}</span>
                 <span className="text-base sm:text-lg">→</span>
               </button>
             </div>
 
-            <div className="text-center mt-3 sm:mt-4 text-xs sm:text-sm uppercase tracking-widest text-[#4A3F36] font-medium">
+            <div className="text-center mt-3 sm:mt-4 text-xs sm:text-sm uppercase tracking-widest text-rich-brown font-serif font-semibold italic">
               <Link to="/register">Create Account</Link>
             </div>
           </form>
@@ -138,13 +138,13 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Bottom Section (Subscribe message) */}
-      <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 text-center mt-16 sm:mt-20 lg:mt-24 bg-[#F2ECE4]">
+      <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 text-center mt-16 sm:mt-20 lg:mt-24 bg-subtle-beige">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif italic text-[#4F3C2A]  mb-4 sm:mb-6">{SITE_CONFIG.shortName}</h2>
-          <p className="text-base sm:text-lg font-light text-[#4F3C2A] mb-4 sm:mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif italic font-semibold text-rich-brown mb-4 sm:mb-6">{SITE_CONFIG.shortName}</h2>
+          <p className="text-base sm:text-lg font-serif font-light italic text-rich-brown mb-4 sm:mb-6">
             Get exclusive updates on new collections and special offers.
           </p>
-          <p className="text-xs sm:text-sm font-semibold text-[#804000] max-w-lg mx-auto leading-relaxed px-4">
+          <p className="text-xs sm:text-sm font-serif font-semibold italic text-mocha max-w-lg mx-auto leading-relaxed px-4">
             {SITE_CONFIG.name} may use your email address to send updates and offers. 
             You can always unsubscribe from marketing messages. Learn more via our Privacy Policy.
           </p>
@@ -152,7 +152,7 @@ const LoginPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#2A2621] text-center text-xs text-[#4F3C2A] py-4 sm:py-6 px-4 bg-[#F2ECE4]">
+      <footer className="border-t border-mocha/30 text-center text-xs text-rich-brown py-4 sm:py-6 px-4 bg-subtle-beige font-serif">
         <Footer />
       </footer>
     </div>

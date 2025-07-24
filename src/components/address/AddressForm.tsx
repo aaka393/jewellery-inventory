@@ -179,13 +179,13 @@ const AddressForm: React.FC<AddressFormProps> = ({
     }
     maxWidth="lg"
   >
-    <div className="mb-4 text-sm text-[#4A3F36] font-light font-serif italic">
+    <div className="mb-6 text-sm text-rich-brown font-serif font-light italic leading-relaxed">
       We deliver your precious jewelry with care. Please provide your delivery address to ensure timely and secure shipping.
     </div>
 
     {/* Submit Error */}
     {submitError && (
-      <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm font-serif italic">
+      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-serif italic">
         {submitError}
       </div>
     )}
@@ -194,21 +194,21 @@ const AddressForm: React.FC<AddressFormProps> = ({
         {/* Full Name & Mobile */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Full Name *</label>
+            <label className="block text-sm font-serif font-semibold italic text-rich-brown mb-2">Full Name *</label>
             <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleInputChange}
               placeholder="e.g., Priya Sharma"
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${errors.fullName ? 'border-red-500' : 'border-[#d6cdbf]'
+              className={`input-elegant ${errors.fullName ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
                 }`}
             />
-            {errors.fullName && <p className="text-red-500 text-xs mt-1 font-serif">{errors.fullName}</p>}
+            {errors.fullName && <p className="text-red-500 text-xs mt-2 font-serif italic">{errors.fullName}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Mobile Number *</label>
+            <label className="block text-sm font-serif font-semibold italic text-rich-brown mb-2">Mobile Number *</label>
             <input
               type="tel"
               name="mobileNumber"
@@ -216,10 +216,10 @@ const AddressForm: React.FC<AddressFormProps> = ({
               onChange={handleInputChange}
               placeholder="10-digit Indian mobile number"
               maxLength={10}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${errors.mobileNumber ? 'border-red-500' : 'border-[#d6cdbf]'
+              className={`input-elegant ${errors.mobileNumber ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
                 }`}
             />
-            {errors.mobileNumber && <p className="text-red-500 text-xs mt-1 font-serif">{errors.mobileNumber}</p>}
+            {errors.mobileNumber && <p className="text-red-500 text-xs mt-2 font-serif italic">{errors.mobileNumber}</p>}
           </div>
         </div>
 

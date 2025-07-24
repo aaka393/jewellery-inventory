@@ -44,32 +44,32 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   const styles = typeStyles[type];
 
   return (
-  <Dialog isOpen={isOpen} onClose={onClose} title={title} maxWidth="sm">
-    <div className="space-y-5 font-serif text-gray-800">
-      <div className="flex items-center gap-3">
-        <AlertTriangle className="h-6 w-6 text-yellow-600" />
-        <p className="text-base">{message}</p>
-      </div>
+    <Dialog isOpen={isOpen} onClose={onClose} title={title} maxWidth="sm">
+      <div className="space-y-6 font-serif text-rich-brown">
+        <div className="flex items-center gap-4">
+          <AlertTriangle className="h-6 w-6 text-mocha" />
+          <div className="text-base font-light italic">{message}</div>
+        </div>
 
-      <div className="flex gap-3 pt-4">
-        <button
-          onClick={onClose}
-          disabled={loading}
-          className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-        >
-          {cancelText}
-        </button>
-        <button
-          onClick={onConfirm}
-          disabled={loading}
-          className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-        >
-          {loading ? 'Processing...' : confirmText}
-        </button>
+        <div className="flex gap-4 pt-4">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="flex-1 px-6 py-3 bg-subtle-beige text-rich-brown rounded-xl font-serif font-semibold italic hover:bg-rose-sand transition-all duration-200 ease-in-out shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl font-serif font-semibold italic hover:bg-red-700 transition-all duration-200 ease-in-out shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Processing...' : confirmText}
+          </button>
+        </div>
       </div>
-    </div>
-  </Dialog>
-);
+    </Dialog>
+  );
 
 };
 

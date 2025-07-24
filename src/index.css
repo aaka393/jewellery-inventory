@@ -1,6 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Import Merriweather font */
+
+/* Base typography */
+body {
+  font-family: 'Merriweather', Georgia, serif;
+  color: #4A3F36;
+  background-color: #FAF9F6;
+}
+
+/* Modal body scroll prevention */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Enhanced focus states */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-soft-gold focus:ring-opacity-50;
+}
+
+/* Elegant button styles */
+.btn-primary {
+  @apply bg-soft-gold text-rich-brown px-6 py-3 rounded-xl font-serif font-semibold italic hover:bg-rose-sand transition-all duration-200 ease-in-out shadow-sm hover:shadow-md focus-ring;
+}
+
+.btn-secondary {
+  @apply border-2 border-soft-gold text-rich-brown px-6 py-3 rounded-xl font-serif font-semibold italic hover:bg-soft-gold hover:text-rich-brown transition-all duration-200 ease-in-out shadow-sm hover:shadow-md focus-ring;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white px-6 py-3 rounded-xl font-serif font-semibold italic hover:bg-red-700 transition-all duration-200 ease-in-out shadow-sm hover:shadow-md focus-ring;
+}
+
+/* Elegant input styles */
+.input-elegant {
+  @apply w-full px-4 py-3 border border-mocha/30 rounded-xl bg-white font-serif text-rich-brown placeholder-mocha/60 focus:border-soft-gold focus:ring-2 focus:ring-soft-gold/20 transition-all duration-200 ease-in-out;
+}
+
+/* Card styles */
+.card-elegant {
+  @apply bg-white rounded-2xl shadow-sm border border-subtle-beige/50 p-6 transition-all duration-200 ease-in-out hover:shadow-md;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  @apply fixed inset-0 z-50 bg-rich-brown/80 backdrop-blur-sm;
+}
+
+/* Modal content */
+.modal-content {
+  @apply fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl border border-subtle-beige max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto;
+}
 
 /* Custom animations */
 @keyframes marquee {
