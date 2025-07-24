@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
   LOGIN: '/login',
   REGISTER: '/register',
   VERIFY_TOKEN: '/verifyToken',
+  SEND_EMAIL: '/auth/sendEmail',
   LOGOUT: '/logout',
 
   // Product endpoints

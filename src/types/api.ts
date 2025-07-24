@@ -18,7 +18,11 @@ export interface LoginResponse {
   role?: string;
   username: string;
 }
-
+export interface SendEmailResponse {
+  code: number;
+  message: string;
+  success?: boolean; // optional, if not always present
+}
 export interface RegisterResponse extends LoginResponse {}
 
 export interface TokenVerificationResponse extends LoginResponse {}

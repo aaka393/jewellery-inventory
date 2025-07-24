@@ -14,11 +14,12 @@ const RegisterPage: React.FC = () => {
     password: '',
     confirmPassword: '',
   });
+
   const [focusedField, setFocusedField] = useState<null | keyof typeof formData>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  const { register, loading } = useAuthStore();
+  const { register, loading, sendEmailConfirmation } = useAuthStore();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +62,7 @@ const RegisterPage: React.FC = () => {
     const success = await register(registerData);
 
     if (success) {
+      await sendEmailConfirmation(email); // Automatically send email after registration
       navigate('/');
     } else {
       setError('Registration failed. Please try again.');
