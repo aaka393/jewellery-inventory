@@ -7,13 +7,6 @@ import ConfirmDialog from '../common/ConfirmDialog';
 import Dialog from '../common/Dialog';
 import { staticImageBaseUrl } from '../../constants/siteConfig';
 
-interface CategoryFormData {
-  name: string;
-  slug: string;
-  image: string;
-  parentId: string;
-}
-
 interface ImageFile {
   id: string;
   file: File;
@@ -50,12 +43,13 @@ const CategoryManagement: React.FC = () => {
   });
 
   // Form states
-  const [formData, setFormData] = useState<CategoryFormData>({
+  const [formData, setFormData] = useState<Partial<Category>>({
     name: '',
     slug: '',
     image: '',
     parentId: ''
   });
+  const [isMainCategory, setIsMainCategory] = useState(false);
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -74,6 +68,7 @@ const CategoryManagement: React.FC = () => {
           image: categoryDialog.category.image || '',
           parentId: categoryDialog.category.parentId || ''
         });
+        setIsMainCategory(!categoryDialog.category.parentId);
 
         // Set existing image if available
         if (categoryDialog.category.image) {
@@ -88,6 +83,7 @@ const CategoryManagement: React.FC = () => {
       } else {
         // Reset form for create mode
         setFormData({ name: '', slug: '', image: '', parentId: '' });
+        setIsMainCategory(false);
         setImageFiles([]);
       }
     }
@@ -127,6 +123,16 @@ const CategoryManagement: React.FC = () => {
         ...prev,
         [name]: value
       }));
+    }
+  };
+
+  const handleMainCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setIsMainCategory(checked);
+    
+    if (checked) {
+      // Clear parent category when marking as main category
+      setFormData(prev => ({ ...prev, parentId: '' }));
     }
   };
 
@@ -190,7 +196,7 @@ const CategoryManagement: React.FC = () => {
 
   const uploadImage = async (): Promise<string> => {
     if (imageFiles.length === 0) {
-      return formData.image; // Return existing image URL if no new image
+      return formData.image ?? ''; // Return existing image URL if no new image, or empty string if undefined
     }
 
     const imageFile = imageFiles[0];
@@ -231,7 +237,7 @@ const CategoryManagement: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim()) {
+    if (!(formData.name ?? '').trim()) {
       alert('Category name is required');
       return;
     }
@@ -245,7 +251,7 @@ const CategoryManagement: React.FC = () => {
 
       const categoryData = {
         name: formData.name,
-        slug: formData.slug || generateSlug(formData.name),
+        slug: formData.slug || generateSlug(formData.name ?? ''),
         image: imageUrl || formData.image,
         parentId: formData.parentId || ''
       };
@@ -323,17 +329,17 @@ const CategoryManagement: React.FC = () => {
   const availableParentCategories = getAvailableParentCategories();
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-        <h2 className="text-xl sm:text-2xl font-bold text-[#5f3c2c]">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-[#5f3c2c]">
           Categories ({categories.length})
         </h2>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+        <div className="flex space-x-3">
           {selectedCategories.length > 0 && (
             <button
               onClick={() => setDeleteDialog({ isOpen: true, type: 'bulk' })}
-              className="w-full sm:w-auto bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 flex items-center justify-center space-x-2 text-sm"
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center space-x-2"
             >
               <Trash2 className="h-4 w-4" />
               <span>Delete Selected ({selectedCategories.length})</span>
@@ -341,7 +347,7 @@ const CategoryManagement: React.FC = () => {
           )}
           <button
             onClick={() => setCategoryDialog({ isOpen: true, category: null, mode: 'create' })}
-            className="w-full sm:w-auto bg-[#d2b79f] text-[#4d2e1f] px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-[#f0dfcc] flex items-center justify-center space-x-2 text-sm"
+            className="bg-[#d2b79f] text-[#4d2e1f] px-4 py-2 rounded-lg font-semibold hover:bg-[#f0dfcc] flex items-center space-x-2"
           >
             <Plus className="h-4 w-4" />
             <span>Add Category</span>
@@ -351,11 +357,11 @@ const CategoryManagement: React.FC = () => {
 
       {/* Categories Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
           <table className="min-w-full divide-y divide-[#dec8b0]">
             <thead className="bg-[#f5e9dc]">
               <tr>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   <input
                     type="checkbox"
                     checked={selectedCategories.length === categories.length && categories.length > 0}
@@ -363,81 +369,89 @@ const CategoryManagement: React.FC = () => {
                     className="rounded border-[#d2b79f] text-[#5f3c2c]"
                   />
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Image
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Name
                 </th>
-                <th className="hidden sm:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Slug
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+                  Parent
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-[#eadacd]">
-              {categories.map((category) => (
-                <tr
-                  key={category.id}
-                  className={selectedCategories.includes(category.id!) ? 'bg-[#e5cfb5]' : ''}
-                >
-                  <td className="px-3 sm:px-6 py-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(category.id!)}
-                      onChange={() => handleSelectCategory(category.id!)}
-                      className="rounded border-[#d2b79f] text-[#5f3c2c]"
-                    />
-                  </td>
-                  <td className="px-3 sm:px-6 py-4">
-                    {category.image ? (
-                      <img
-                        src={`${staticImageBaseUrl}/${category.image}`}
-                        alt={category.name}
-                        className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-cover"
+              {categories.map((category) => {
+                const parentCategory = categories.find(c => c.id === category.parentId);
+                return (
+                  <tr
+                    key={category.id}
+                    className={selectedCategories.includes(category.id!) ? 'bg-[#e5cfb5]' : ''}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(category.id!)}
+                        onChange={() => handleSelectCategory(category.id!)}
+                        className="rounded border-[#d2b79f] text-[#5f3c2c]"
                       />
-                    ) : (
-                      <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {category.image ? (
+                        <img
+                          src={`${staticImageBaseUrl}/${category.image}`}
+                          alt={category.name}
+                          className="h-10 w-10 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                          <ImageIcon className="h-5 w-5 text-gray-400" />
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-[#5f3c2c]">{category.name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-[#8f674b]">{category.slug}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-[#8f674b]">
+                        {parentCategory ? parentCategory.name : '-'}
                       </div>
-                    )}
-                  </td>
-
-
-                  <td className="px-3 sm:px-6 py-4">
-                    <div className="text-xs sm:text-sm font-medium text-[#5f3c2c]">{category.name}</div>
-                    <div className="sm:hidden text-xs text-[#8f674b] mt-1">{category.slug}</div>
-                  </td>
-                  <td className="hidden sm:table-cell px-3 sm:px-6 py-4">
-                    <div className="text-xs sm:text-sm text-[#8f674b]">{category.slug}</div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium">
-                    <div className="flex gap-1 sm:gap-2">
-                      <button
-                        onClick={() => setCategoryDialog({ isOpen: true, category, mode: 'edit' })}
-                        className="text-[#d2b79f] hover:text-[#5f3c2c]"
-                        title="Edit"
-                      >
-                        <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteDialog({
-                          isOpen: true,
-                          type: 'single',
-                          categoryId: category.id,
-                          categoryName: category.name
-                        })}
-                        className="text-red-600 hover:text-red-900"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => setCategoryDialog({ isOpen: true, category, mode: 'edit' })}
+                          className="text-[#d2b79f] hover:text-[#5f3c2c]"
+                          title="Edit"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteDialog({
+                            isOpen: true,
+                            type: 'single',
+                            categoryId: category.id,
+                            categoryName: category.name
+                          })}
+                          className="text-red-600 hover:text-red-900"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -491,6 +505,7 @@ const CategoryManagement: React.FC = () => {
               name="parentId"
               value={formData.parentId}
               onChange={handleInputChange}
+              disabled={isMainCategory}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent bg-white"
             >
               <option value="">Select parent category (optional)</option>
@@ -506,8 +521,23 @@ const CategoryManagement: React.FC = () => {
                 </option>
               )}
             </select>
+            
+            {/* Main Category Checkbox */}
+            <div className="flex items-center mt-3">
+              <input
+                type="checkbox"
+                id="isMainCategory"
+                checked={isMainCategory}
+                onChange={handleMainCategoryChange}
+                className="h-4 w-4 text-[#D4B896] focus:ring-[#D4B896] border-gray-300 rounded"
+              />
+            </div>
+            
             <p className="text-xs text-[#8f674b] mt-1">
-              Leave empty to create a top-level category
+              {isMainCategory 
+                ? "Is Parent Category"
+                : "Leave parent empty to create a top-level category, or select a parent for subcategory"
+              }
             </p>
           </div>
 
