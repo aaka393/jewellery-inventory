@@ -300,7 +300,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
             title={mode === 'add' ? 'Add New Product' : 'Edit Product'}
             maxWidth="2xl"
         >
-            <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto max-h-[75vh]">
+            <form onSubmit={handleSubmit} className="space-y-6 max-h-[75vh]">
                 {/* Basic Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>

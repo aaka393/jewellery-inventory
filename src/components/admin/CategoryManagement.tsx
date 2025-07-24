@@ -49,6 +49,9 @@ const CategoryManagement: React.FC = () => {
     categoryType: 'handmade', // Initialize as a string
   });
 
+  // New state for raw input value of size options
+  const [inputValue, setInputValue] = useState('');
+
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -86,6 +89,8 @@ const CategoryManagement: React.FC = () => {
       }
       // Set selectedType based on existing categoryType
       setSelectedType(category.categoryType || 'handmade'); // Set selectedType from category
+      // Initialize inputValue for edit mode
+      setInputValue(category.sizeOptions ? category.sizeOptions.join(', ') : '');
     } else if (categoryDialog.isOpen && categoryDialog.mode === 'create') {
       // Reset form data for create mode
       setFormData({
@@ -97,6 +102,8 @@ const CategoryManagement: React.FC = () => {
       });
       setImageFiles([]);
       setSelectedType('handmade');
+      // Reset inputValue for create mode
+      setInputValue('');
     }
   }, [categoryDialog]);
 
@@ -340,7 +347,7 @@ const CategoryManagement: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 font-sans">
+    <div className="p-4 sm:p-6 font-sans">
       {/* Message Display */}
       {message && (
         <div
@@ -547,6 +554,7 @@ const CategoryManagement: React.FC = () => {
             >
               <option value="handmade">Handmade</option>
               <option value="handloom">Handloom</option>
+              <option value="handloom">Other</option>
             </select>
           </div>
 
@@ -557,9 +565,10 @@ const CategoryManagement: React.FC = () => {
             <input
               type="text"
               id="size-options"
-              placeholder="Enter sizes separated by commas (e.g., S, M, L)"
-              value={formData.sizeOptions.join(', ')}
+              placeholder="Enter sizes"
+              value={inputValue} // Bind to inputValue
               onChange={e => {
+                setInputValue(e.target.value); // Update raw input value
                 const newSizeOptions = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
                 console.log('New size options:', newSizeOptions); // Added for debugging
                 setFormData(prev => ({
