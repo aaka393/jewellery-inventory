@@ -14,7 +14,6 @@ const ProductsPage: React.FC = () => {
   const [selectedParentCategoryId, setSelectedParentCategoryId] = useState<string>('');
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>('');
   const [categoryType, setCategoryType] = useState<string>(''); // Empty initially
-  const [showSubcategories, setShowSubcategories] = useState(false);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
@@ -42,7 +41,6 @@ const ProductsPage: React.FC = () => {
       const fetchedCategories = await apiService.getCategories();
       setAllProducts(fetchedProducts);
       setCategories(fetchedCategories);
-      filterProductsWithData(fetchedProducts);
     } catch (error) {
       console.error('Error loading products:', error);
       setProducts([]);
@@ -52,27 +50,8 @@ const ProductsPage: React.FC = () => {
     }
   };
 
-  const getParentCategories = (): Category[] => {
-    return categories.filter(cat => !cat.parentId || cat.parentId === '');
-  };
 
-  const getFilteredParentCategories = (): Category[] => {
-    let parentCats = getParentCategories();
-    console.log('Initial parentCats:', parentCats);
-    console.log('categoryType:', categoryType);
-    console.log('allProducts:', allProducts);
-    console.log('categories:', categories);
 
-    if (categoryType !== '') {
-      parentCats = parentCats.filter(cat => cat.categoryType?.toLowerCase() === categoryType.toLowerCase());
-    }
-    console.log('Filtered parentCats:', parentCats);
-    return parentCats.sort((a, b) => a.name.localeCompare(b.name));
-  };
-
-  const getSubcategories = (parentId: string): Category[] => {
-    return categories.filter(cat => cat.parentId === parentId).sort((a, b) => a.name.localeCompare(b.name));
-  };
 
   const getCategoryById = (id: string): Category | undefined => {
     return categories.find(cat => cat.id === id);
@@ -100,11 +79,6 @@ const ProductsPage: React.FC = () => {
       );
     }
 
-    if (categoryType !== '') {
-      filteredProducts = filteredProducts.filter(
-        (p) => p.type?.toLowerCase() === categoryType.toLowerCase()
-      );
-    }
 
     const sortedProducts = sortProducts(filteredProducts, sortBy);
     setProducts(sortedProducts);
@@ -134,29 +108,7 @@ const ProductsPage: React.FC = () => {
     setProducts(sortProducts(products, newSortBy));
   };
 
-  const handleParentCategoryChange = (categoryId: string) => {
-    if (categoryId === 'all') {
-      setSelectedParentCategoryId('');
-      setSelectedSubcategoryId('');
-      setShowSubcategories(false);
-      setSelectedCategory(null);
-    } else {
-      setSelectedParentCategoryId(categoryId);
-      setSelectedSubcategoryId('');
-      const category = getCategoryById(categoryId);
-      setSelectedCategory(category?.name || null);
-      const hasSubcategories = getSubcategories(categoryId).length > 0;
-      setShowSubcategories(hasSubcategories);
-    }
-  };
 
-  const handleSubcategoryChange = (subcategoryId: string) => {
-    if (subcategoryId === 'all-sub') {
-      setSelectedSubcategoryId('');
-    } else {
-      setSelectedSubcategoryId(subcategoryId);
-    }
-  };
 
   const getDisplayedCategoryName = () => {
     if (selectedSubcategoryId) return getCategoryById(selectedSubcategoryId)?.name || '';
@@ -167,9 +119,10 @@ const ProductsPage: React.FC = () => {
 
   if (loading) return <LoadingSpinner />;
 
-  return (
+return (
     <div className="min-h-screen bg-[#FAF9F6] pt-16 sm:pt-20">
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
+        {/* Header with Animation */}
         <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 transform transition-all duration-1000 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}>
@@ -178,95 +131,81 @@ const ProductsPage: React.FC = () => {
               {getDisplayedCategoryName()}
               {(selectedParentCategoryId || selectedSubcategoryId || searchParams.get('category')) && ' Collection'}
             </h1>
-            <p className="text-[#6D6258] mt-1 text-xs sm:text-sm">
-              {products.length} product{products.length !== 1 ? 's' : ''} found
-            </p>
+            <p className="text-[#6D6258] mt-1 text-xs sm:text-sm">{products.length} product{products.length !== 1 ? 's' : ''} found</p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
-            <div className="relative w-full sm:w-auto">
-              <select
-                value={categoryType}
-                onChange={(e) => {
-                  setCategoryType(e.target.value);
-                  setSelectedParentCategoryId('');
-                  setSelectedSubcategoryId('');
-                }}
-                className="w-full sm:w-auto min-w-[140px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none text-xs sm:text-sm"
-              >
-                <option value="">Category Type</option>
-                <option value="Handlom">Handlom</option>
-                <option value="Handmade">Handmade</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#4A3F36] pointer-events-none" />
-            </div>
+            {/* Hierarchical Category Dropdown */}
 
-            {categoryType && (
-              <div className="relative w-full sm:w-auto">
-                <select
-                  value={selectedParentCategoryId || 'all'}
-                  onChange={(e) => handleParentCategoryChange(e.target.value)}
-                  className="w-full sm:w-auto min-w-[140px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none text-xs sm:text-sm"
-                >
-                  <option value="all">All Categories</option>
-                  {getFilteredParentCategories().map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#4A3F36] pointer-events-none" />
-              </div>
-            )}
-
-            {categoryType && showSubcategories && getSubcategories(selectedParentCategoryId).length > 0 && (
-              <div className="relative w-full sm:w-auto">
-                <select
-                  value={selectedSubcategoryId || 'all-sub'}
-                  onChange={(e) => handleSubcategoryChange(e.target.value)}
-                  className="w-full sm:w-auto min-w-[140px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none text-xs sm:text-sm"
-                >
-                  <option value="all-sub">All {getCategoryById(selectedParentCategoryId)?.name}</option>
-                  {getSubcategories(selectedParentCategoryId).map(sub => (
-                    <option key={sub.id} value={sub.id}>{sub.name}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#4A3F36] pointer-events-none" />
-              </div>
-            )}
-
+            {/* Sort */}
             <div className="relative w-full sm:w-auto">
               <select
                 value={sortBy}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className="w-full sm:w-auto min-w-[120px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none text-xs sm:text-sm"
+                className="w-full sm:w-auto min-w-[120px] appearance-none px-3 py-2 pr-8 border border-[#4A3F36] text-[#4A3F36] rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] text-xs sm:text-sm cursor-pointer"
+                title="Sort products"
               >
                 <option value="featured">Featured</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#4A3F36] pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-[#4A3F36] pointer-events-none" />
             </div>
 
+            {/* View Toggle */}
             <div className="flex border border-[#4A3F36] rounded-md overflow-hidden w-full sm:w-auto">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-2 ${viewMode === 'grid' ? 'bg-[#DEC9A3]' : ''}`}
+                className={`flex-1 sm:flex-none px-3 py-2 transition ${viewMode === 'grid' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                title="Grid view"
               >
-                <Grid className="h-4 w-4 text-[#4A3F36]" />
+                <Grid className="h-4 w-4 mx-auto" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-2 ${viewMode === 'list' ? 'bg-[#DEC9A3]' : ''}`}
+                className={`flex-1 sm:flex-none px-3 py-2 transition ${viewMode === 'list' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                title="List view"
               >
-                <List className="h-4 w-4 text-[#4A3F36]" />
+                <List className="h-4 w-4 mx-auto" />
               </button>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {products.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+        <div className="flex gap-8">
+          {/* Products Grid with Staggered Animation */}
+          <div className="flex-1">
+            {products.length === 0 ? (
+              <div className={`text-center py-12 transform transition-all duration-1000 delay-200 ${
+                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              }`}>
+                <p className="text-[#6D6258] text-sm sm:text-base lg:text-lg">No products found matching your criteria.</p>
+              </div>
+            ) : (
+              <div
+                className={`grid gap-4 sm:gap-6 ${
+                  viewMode === 'grid' 
+                    ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6' 
+                    : 'grid-cols-1'
+                }`}
+              >
+                {products.map((product, index) => (
+                  <div
+                    key={product.id}
+                    className={`transform transition-all duration-700 ${
+                      isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                    }`}
+                    style={{ 
+                      transitionDelay: `${Math.min(index * 50, 800)}ms`,
+                      animationFillMode: 'both'
+                    }}
+                  >
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -27,7 +27,6 @@ export interface RegisterRequest {
 }
 
 export interface Product {
-  type: any;
   updatedAt: string | number | Date;
   image: string | undefined;
   isNew: boolean;
@@ -47,7 +46,6 @@ export interface Product {
 }
 
 export interface Category {
-  parentId: any;
   id: string;
   name: string;
   slug: string;
