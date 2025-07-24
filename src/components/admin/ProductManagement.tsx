@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-    Package,
     Plus,
     Edit,
     Trash2,
@@ -159,123 +158,110 @@ const ProductManagement: React.FC = () => {
 
                 {/* Products Table */}
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="relative mx-4 sm:mx-0">
-                        {/* Table Header */}
-                        <table className="min-w-full table-fixed">
-                            <thead className="bg-[#f5e9dc] sticky top-0 z-10">
-                                <tr>
-                                    <th className="w-[40px] px-2 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
-                                            onChange={() => handleSelectAll(filteredProducts)}
-                                            className="rounded border-gray-300 text-[#5f3c2c] focus:ring-[#D4B896]"
-                                        />
-                                    </th>
-                                    <th className="w-2/5 px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
-                                        Product
-                                    </th>
-                                    <th className="hidden md:table-cell w-1/5 px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
-                                        Category
-                                    </th>
-                                    <th className="w-1/5 px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
-                                        Price
-                                    </th>
-                                    <th className="hidden lg:table-cell w-1/6 px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
-                                        Stock
-                                    </th>
-                                    <th className="w-[100px] px-3 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                        </table>
+  <div className="relative mx-4 sm:mx-0">
+  <div className="max-h-[560px] overflow-y-auto border rounded-lg shadow-sm">
+    <table className="min-w-full table-fixed divide-y divide-[#eadacd]">
+      {/* Column width definitions */}
+      <colgroup>
+        <col style={{ width: '4%' }} />
+        <col style={{ width: '30%' }} />
+        <col style={{ width: '18%' }} />
+        <col style={{ width: '18%' }} />
+        <col style={{ width: '15%' }} />
+        <col style={{ width: '15%' }} />
+      </colgroup>
 
-                        {/* Scrollable Table Body */}
-                        <div className="max-h-[560px] overflow-y-auto">
-                            <table className="min-w-full table-fixed divide-y divide-[#eadacd]">
-                                <tbody className="bg-white">
-                                    {filteredProducts.map((product) => (
-                                        <tr key={product.id} className={selectedProducts.includes(product.id) ? 'bg-[#F4E1D2]' : ''}>
-                                            <td className="w-[40px] px-2 py-4 align-middle">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedProducts.includes(product.id)}
-                                                    onChange={() => handleSelectProduct(product.id)}
-                                                    className="rounded border-gray-300 text-[#5f3c2c] focus:ring-[#D4B896]"
-                                                />
-                                            </td>
-                                            <td className="w-2/5 px-3 py-4 align-middle">
-                                                <div className="flex items-center">
-                                                    <img
-                                                        src={
-                                                            product.images?.[0]?.startsWith('http')
-                                                                ? product.images[0]
-                                                                : `${staticImageBaseUrl}/${product.images[0]}` ||
-                                                                'https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'
-                                                        }
-                                                        alt={product.name}
-                                                        className="h-8 w-8 sm:h-10 sm:w-10 rounded object-cover flex-shrink-0"
-                                                    />
-                                                    <div className="ml-3 min-w-0">
-                                                        <div className="text-xs sm:text-sm font-medium text-[#5f3c2c] line-clamp-2">{product.name}</div>
-                                                        <div className="md:hidden text-xs text-[#8f674b] mt-1">{product.category}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="hidden md:table-cell w-1/5 px-3 py-4 align-middle text-xs text-[#5f3c2c]">
-                                                {product.category}
-                                            </td>
-                                            <td className="w-1/5 px-3 py-4 align-middle">
-                                                <div className="text-xs sm:text-sm font-medium text-[#5f3c2c]">
-                                                    ₹{(product.price || 0).toLocaleString()}
-                                                </div>
-                                                <div className="lg:hidden mt-1">
-                                                    <span className={`inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full ${product.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                                        {product.stock ? 'In Stock' : 'Out'}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="hidden lg:table-cell w-1/6 px-3 py-4 align-middle text-xs font-medium text-[#5f3c2c]">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                                    {product.stock ? 'In Stock' : 'Out of Stock'}
-                                                </span>
-                                            </td>
-                                            <td className="w-[100px] px-3 py-4 align-middle text-xs font-medium">
-                                                <div className="flex items-center gap-2">
-                                                    <button
-                                                        onClick={() => setEditDialog({ isOpen: true, product })}
-                                                        className="text-[#d2b79f] hover:text-[#5f3c2c]"
-                                                        title="Edit"
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            setDeleteDialog({
-                                                                isOpen: true,
-                                                                type: 'product',
-                                                                item: product,
-                                                                productId: product.id,
-                                                                productName: product.name,
-                                                            })
-                                                        }
-                                                        className="text-red-600 hover:text-red-900"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+      {/* Table Header */}
+      <thead className="bg-[#f5e9dc] sticky top-0 z-10">
+        <tr>
+          <th className="px-2 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">
+            <input
+              type="checkbox"
+              checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+              onChange={() => handleSelectAll(filteredProducts)}
+              className="rounded border-gray-300 text-[#5f3c2c] focus:ring-[#D4B896]"
+            />
+          </th>
+          <th className="px-2 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Product</th>
+          <th className="px-2 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Category</th>
+          <th className="px-2 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Price</th>
+          <th className="px-2 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Stock</th>
+          <th className="px-2 py-3 text-left text-xs font-medium text-[#5f3c2c] uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
 
+      {/* Table Body */}
+      <tbody className="bg-white">
+        {filteredProducts.map((product) => (
+          <tr key={product.id} className={selectedProducts.includes(product.id) ? 'bg-[#F4E1D2]' : ''}>
+            <td className="px-2 py-4 align-middle">
+              <input
+                type="checkbox"
+                checked={selectedProducts.includes(product.id)}
+                onChange={() => handleSelectProduct(product.id)}
+                className="rounded border-gray-300 text-[#5f3c2c] focus:ring-[#D4B896]"
+              />
+            </td>
+            <td className="px-2 py-4 align-middle">
+              <div className="flex items-center">
+                <img
+                  src={
+                    product.images?.[0]?.startsWith('http')
+                      ? product.images[0]
+                      : `${staticImageBaseUrl}/${product.images[0]}` || 'https://via.placeholder.com/40'
+                  }
+                  alt={product.name}
+                  className="h-10 w-10 rounded object-cover flex-shrink-0"
+                />
+                <div className="ml-3 min-w-0 flex-1">
+                  <div className="text-sm font-medium text-[#5f3c2c] line-clamp-2">{product.name}</div>
+                  <div className="md:hidden text-xs text-[#8f674b] mt-1">{product.category}</div>
+                </div>
+              </div>
+            </td>
+            <td className="px-2 py-4 align-middle text-xs text-[#5f3c2c]">{product.category}</td>
+            <td className="px-2 py-4 align-middle">
+              <div className="text-sm font-medium text-[#5f3c2c]">₹{(product.price || 0).toLocaleString()}</div>
+            </td>
+            <td className="px-2 py-4 align-middle text-xs font-medium text-[#5f3c2c]">
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                {product.stock ? 'In Stock' : 'Out of Stock'}
+              </span>
+            </td>
+            <td className="px-2 py-4 align-middle text-xs font-medium">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setEditDialog({ isOpen: true, product })}
+                  className="text-[#d2b79f] hover:text-[#5f3c2c]"
+                  title="Edit"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() =>
+                    setDeleteDialog({
+                      isOpen: true,
+                      type: 'product',
+                      item: product,
+                      productId: product.id,
+                      productName: product.name,
+                    })
+                  }
+                  className="text-red-600 hover:text-red-900"
+                  title="Delete"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 </div>
 
+</div>
 
 
 
