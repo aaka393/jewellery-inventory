@@ -1,39 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Product } from '../../types';
 import Dialog from '../common/Dialog';
 import { Upload, X,Move, Eye } from 'lucide-react';
 import { staticImageBaseUrl } from '../../constants/siteConfig';
-
-interface ProductDialogProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSave: (product: Partial<Product>) => void;
-    product: Product | null;
-    categories: string[];
-    loading?: boolean;
-    mode?: 'add' | 'edit';
-    uploadProductImage?: (file: File) => Promise<string | null>;
-}
-
-interface ImageFile {
-    id: string;
-    file: File;
-    preview: string;
-    uploaded?: boolean;
-    url?: string;
-}
-
-interface ProductFormData {
-    name: string;
-    slug: string;
-    category: string;
-    description: string;
-    initialPrice: number;
-    price: number;
-    comparePrice: number;
-    images: string[];
-    stock: boolean;
-}
+import { categoryService } from '../../services';
+import { ProductFormData } from '../../types/forms';
+import { ImageFile } from '../../types';
+import { ProductDialogProps } from '../../types/dialog';
 
 const ProductDialog: React.FC<ProductDialogProps> = ({
     isOpen,
@@ -166,47 +138,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         });
     };
 
-    const uploadImages = async (): Promise<string[]> => {
-        const uploadedUrls: string[] = [];
-
-        for (const imageFile of imageFiles) {
-            if (imageFile.uploaded && imageFile.url) {
-                // Already uploaded or existing image
-                uploadedUrls.push(imageFile.url);
-            } else if (imageFile.file) {
-                // New image that needs uploading
-                try {
-                    const formData = new FormData();
-                    formData.append('file', imageFile.file);
-
-                    const response = await fetch('/api/auth/upload-file', {
-                        method: 'POST',
-                        body: formData,
-                        credentials: 'include',
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Upload failed: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    if (result.code === 2011 && result.result) {
-                        // Use the static mount URL format
-                        const imageId = `${result.result}`;
-                        uploadedUrls.push(imageId);
-                    } else {
-                        throw new Error('Invalid upload response');
-                    }
-                } catch (error) {
-                    console.error('Error uploading image:', error);
-                    throw error;
-                }
-            }
-        }
-
-        return uploadedUrls;
-    };
-
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
 
@@ -252,46 +183,56 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        if (!formData.name?.trim()) {
-            alert('Product name is required');
-            return;
-        }
+    if (!formData.name?.trim()) {
+        alert('Product name is required');
+        return;
+    }
 
-        if (!formData.category?.trim()) {
-            alert('Product category is required');
-            return;
-        }
+    if (!formData.category?.trim()) {
+        alert('Product category is required');
+        return;
+    }
 
-        try {
-            setUploading(true);
+    try {
+        setUploading(true);
 
-            // Upload images first
-            const uploadedImageUrls = await uploadImages();
+        const newImageFiles = imageFiles.filter(img => !img.uploaded && img.file);
 
-            // Prepare the final product data matching ProductImportModel
-            const productData: any = {
-                ...(mode === 'edit' && product?.id ? { id: product.id } : {}),
-                name: formData.name,
-                slug: formData.slug || generateSlug(formData.name),
-                category: formData.category,
-                description: formData.description,
-                initialPrice: formData.initialPrice,
-                price: formData.price,
-                comparePrice: formData.comparePrice,
-                images: uploadedImageUrls,
-                stock: formData.stock,
-            };
+        const formPayload = {
+            existingImageUrls: formData.images,
+        };
 
-            onSave(productData);
-        } catch (error) {
-            console.error('Error saving product:', error);
-            alert('Failed to save product. Please try again.');
-        } finally {
-            setUploading(false);
-        }
-    };
+        const uploadedImageUrls = await categoryService.uploadImage(newImageFiles, formPayload);
+
+        const finalImageUrls = [
+            ...formData.images.filter(url => !newImageFiles.some(f => f.url === url)),
+            ...uploadedImageUrls,
+        ];
+
+        const productData = {
+            ...(mode === 'edit' && product?.id ? { id: product.id } : {}),
+            name: formData.name,
+            slug: formData.slug || generateSlug(formData.name),
+            category: formData.category,
+            description: formData.description,
+            initialPrice: formData.initialPrice,
+            price: formData.price,
+            comparePrice: formData.comparePrice,
+            images: finalImageUrls,
+            stock: formData.stock,
+        };
+
+        onSave(productData);
+    } catch (error) {
+        console.error('Error saving product:', error);
+        alert('Failed to save product. Please try again.');
+    } finally {
+        setUploading(false);
+    }
+};
+
 
     return (
         <Dialog
@@ -331,7 +272,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                         >
                             <option value="">Select Category</option>
                             {categories.map(cat => (
-                                <option key={cat} value={cat}>{cat}</option>
+                                <option key={cat.slug} value={cat.slug}>{cat.name}</option>
                             ))}
                         </select>
                     </div>

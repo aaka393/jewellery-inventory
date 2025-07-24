@@ -8,7 +8,7 @@ import Dialog from '../common/Dialog';
 import { ImageFile } from '../../types/index';
 import { CategoryFormData } from '../../types/forms';
 import { staticImageBaseUrl } from '../../constants/siteConfig';
-
+import { categoryService } from '../../services/categoryService'; // Import the new service
 
 
 const CategoryManagement: React.FC = () => {
@@ -54,7 +54,7 @@ const CategoryManagement: React.FC = () => {
 
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
-  const [uploading, ] = useState(false);
+  const [uploading,] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load categories on component mount
@@ -66,6 +66,7 @@ const CategoryManagement: React.FC = () => {
   useEffect(() => {
     if (categoryDialog.isOpen && categoryDialog.mode === 'edit' && categoryDialog.category) {
       const category = categoryDialog.category;
+      console.log("category.image", category.image)
       setFormData({
         name: category.name,
         slug: category.slug,
@@ -210,48 +211,6 @@ const CategoryManagement: React.FC = () => {
     setFormData(prev => ({ ...prev, image: '' })); // Clear stored image URL
   };
 
-  // Simulate image upload to a server
-const uploadImage = async (): Promise<string> => {
-    if (imageFiles.length === 0) {
-      return formData.image ?? ''; // Return existing image URL if no new image, or empty string if undefined
-    }
-
-    const imageFile = imageFiles[0];
-    if (imageFile.uploaded && imageFile.url) {
-      return imageFile.url;
-    }
-
-    if (imageFile.file) {
-      try {
-        const formDataUpload = new FormData();
-        formDataUpload.append('file', imageFile.file);
-
-        const response = await fetch('/api/upload-file', {
-          method: 'POST',
-          body: formDataUpload,
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error(`Upload failed: ${response.status}`);
-        }
-
-        const result = await response.json();
-        if (result.code === 2011 && result.result) {
-          return `${result.result}`;
-        } else {
-          throw new Error('Invalid upload response');
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        throw error;
-      }
-    }
-
-    return '';
-  };
-
-
   // Handle form submission (create/update category)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -265,15 +224,9 @@ const uploadImage = async (): Promise<string> => {
       setActionLoading(true);
       setMessage(null); // Clear previous messages
 
-      // Upload image if a new one is selected or if it needs re-uploading
-      let finalImageUrl = formData.image;
-      if (imageFiles.length > 0 && !imageFiles[0].uploaded) {
-        finalImageUrl = await uploadImage();
-      } else if (imageFiles.length > 0 && imageFiles[0].uploaded) {
-        finalImageUrl = imageFiles[0].url; // Use the URL of the already uploaded image
-      } else {
-        finalImageUrl = ''; // No image selected
-      }
+      // Use the refactored uploadCategoryImage from categoryService
+      let finalImageUrl = await categoryService.uploadImage(imageFiles, formData);
+      console.log("finalImageUrl", finalImageUrl)
 
       // Construct categoryData to send to API
       const categoryData: Omit<CategoryFormData, 'image'> & { image?: string } = {
@@ -359,7 +312,7 @@ const uploadImage = async (): Promise<string> => {
       {/* Message Display */}
       {message && (
         <div
-          className={`p-3 rounded-lg text-sm font-medium ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+          className={`p-3 rounded-lg text-sm font-medium mb-5 ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
             }`}
           role="alert"
         >
@@ -600,11 +553,10 @@ const uploadImage = async (): Promise<string> => {
               onDragOver={handleDrag}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors duration-200 ${
-                dragActive
+              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors duration-200 ${dragActive
                   ? 'border-[#D4B896] bg-[#F2E9D8]'
                   : 'border-gray-300 hover:border-[#D4B896] hover:bg-gray-50'
-              }`}
+                }`}
             >
               <Upload className="h-8 w-8 text-[#5f3c2c] mx-auto mb-2" />
               <p className="text-sm text-[#5f3c2c]">

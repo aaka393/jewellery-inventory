@@ -57,8 +57,6 @@ const ProductManagement: React.FC = () => {
     return <LoadingSpinner />;
   }
 
-  const categoryNames = categories.map(cat => cat.name);
-
   return (
     <>
       <SEOHead
@@ -138,8 +136,8 @@ const ProductManagement: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
               >
                 <option value="">All Categories</option>
-                {categoryNames.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                {categories.map(category => (
+                  <option key={category.name} value={category.name}>{category.name}</option>
                 ))}
               </select>
             </div>
@@ -272,7 +270,7 @@ const ProductManagement: React.FC = () => {
           onSave={handleProductSave}
           product={editDialog.product}
           mode={editDialog.product ? 'edit' : 'add'}
-          categories={categoryNames}
+          categories={categories}
           loading={actionLoading}
         />
 

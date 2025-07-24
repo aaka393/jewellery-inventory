@@ -18,14 +18,6 @@ export interface CategoryFormData {
 }
 
 
-export interface ImageFile {
-  id: string;
-  file: File;
-  preview: string;
-  uploaded?: boolean;
-  url?: string;
-}
-
 export interface LoginFormData {
   username: string;
   password: string;
