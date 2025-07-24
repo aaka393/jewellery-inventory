@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, Image as X, Upload, ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Upload, ImageIcon } from 'lucide-react';
 import { Category } from '../../types';
 import { apiService } from '../../services/api';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -54,7 +54,7 @@ const CategoryManagement: React.FC = () => {
 
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploading, ] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load categories on component mount
@@ -211,7 +211,7 @@ const CategoryManagement: React.FC = () => {
   };
 
   // Simulate image upload to a server
-  const uploadImage = async (): Promise<string> => {
+const uploadImage = async (): Promise<string> => {
     if (imageFiles.length === 0) {
       return formData.image ?? ''; // Return existing image URL if no new image, or empty string if undefined
     }
@@ -223,23 +223,31 @@ const CategoryManagement: React.FC = () => {
 
     if (imageFile.file) {
       try {
-        setUploading(true);
-        // Simulate upload delay and return a mock URL
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        const mockImageUrl = `https://placehold.co/100x100/A0522D/FFFFFF?text=${formData.name.substring(0, 5) || 'Cat'}`;
-        setImageFiles(prev =>
-          prev.map(img =>
-            img.id === imageFile.id ? { ...img, uploaded: true, url: mockImageUrl } : img
-          )
-        );
-        return mockImageUrl;
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', imageFile.file);
+
+        const response = await fetch('/api/upload-file', {
+          method: 'POST',
+          body: formDataUpload,
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error(`Upload failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.code === 2011 && result.result) {
+          return `${result.result}`;
+        } else {
+          throw new Error('Invalid upload response');
+        }
       } catch (error) {
-        console.error('Error simulating image upload:', error);
-        throw new Error('Image upload failed.');
-      } finally {
-        setUploading(false);
+        console.error('Error uploading image:', error);
+        throw error;
       }
     }
+
     return '';
   };
 
@@ -360,7 +368,7 @@ const CategoryManagement: React.FC = () => {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-5">
         <h2 className="text-2xl font-bold text-[#5f3c2c] text-center sm:text-left">
           Categories ({categories.length})
         </h2>
@@ -554,7 +562,6 @@ const CategoryManagement: React.FC = () => {
             >
               <option value="handmade">Handmade</option>
               <option value="handloom">Handloom</option>
-              <option value="handloom">Other</option>
             </select>
           </div>
 
@@ -663,7 +670,7 @@ const CategoryManagement: React.FC = () => {
             <button
               type="submit"
               disabled={actionLoading || uploading}
-              className="flex-1 px-4 py-2 bg-[#D4B896] text-white rounded-lg hover:bg-[#B79B7D] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-colors duration-200"
+              className="flex-1 px-4 py-2 bg-[#D4B896] text-rich-brown rounded-lg hover:bg-[#B79B7D] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-colors duration-200"
             >
               {(actionLoading || uploading) ? (
                 <>

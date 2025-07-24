@@ -68,7 +68,7 @@ const ProductManagement: React.FC = () => {
 
       <div>
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
           <div>
             <h2 className="text-2xl font-bold text-[#5f3c2c]">
               Product Management
@@ -117,7 +117,7 @@ const ProductManagement: React.FC = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-5">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1">
               <div className="relative">
