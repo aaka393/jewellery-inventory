@@ -5,7 +5,6 @@ export { categoryService } from './categoryService';
 export { cartService } from './cartService';
 export { orderService } from './orderService';
 export { stockService } from './stockService';
-export { uploadService } from './uploadService';
 export { paymentService } from './paymentService';
 export { adminService } from './adminService';
 export { addressService } from './addressService';

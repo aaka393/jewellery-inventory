@@ -46,12 +46,16 @@ export interface Product {
 }
 
 export interface Category {
-  parentId: string;
   id: string;
   name: string;
   slug: string;
-  image?: string; // icon/banner
+  image?: string;
+  sizeOptions?: string[];
+  categoryType: 'handmade' | 'handloom'; 
 }
+
+
+
 
 export interface CartItem {
   id: string;
@@ -159,4 +163,13 @@ export interface ProductImport {
   images?: string[];
   stock?: boolean;
   id?: string; // Allow id for update operations
+}
+
+
+export interface ImageFile {
+    id: string;
+    file: File;
+    preview: string;
+    uploaded?: boolean;
+    url?: string;
 }

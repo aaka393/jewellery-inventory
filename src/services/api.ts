@@ -4,7 +4,6 @@ import {
   categoryService, 
   cartService,   
   orderService,
-  uploadService,
   paymentService,
   adminService
 } from './index';
@@ -189,16 +188,6 @@ async getUserOrders(): Promise<Order[]> {
   return response.result;
 }
 
-  // File upload methods
-  async uploadFile(file: File): Promise<{ url: string }> {
-    const response = await uploadService.uploadFile(file);
-    return response.result;
-  }
-
-  async uploadFiles(files: File[]): Promise<{ url: string }[]> {
-    const response = await uploadService.uploadMultipleFiles(files);
-    return response.result;
-  }
 
   // Payment methods
   async createPaymentOrder(orderData: any) {
