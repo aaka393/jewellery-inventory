@@ -197,7 +197,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
               className="w-full py-3 text-xs font-serif font-semibold italic border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
               title="Add to Cart"
             >
-              ADD TO CART
+              Preorder 
             </button>
           )}
         </div>

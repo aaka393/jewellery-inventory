@@ -37,7 +37,6 @@ const AdminPage: React.FC = () => {
     { id: 'categories', label: 'Categories', icon: FileText },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'users', label: 'Users', icon: Users },
-    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   if (loading) return <LoadingSpinner />;
@@ -138,14 +137,6 @@ const AdminPage: React.FC = () => {
               {activeTab === 'categories' && <CategoryManagement />}
               {activeTab === 'orders' && <OrderManagement />}
               {activeTab === 'users' && <UserManagement />}
-              {activeTab === 'settings' && (
-                <div className="space-y-6">
-                  <h2 className="text-lg sm:text-xl lg:text-2xl font-serif font-bold italic text-rich-brown">Settings</h2>
-                  <div className="card-elegant text-center">
-                    <p className="font-serif italic text-rich-brown">Settings panel coming soon...</p>
-                  </div>
-                </div>
-              )}
             </div>
           </main>
         </div>

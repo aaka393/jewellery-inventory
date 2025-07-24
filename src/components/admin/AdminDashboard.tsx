@@ -52,66 +52,64 @@ const AdminDashboard: React.FC = () => {
 
       {/* Recent Products */}
       <div className="card-elegant">
-  {/* Header */}
+        {/* Header */}
         <div className="px-4 sm:px-6 py-4 border-b border-subtle-beige flex items-center justify-between">
           <h2 className="text-base sm:text-lg font-serif font-semibold italic text-rich-brown">Recent Products</h2>
           <span className="text-xs sm:text-sm text-mocha/70 font-serif italic">{recentProducts.length} items</span>
-  </div>
+        </div>
 
-  {/* Table */}
-  <div className="relative overflow-auto max-h-[400px]">
+        {/* Table */}
+        <div className="relative overflow-auto max-h-[400px]">
           <table className="min-w-full table-fixed divide-y divide-subtle-beige">
-      {/* Table Head */}
+            {/* Table Head */}
             <thead className="bg-subtle-beige sticky top-0 z-10 text-rich-brown text-xs sm:text-sm uppercase font-serif">
-        <tr>
+              <tr>
                 <th className="w-[40%] px-4 py-3 text-left font-semibold italic tracking-wider">Product</th>
                 <th className="w-[20%] px-4 py-3 text-left font-semibold italic tracking-wider hidden md:table-cell">Category</th>
                 <th className="w-[20%] px-4 py-3 text-left font-semibold italic tracking-wider">Price</th>
                 <th className="w-[20%] px-4 py-3 text-left font-semibold italic tracking-wider">Stock</th>
-        </tr>
-      </thead>
+              </tr>
+            </thead>
 
-      {/* Table Body */}
+            {/* Table Body */}
             <tbody className="bg-white divide-y divide-subtle-beige text-sm font-serif">
-        {recentProducts.map((p) => (
+              {recentProducts.map((p) => (
                 <tr key={p.id} className="hover:bg-subtle-beige/30 transition-all duration-200 ease-in-out">
-            {/* Product Column */}
-            <td className="px-4 py-3 align-middle">
-              <div className="flex items-center space-x-3">
-                <img
-                  src={p.images?.[0]?.startsWith('http') ? p.images[0] : `${staticImageBaseUrl}${p.images[0]}`}
-                  alt={p.name}
+                  {/* Product Column */}
+                  <td className="px-4 py-3 align-middle">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={p.images?.[0]?.startsWith('http') ? p.images[0] : `${staticImageBaseUrl}${p.images[0]}`}
+                        alt={p.name}
                         className="h-10 w-10 rounded-xl object-cover flex-shrink-0 shadow-sm"
-                />
-                <div className="min-w-0">
+                      />
+                      <div className="min-w-0">
                         <p className="text-rich-brown font-semibold italic line-clamp-2">{p.name}</p>
                         <p className="md:hidden text-xs text-mocha/70 font-light">{p.category}</p>
-                </div>
-              </div>
-            </td>
+                      </div>
+                    </div>
+                  </td>
 
-            {/* Category (hidden in mobile) */}
+                  {/* Category (hidden in mobile) */}
                   <td className="hidden md:table-cell px-4 py-3 align-middle text-rich-brown font-light italic">{p.category}</td>
 
-            {/* Price */}
-            <td className="px-4 py-3 align-middle font-semibold text-gray-900">
-              {SITE_CONFIG.currencySymbol}{p.price?.toLocaleString()}
-            </td>
+                  {/* Price */}
+                  <td className="px-4 py-3 align-middle font-semibold text-gray-900">
+                    {SITE_CONFIG.currencySymbol}{p.price?.toLocaleString()}
+                  </td>
 
-            {/* Stock */}
-            <td className="px-4 py-3 align-middle">
+                  {/* Stock */}
+                  <td className="px-4 py-3 align-middle">
                     <span className={`px-3 py-1 rounded-xl text-xs font-serif font-semibold italic ${p.stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                {p.stock ? 'In Stock' : 'Out'}
-              </span>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
+                      {p.stock ? 'In Stock' : 'Out'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };

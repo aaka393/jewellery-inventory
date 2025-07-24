@@ -218,13 +218,13 @@ const HomePage: React.FC = () => {
           </div>
           <div className="relative z-10 w-full max-w-4xl px-4 sm:px-6 pb-6 sm:pb-8 md:pb-0 text-left">
             <div className="space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-6">
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light leading-relaxed text-white">
+              <p className="text-sm sm:text-base md:text-lg font-light leading-relaxed text-white">
                 {SITE_CONFIG.name} is more than jewelry - it's a celebration of craftsmanship.
               </p>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light leading-relaxed text-white">
+              <p className="text-sm sm:text-base md:text-lg font-light leading-relaxed text-white">
                 Each piece is handcrafted with 92.5% pure silver, ensuring lasting quality and timeless beauty.
               </p>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light leading-relaxed text-white">
+              <p className="text-sm sm:text-base md:text-lg font-light leading-relaxed text-white">
                 From traditional designs to contemporary styles, our collection celebrates the art of silver jewelry making.
               </p>
             </div>
