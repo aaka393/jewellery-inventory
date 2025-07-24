@@ -83,6 +83,15 @@ const UserMenu: React.FC<UserMenuProps> = ({ dropdownPosition = 'bottom' }) => {
           >
             Profile
           </Link>
+         {isAdmin && location.pathname !== '/admin' && (
+              <Link 
+                to="/admin" 
+                className="block px-3 sm:px-4 py-2 text-sm font-serif italic text-rich-brown hover:bg-subtle-beige transition-all duration-200 ease-in-out"
+                title="Admin Panel"
+              >
+                Admin Panel
+              </Link>
+            )}
           <Link 
             to="/products" 
             className="block px-3 sm:px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"

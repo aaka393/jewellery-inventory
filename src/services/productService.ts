@@ -51,7 +51,7 @@ async createProduct(product: ProductImport): Promise<ApiResponse<void>> {
 
 
   async uploadProductImage(file: File): Promise<ApiResponse<{ url: string }>> {
-    return this.uploadFile<{ url: string }>('/auth/upload-file', file, true);
+    return this.uploadFile<{ url: string }>('/upload-file', file, true);
   }
 
   async updateProduct(productId: string, productData: Partial<Product>): Promise<ApiResponse<Product>> {
