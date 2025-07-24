@@ -18,7 +18,7 @@ export const API_ENDPOINTS = {
   PRODUCT_BY_SLUG: '/auth/products',
   FILTER_PRODUCTS: '/auth/products/filter',
   IMPORT_PRODUCTS: '/importproducts',
-  UPLOAD_IMAGE: '/auth/products/image-upload',
+  UPLOAD_IMAGE: '/products/image-upload',
   DELETE_PRODUCTS: '/deleteProducts',
   DELETE_PRODUCT: '/products',
   UPDATE_PRODUCT_STOCK: '/products',
