@@ -190,198 +190,190 @@ const AddressForm: React.FC<AddressFormProps> = ({
       </div>
     )}
 
-    <form onSubmit={handleSubmit} className="grid gap-6">
-      {/* Full Name & Mobile */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Full Name *</label>
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleInputChange}
-            placeholder="e.g., Priya Sharma"
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${
-              errors.fullName ? 'border-red-500' : 'border-[#d6cdbf]'
-            }`}
-          />
-          {errors.fullName && <p className="text-red-500 text-xs mt-1 font-serif">{errors.fullName}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Mobile Number *</label>
-          <input
-            type="tel"
-            name="mobileNumber"
-            value={formData.mobileNumber}
-            onChange={handleInputChange}
-            placeholder="10-digit Indian mobile number"
-            maxLength={10}
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${
-              errors.mobileNumber ? 'border-red-500' : 'border-[#d6cdbf]'
-            }`}
-          />
-          {errors.mobileNumber && <p className="text-red-500 text-xs mt-1 font-serif">{errors.mobileNumber}</p>}
-        </div>
-      </div>
-
-      {/* Pincode, City, State */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Pincode *</label>
-          <div className="relative">
+      <form onSubmit={handleSubmit} className="grid gap-6">
+        {/* Full Name & Mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Full Name *</label>
             <input
               type="text"
-              name="pincode"
-              value={formData.pincode}
-              onChange={handlePincodeChange}
-              placeholder="6-digit pincode"
-              maxLength={6}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${
-                errors.pincode ? 'border-red-500' : 'border-[#d6cdbf]'
-              }`}
-            />
-            {pincodeLoading && (
-              <Loader className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-[#AA732F]" />
-            )}
-          </div>
-          {errors.pincode && <p className="text-red-500 text-xs mt-1 font-serif">{errors.pincode}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">City *</label>
-          <input
-            type="text"
-            name="city"
-            value={formData.city}
-            onChange={handleInputChange}
-            placeholder="City"
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${
-              errors.city ? 'border-red-500' : 'border-[#d6cdbf]'
-            }`}
-          />
-          {errors.city && <p className="text-red-500 text-xs mt-1 font-serif">{errors.city}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">State *</label>
-          <input
-            type="text"
-            name="state"
-            value={formData.state}
-            onChange={handleInputChange}
-            placeholder="State"
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${
-              errors.state ? 'border-red-500' : 'border-[#d6cdbf]'
-            }`}
-          />
-          {errors.state && <p className="text-red-500 text-xs mt-1 font-serif">{errors.state}</p>}
-        </div>
-      </div>
-
-      {/* House No + Street */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">House No. / Building Name *</label>
-          <input
-            type="text"
-            name="houseNumber"
-            value={formData.houseNumber}
-            onChange={handleInputChange}
-            placeholder="e.g., Flat 502, Pearl Residency"
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${
-              errors.houseNumber ? 'border-red-500' : 'border-[#d6cdbf]'
-            }`}
-          />
-          {errors.houseNumber && <p className="text-red-500 text-xs mt-1 font-serif">{errors.houseNumber}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Street / Area / Locality *</label>
-          <input
-            type="text"
-            name="streetArea"
-            value={formData.streetArea}
-            onChange={handleInputChange}
-            placeholder="e.g., Lajpat Nagar, Near City Mall"
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${
-              errors.streetArea ? 'border-red-500' : 'border-[#d6cdbf]'
-            }`}
-          />
-          {errors.streetArea && <p className="text-red-500 text-xs mt-1 font-serif">{errors.streetArea}</p>}
-        </div>
-      </div>
-
-      {/* Landmark */}
-      <div>
-        <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Landmark (Optional)</label>
-        <input
-          type="text"
-          name="landmark"
-          value={formData.landmark}
-          onChange={handleInputChange}
-          placeholder="e.g., Opposite SBI ATM"
-          className="w-full px-3 py-2 border border-[#d6cdbf] rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36]"
-        />
-      </div>
-
-      {/* Address Type */}
-      <div>
-        <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-3">Address Type</label>
-        <div className="flex flex-wrap gap-3">
-          {addressTypeOptions.map(({ value, label, icon: Icon }) => (
-            <label key={value} className="cursor-pointer">
-              <input
-                type="radio"
-                name="addressType"
-                value={value}
-                checked={formData.addressType === value}
-                onChange={handleInputChange}
-                className="sr-only"
-              />
-              <div
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg border-2 font-serif italic text-sm ${
-                  formData.addressType === value
-                    ? 'border-[#AA732F] bg-[#fdf8f1] text-[#4A3F36]'
-                    : 'border-[#d6cdbf] hover:border-[#DEC9A3]'
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleInputChange}
+              placeholder="e.g., Priya Sharma"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${errors.fullName ? 'border-red-500' : 'border-[#d6cdbf]'
                 }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{label}</span>
-              </div>
-            </label>
-          ))}
-        </div>
-      </div>
+            />
+            {errors.fullName && <p className="text-red-500 text-xs mt-1 font-serif">{errors.fullName}</p>}
+          </div>
 
-      {/* Buttons */}
-      <div className="flex justify-end gap-4 pt-6 border-t border-[#e9e2d1]">
-        <button
-          type="button"
-          onClick={onClose}
-          disabled={loading}
-          className="px-5 py-2 text-sm bg-[#f0ece2] text-[#4A3F36] rounded-lg hover:bg-[#e3dcc9] font-serif italic"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-5 py-2 bg-[#AA732F] text-white text-sm rounded-lg hover:bg-[#8f5c20] flex items-center justify-center space-x-2 font-serif italic"
-        >
-          {loading ? (
-            <>
-              <Loader className="h-4 w-4 animate-spin" />
-              <span>Saving...</span>
-            </>
-          ) : (
-            <span>Save Address</span>
-          )}
-        </button>
-      </div>
-    </form>
-  </Dialog>
-);
+          <div>
+            <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Mobile Number *</label>
+            <input
+              type="tel"
+              name="mobileNumber"
+              value={formData.mobileNumber}
+              onChange={handleInputChange}
+              placeholder="10-digit Indian mobile number"
+              maxLength={10}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${errors.mobileNumber ? 'border-red-500' : 'border-[#d6cdbf]'
+                }`}
+            />
+            {errors.mobileNumber && <p className="text-red-500 text-xs mt-1 font-serif">{errors.mobileNumber}</p>}
+          </div>
+        </div>
+
+        {/* Pincode, City, State */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Pincode *</label>
+            <div className="relative">
+              <input
+                type="text"
+                name="pincode"
+                value={formData.pincode}
+                onChange={handlePincodeChange}
+                placeholder="6-digit pincode"
+                maxLength={6}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${errors.pincode ? 'border-red-500' : 'border-[#d6cdbf]'
+                  }`}
+              />
+              {pincodeLoading && (
+                <Loader className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-[#AA732F]" />
+              )}
+            </div>
+            {errors.pincode && <p className="text-red-500 text-xs mt-1 font-serif">{errors.pincode}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">City *</label>
+            <input
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              placeholder="City"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${errors.city ? 'border-red-500' : 'border-[#d6cdbf]'
+                }`}
+            />
+            {errors.city && <p className="text-red-500 text-xs mt-1 font-serif">{errors.city}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">State *</label>
+            <input
+              type="text"
+              name="state"
+              value={formData.state}
+              onChange={handleInputChange}
+              placeholder="State"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${errors.state ? 'border-red-500' : 'border-[#d6cdbf]'
+                }`}
+            />
+            {errors.state && <p className="text-red-500 text-xs mt-1 font-serif">{errors.state}</p>}
+          </div>
+        </div>
+
+        {/* House No + Street */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">House No. / Building Name *</label>
+            <input
+              type="text"
+              name="houseNumber"
+              value={formData.houseNumber}
+              onChange={handleInputChange}
+              placeholder="e.g., Flat 502, Pearl Residency"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${errors.houseNumber ? 'border-red-500' : 'border-[#d6cdbf]'
+                }`}
+            />
+            {errors.houseNumber && <p className="text-red-500 text-xs mt-1 font-serif">{errors.houseNumber}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Street / Area / Locality *</label>
+            <input
+              type="text"
+              name="streetArea"
+              value={formData.streetArea}
+              onChange={handleInputChange}
+              placeholder="e.g., Lajpat Nagar, Near City Mall"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36] ${errors.streetArea ? 'border-red-500' : 'border-[#d6cdbf]'
+                }`}
+            />
+            {errors.streetArea && <p className="text-red-500 text-xs mt-1 font-serif">{errors.streetArea}</p>}
+          </div>
+        </div>
+
+        {/* Landmark */}
+        <div>
+          <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-1">Landmark (Optional)</label>
+          <input
+            type="text"
+            name="landmark"
+            value={formData.landmark}
+            onChange={handleInputChange}
+            placeholder="e.g., Opposite SBI ATM"
+            className="w-full px-3 py-2 border border-[#d6cdbf] rounded-lg focus:ring-2 focus:ring-[#DEC9A3] font-serif italic text-[#4A3F36]"
+          />
+        </div>
+
+        {/* Address Type */}
+        <div>
+          <label className="block text-sm font-medium text-[#4A3F36] font-serif mb-3">Address Type</label>
+          <div className="flex flex-wrap gap-3">
+            {addressTypeOptions.map(({ value, label }) => (
+              <label key={value} className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="addressType"
+                  value={value}
+                  checked={formData.addressType === value}
+                  onChange={handleInputChange}
+                  className="sr-only"
+                />
+                <div
+                  className={`px-4 py-2 rounded-lg border text-sm font-serif italic ${formData.addressType === value
+                      ? 'border-[#AA732F] bg-[#fdf8f1] text-[#4A3F36]'
+                      : 'border-[#d6cdbf] hover:border-[#DEC9A3] text-[#4A3F36]'
+                    }`}
+                >
+                  {label}
+                </div>
+              </label>
+            ))}
+
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-4 pt-6 border-t border-[#e9e2d1]">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            className="px-5 py-2 text-sm bg-[#f0ece2] text-[#4A3F36] rounded-lg hover:bg-[#e3dcc9] font-serif italic"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-5 py-2 bg-[#AA732F] text-white text-sm rounded-lg hover:bg-[#8f5c20] flex items-center justify-center space-x-2 font-serif italic"
+          >
+            {loading ? (
+              <>
+                <Loader className="h-4 w-4 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <span>Save Address</span>
+            )}
+          </button>
+        </div>
+      </form>
+    </Dialog>
+  );
 
 };
 

@@ -96,12 +96,14 @@ export const useCartStore = create<CartState>()(
           .catch(err => console.error(err));
       },
 
-      clearCart: () => {
-        const { isAuthenticated } = useAuthStore.getState();
-        if (!isAuthenticated) return;
+     clearCart: () => {
+  const { isAuthenticated } = useAuthStore.getState();
+  if (!isAuthenticated) {
+    set({ items: [] });
+  }
+}
+,
 
-        set({ items: [] });
-      },
 
       getTotalPrice: () => {
         return get().items.reduce(

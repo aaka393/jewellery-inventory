@@ -16,26 +16,29 @@ const AddressManagementPage: React.FC = () => {
         description="Manage your delivery addresses for jewelry orders"
       />
 
-      {/* Header should be outside the inner layout */}
       <Header />
 
-      <main className="min-h-screen mt-10 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="flex items-center justify-between mb-8">
+      <main className="min-h-screen pt-24 pb-10 bg-gradient-to-b from-white to-gray-50 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Top Row */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center text-sm font-medium text-[#4A3F36] hover:text-gray-800 transition"
+              className="flex items-center text-sm font-medium text-[#4A3F36] hover:text-gray-700 transition"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Back
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              <span>Back</span>
             </button>
-            <h1 className="text-xl sm:text-2xl font-semibold text-[#4A3F36]">
+
+            <h1 className="text-xl sm:text-2xl font-semibold text-[#4A3F36] text-center sm:text-left">
               Manage Addresses
             </h1>
-            <div className="w-8" />
+
+            <div className="w-6 h-6" /> {/* spacer for symmetry */}
           </div>
 
-          <div className="bg-gray-50 rounded-xl shadow p-6 sm:p-8">
+          {/* Address Selector */}
+          <div className="bg-white/90 backdrop-blur-md border border-gray-100 rounded-2xl shadow-md p-5 sm:p-8">
             <AddressSelector showTitle={false} />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom'; // ✅ Added useNavigate
 import { ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react';
 import { Product } from '../types';
 import { apiService } from '../services/api';
@@ -12,11 +12,12 @@ import LoginPromptModal from '../components/common/LoginPromptModal';
 
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate(); // ✅ Required for navigation
   const [product, setProduct] = useState<Product | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [currentTab, setTab] = useState<'About' | 'Details'>('About');
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false); // ✅ Correct state
 
   const {
     addItem,
@@ -52,7 +53,7 @@ const ProductDetailPage: React.FC = () => {
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      setShowLoginPrompt(true);
+      setShowLoginPrompt(true); // ✅ Shows modal
       return;
     }
 
@@ -67,6 +68,11 @@ const ProductDetailPage: React.FC = () => {
         button.style.backgroundColor = '';
       }, 1200);
     }
+  };
+
+  const handleLogin = () => {
+    setShowLoginPrompt(false);      // ✅ Hide modal first
+    navigate('/login');             // ✅ Go to login page
   };
 
   const handleQuantityChange = (e: React.MouseEvent, change: number) => {
@@ -235,10 +241,11 @@ const ProductDetailPage: React.FC = () => {
           </div>
         </div>
 
+        {/* 🔒 Login Modal */}
         <LoginPromptModal
           show={showLoginPrompt}
           onClose={() => setShowLoginPrompt(false)}
-          onLogin={() => setShowLoginPrompt(false)}
+          onLogin={handleLogin}
         />
       </div>
     </>
