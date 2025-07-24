@@ -24,11 +24,13 @@ import {
   MapPin,
   Send,
   Truck,
-  Pencil
+  Pencil,
+  Copy, // Added Copy icon
+  Check // Added Check icon
 } from 'lucide-react';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { SITE_CONFIG, staticImageBaseUrl } from '../../constants/siteConfig';
-import { Order } from '../../types';
+import { Order, OrderItem } from '../../types';
 import { adminService } from '../../services';
 import { formatReadableDate } from '../../utils/dateUtils';
 import { OrderStats } from '../../types/dashboard';
@@ -218,7 +220,7 @@ const ActionsCellRenderer = (params: any) => {
               <span className="text-sm text-gray-800">{trackingId}</span>
               <button
                 onClick={() => setIsEditing(true)}
-                className="text-indigo-600 hover:text-indigo-800 text-xs flex items-center space-x-1"
+                className="text-[#a58f76] hover:text-[#8f6c43] text-xs flex items-center space-x-1"
               >
                 <Pencil className="w-3.5 h-3.5" />
               </button>
@@ -256,6 +258,21 @@ const ActionsCellRenderer = (params: any) => {
           )}
         </div>
       )}
+    </div>
+  );
+};
+
+const ViewOrderCellRenderer = (params: any) => {
+  const { onViewOrder } = params.context;
+  return (
+    <div className="flex items-center justify-center h-full">
+      <button
+        onClick={() => onViewOrder(params.data)}
+        className="flex items-center justify-center p-2 text-gray-500 bg-gray-100 rounded-lg hover:bg-indigo-100 hover:text-[#8f6c43] transition-all duration-200"
+        title="View Order Details"
+      >
+        <Eye className="h-5 w-5" />
+      </button>
     </div>
   );
 };
@@ -337,11 +354,10 @@ const OrderManagement: React.FC = () => {
     {
       headerName: 'Items',
       field: 'items',
-      width: 280,
+      width: 120,
       cellRenderer: OrderItemsCellRenderer,
       sortable: false,
       filter: false,
-      autoHeight: true,
     },
     {
       headerName: 'Amount',
@@ -377,6 +393,15 @@ const OrderManagement: React.FC = () => {
       sortable: false,
       filter: false,
       autoHeight: true,
+    },
+    {
+      headerName: 'Details',
+      width: 100,
+      cellRenderer: ViewOrderCellRenderer,
+      sortable: false,
+      filter: false,
+      pinned: 'right',
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' }
     },
     {
       headerName: 'Actions',
@@ -537,99 +562,208 @@ const OrderManagement: React.FC = () => {
   );
 };
 
+// New component for Copy to Clipboard functionality
+const CopyButton: React.FC<{ textToCopy: string }> = ({ textToCopy }) => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 3000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  }, [textToCopy]);
+
+  return (
+    <button
+      onClick={handleCopy}
+      className='ml-2 flex items-center text-gray-600 space-x-1 px-2 py-1 rounded-md text-xs font-medium transition-colors duration-200 focus:outline-none'
+      title={isCopied ? 'Copied!' : 'Copy Product ID'}
+    >
+      {isCopied ? (
+        <Check className="h-3 w-3" />
+      ) : (
+        <Copy className="h-3 w-3" />
+      )}
+      <span>{isCopied ? 'Copied' : 'Copy'}</span>
+    </button>
+  );
+};
+
+// New component to render the list of items in the modal
+const OrderItemList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
+  if (!items || items.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <Package className="h-12 w-12 mx-auto mb-2" />
+        <p>No items found in this order.</p>
+      </div>
+    );
+  }
+
+  return (
+    <ul role="list" className="divide-y divide-gray-200">
+      {items.map((item, index) => (
+        <li key={index} className="flex py-4 px-1">
+          <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+
+            <img
+              src={item.image?.startsWith('http') ? item.image : `${staticImageBaseUrl}${item.image}`}
+              alt={item.name}
+              className="h-full w-full object-cover object-center"
+            />
+          </div>
+
+          <div className="ml-4 flex flex-1 flex-col">
+            <div>
+              <div className="flex justify-between text-base font-medium text-gray-900">
+                <h3>{item.name}</h3>
+                <p className="ml-4">{SITE_CONFIG.currencySymbol}{(item.price * item.quantity).toLocaleString()}</p>
+              </div>
+              <div className="flex flex-1 items-end justify-between text-sm">
+                <p className="text-gray-500">Qty {item.quantity}</p>
+              </div>
+            </div>
+
+
+            {/* New: Product ID and Copy Button */}
+            <div className="flex items-center mt-2">
+              <span className="text-gray-700 text-sm mr-2">Product ID:</span>
+              <span className="text-gray-600 font-mono text-xs">{item.productId}</span>
+              <CopyButton textToCopy={item.productId} />
+            </div>
+
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+};
+
 // Enhanced Order Detail Modal
 const OrderDetailModal: React.FC<{
   order: Order;
   onClose: () => void;
 }> = ({ order, onClose }) => {
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-black bg-opacity-50 backdrop-blur-sm" onClick={onClose}></div>
 
-        <div className="inline-block w-full max-w-6xl p-0 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-2xl rounded-2xl">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-2xl font-bold">Order Details</h3>
-                <p className="text-indigo-100 mt-1">#{order.id.slice(-8)}</p>
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
+return (
+  <div className="fixed inset-0 z-50 overflow-y-auto font-serif text-[#4A3F36]">
+    <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <div
+        className="fixed inset-0 transition-opacity bg-black bg-opacity-50 backdrop-blur-sm"
+        onClick={onClose}
+      ></div>
+
+      <div className="inline-block w-full max-w-6xl p-0 my-8 overflow-hidden text-left align-middle transition-all transform bg-[#FAF9F6] shadow-2xl rounded-2xl">
+        {/* Header */}
+        <div className="bg-[#DEC9A3] px-8 py-6 text-[#4A3F36]">
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl italic font-semibold">Order Details</h3>
+            <button
+              onClick={onClose}
+              className="hover:text-[#804000] focus:outline-none p-2 hover:bg-[#F2ECE4] rounded-lg transition-all duration-200"
+            >
+              <XCircle className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="p-8 space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Order Info */}
+            <div className="space-y-6">
+              <div className="bg-[#F2ECE4] rounded-xl p-6 shadow-sm">
+                <h4 className="italic font-semibold text-lg mb-4 flex items-center">
+                  <Package className="h-5 w-5 mr-2 text-[#4A3F36]" />
+                  Order Information
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
+                    <span className="font-light italic">Order ID:</span>
+                    <span className="font-semibold">{order.id}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
+                    <span className="font-light italic">Tracking Number:</span>
+                    <span className="font-semibold">
+                      {order.trackingNumber || 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
+                    <span className="font-light italic">Status:</span>
+                    <StatusCellRenderer value={order.status} />
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
+                    <span className="font-light italic">Date:</span>
+                    <span className="font-light">{formatReadableDate(order.createdAt)}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="font-light italic">Total Amount:</span>
+                    <span className="text-xl font-semibold text-[#804000]">
+                      {SITE_CONFIG.currencySymbol}
+                      {(order.amount / 100).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <button
-                onClick={onClose}
-                className="text-white hover:text-gray-200 focus:outline-none p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-200"
-              >
-                <XCircle className="h-6 w-6" />
-              </button>
+
+              {/* Shipping Address */}
+              <div className="bg-[#F2ECE4] rounded-xl p-6 shadow-sm">
+                <h4 className="italic font-semibold text-lg mb-4 flex items-center">
+                  <MapPin className="h-5 w-5 mr-2 text-[#4A3F36]" />
+                  Shipping Address
+                </h4>
+                <div className="bg-white rounded-lg p-4 shadow-sm border border-[#DEC9A3]">
+                  <AddressCellRenderer value={order.shippingAddress} />
+                </div>
+              </div>
+            </div>
+
+            {/* Order Items */}
+            <div className="bg-[#F2ECE4] rounded-xl p-6 shadow-sm">
+              <h4 className="italic font-semibold text-lg mb-4 flex items-center">
+                <Package className="h-5 w-5 mr-2 text-[#4A3F36]" />
+                Order Items ({order.items.length})
+              </h4>
+              <div className="bg-white rounded-lg p-2 max-h-96 overflow-y-auto shadow-sm border border-[#DEC9A3]">
+                <OrderItemList items={order.items} />
+              </div>
             </div>
           </div>
 
-          <div className="p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Order Info */}
-              <div className="space-y-6">
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4 flex items-center">
-                    <Package className="h-5 w-5 mr-2 text-indigo-600" />
-                    Order Information
-                  </h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                      <span className="text-gray-600 font-medium">Order ID:</span>
-                      <span className="font-bold text-gray-900">#{order.id.slice(-8)}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                      <span className="text-gray-600 font-medium">Status:</span>
-                      <StatusCellRenderer value={order.status} />
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                      <span className="text-gray-600 font-medium">Date:</span>
-                      <span className="font-medium text-gray-900">{formatReadableDate(order.createdAt)}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600 font-medium">Total Amount:</span>
-                      <span className="font-bold text-2xl text-indigo-600">{SITE_CONFIG.currencySymbol}{order.amount.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Shipping Address */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4 flex items-center">
-                    <MapPin className="h-5 w-5 mr-2 text-blue-600" />
-                    Shipping Address
-                  </h4>
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <AddressCellRenderer value={order.shippingAddress} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Order Items */}
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-6">
-                <h4 className="font-bold text-gray-900 mb-4 flex items-center">
-                  <Package className="h-5 w-5 mr-2 text-emerald-600" />
-                  Order Items ({order.items.length})
-                </h4>
-                <div className="bg-white rounded-lg p-4 max-h-96 overflow-y-auto shadow-sm">
-                  <OrderItemsCellRenderer value={order.items} />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-end">
-              <button
-                onClick={onClose}
-                className="px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl hover:from-indigo-600 hover:to-purple-700 focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-lg"
-              >
-                Close Details
-              </button>
-            </div>
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-6 py-3 text-sm font-semibold italic text-[#4A3F36] bg-[#DEC9A3] rounded-lg hover:bg-[#d1b990] transition-all duration-200 shadow-sm"
+            >
+              Close Details
+            </button>
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
+
+
 };
 
 export default OrderManagement;

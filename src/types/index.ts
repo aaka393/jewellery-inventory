@@ -77,6 +77,7 @@ export interface OrderItem {
   price: number;
   quantity: number;
   image: string;
+  description?: string; // Added description property
 }
 
 export interface Order {

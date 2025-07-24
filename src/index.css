@@ -291,7 +291,7 @@ textarea:focus {
 
 .ag-theme-alpine-custom .ag-header-cell:hover {
   background-color: rgba(99, 102, 241, 0.05);
-  color: #6366f1;
+  color: #8f6c43;
 }
 
 .ag-theme-alpine-custom .ag-cell {
@@ -454,13 +454,13 @@ textarea:focus {
 
 .ag-theme-alpine-custom .ag-body-horizontal-scroll-viewport::-webkit-scrollbar-thumb,
 .ag-theme-alpine-custom .ag-body-vertical-scroll-viewport::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #e5cfb5 0%, #e5cfb5 100%);
   border-radius: 4px;
 }
 
 .ag-theme-alpine-custom .ag-body-horizontal-scroll-viewport::-webkit-scrollbar-thumb:hover,
 .ag-theme-alpine-custom .ag-body-vertical-scroll-viewport::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #e5cfb5 0%, #e5cfb5 100%);
 }
 
 /* Loading overlay */
@@ -487,7 +487,7 @@ textarea:focus {
 
 /* Column resize handle */
 .ag-theme-alpine-custom .ag-header-cell-resize::after {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #e5cfb5 0%, #e5cfb5 100%);
 }
 
 /* Menu and popup styles */

@@ -38,13 +38,6 @@ const UserProfile: React.FC = () => {
         alert('Please fill in all required fields');
         return;
       }
-
-      updateUser({
-        ...user,
-        firstname: formData.firstname,
-        lastname: formData.lastname,
-        contact: formData.contact,
-      });
       setIsEditing(false);
       alert('Profile updated successfully!');
     } catch (error) {
