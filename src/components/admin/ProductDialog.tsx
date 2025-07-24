@@ -204,6 +204,9 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
             existingImageUrls: formData.images,
         };
 
+        console.log("formPayload", formPayload)
+        console.log("newImageFiles", newImageFiles)
+
         const uploadedImageUrls = await categoryService.uploadImage(newImageFiles, formPayload);
 
         const finalImageUrls = [

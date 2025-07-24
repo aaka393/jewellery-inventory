@@ -225,7 +225,9 @@ const CategoryManagement: React.FC = () => {
       setMessage(null); // Clear previous messages
 
       // Use the refactored uploadCategoryImage from categoryService
-      let finalImageUrl = await categoryService.uploadImage(imageFiles, formData);
+      let uploadedImages = await categoryService.uploadImage(imageFiles, formData);
+      let finalImageUrl = uploadedImages[0] || '';
+
       console.log("finalImageUrl", finalImageUrl)
 
       // Construct categoryData to send to API
@@ -554,8 +556,8 @@ const CategoryManagement: React.FC = () => {
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors duration-200 ${dragActive
-                  ? 'border-[#D4B896] bg-[#F2E9D8]'
-                  : 'border-gray-300 hover:border-[#D4B896] hover:bg-gray-50'
+                ? 'border-[#D4B896] bg-[#F2E9D8]'
+                : 'border-gray-300 hover:border-[#D4B896] hover:bg-gray-50'
                 }`}
             >
               <Upload className="h-8 w-8 text-[#5f3c2c] mx-auto mb-2" />

@@ -1,20 +1,12 @@
 import BaseService from './baseService';
 import { API_ENDPOINTS } from '../constants/appConstants';
-import { Category } from '../types';
+import { Category, ImageFile } from '../types';
 import { ApiResponse } from '../types/api';
 
-// Define interfaces for image file and form data shape
-interface ImageFile {
-  uploaded?: boolean;
-  url?: string;
-  file?: File;
-  id?: string; // Added id for consistency with CategoryManagement.tsx
-  preview?: string; // Added preview for consistency with CategoryManagement.tsx
-}
 
 interface FormDataShape {
   image?: string;
-  [key: string]: any; // Allow for other properties in formData
+  [key: string]: any;
 }
 
 class CategoryService extends BaseService {
@@ -35,51 +27,57 @@ class CategoryService extends BaseService {
   }
 
   /**
-   * Uploads a category image to the server.
-   * @param imageFiles - Array of image files, typically containing one file for category images.
-   * @param formData - The form data containing the existing image URL if no new file is selected.
-   * @returns A promise that resolves to the URL of the uploaded image.
+   * Uploads multiple category images to the server.
+   * @param imageFiles - Array of image files.
+   * @param formData - The form data containing fallback image URLs.
+   * @returns A promise that resolves to an array of uploaded image filenames.
    */
-  async uploadImage(imageFiles: ImageFile[], formData: FormDataShape): Promise<string> {
+  async uploadImage(imageFiles: ImageFile[], formData: FormDataShape): Promise<string[]> {
     if (imageFiles.length === 0) {
-      return formData.image ?? ''; // Return existing image URL if no new image, or empty string if undefined
+      return formData.image ? [formData.image] : [];
     }
 
-    const imageFile = imageFiles[0];
-    if (imageFile.uploaded && imageFile.url) {
-      return imageFile.url; // Image is already uploaded and has a URL
+    // Filter out already uploaded images
+    const alreadyUploadedUrls = imageFiles
+      .filter(file => file.uploaded && file.url)
+      .map(file => file.url as string);
+
+    const filesToUpload = imageFiles.filter(file => !file.uploaded && file.file);
+
+    if (filesToUpload.length === 0) {
+      // No new files, return existing URLs
+      return alreadyUploadedUrls;
     }
 
-    if (imageFile.file) {
-      try {
-        const formDataUpload = new FormData();
-        // CRITICAL FIX: Change 'file' to 'files' to match server expectation
-        formDataUpload.append('files', imageFile.file);
-
-        const response = await fetch('/api/upload-files', {
-          method: 'POST',
-          body: formDataUpload,
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error(`Upload failed: ${response.status}`);
+    try {
+      const formDataUpload = new FormData();
+      filesToUpload.forEach(fileObj => {
+        if (fileObj.file) {
+          formDataUpload.append('files', fileObj.file); // Use 'files' to match backend
         }
+      });
 
-        const result = await response.json();
-        if (result.code === 2100 && Array.isArray(result.result) && result.result.length > 0) {
-          return result.result[0]; // return the filename only
-        } else {
-          console.error('Unexpected upload response:', result);
-          throw new Error('Invalid upload response');
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        throw error;
+      const response = await fetch('/api/upload-files', {
+        method: 'POST',
+        body: formDataUpload,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status}`);
       }
-    }
 
-    return ''; // No file to upload
+      const result = await response.json();
+      if (result.code === 2100 && Array.isArray(result.result)) {
+        return [...alreadyUploadedUrls, ...result.result]; // Combine both
+      } else {
+        console.error('Unexpected upload response:', result);
+        throw new Error('Invalid upload response');
+      }
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      throw error;
+    }
   }
 }
 
