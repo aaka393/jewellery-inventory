@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Dialog from '../common/Dialog';
-import { Upload, X,Move, Eye } from 'lucide-react';
+import { Upload, X, Move, Eye } from 'lucide-react';
 import { staticImageBaseUrl } from '../../constants/siteConfig';
 import { categoryService } from '../../services';
 import { ProductFormData } from '../../types/forms';
@@ -183,58 +183,59 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    if (!formData.name?.trim()) {
-        alert('Product name is required');
-        return;
-    }
+        if (!formData.name?.trim()) {
+            alert('Product name is required');
+            return;
+        }
 
-    if (!formData.category?.trim()) {
-        alert('Product category is required');
-        return;
-    }
+        if (!formData.category?.trim()) {
+            alert('Product category is required');
+            return;
+        }
 
-    try {
-        setUploading(true);
+        try {
+            setUploading(true);
 
-        const newImageFiles = imageFiles.filter(img => !img.uploaded && img.file);
+            const newImageFiles = imageFiles.filter(img => !img.uploaded && img.file);
 
-        const formPayload = {
-            existingImageUrls: formData.images,
-        };
+            const formPayload = {
+                existingImageUrls: formData.images,
+            };
 
-        console.log("formPayload", formPayload)
-        console.log("newImageFiles", newImageFiles)
+            console.log("formPayload", formPayload)
+            console.log("newImageFiles", newImageFiles)
 
-        const uploadedImageUrls = await categoryService.uploadImage(newImageFiles, formPayload);
+            const uploadedImageUrls = await categoryService.uploadImage(newImageFiles, formPayload);
 
-        const finalImageUrls = [
-            ...formData.images.filter(url => !newImageFiles.some(f => f.url === url)),
-            ...uploadedImageUrls,
-        ];
+            const finalImageUrls = [
+                ...formData.images.filter(url => !newImageFiles.some(f => f.url === url)),
+                ...uploadedImageUrls,
+            ];
 
-        const productData = {
-            ...(mode === 'edit' && product?.id ? { id: product.id } : {}),
-            name: formData.name,
-            slug: formData.slug || generateSlug(formData.name),
-            category: formData.category,
-            description: formData.description,
-            initialPrice: formData.initialPrice,
-            price: formData.price,
-            comparePrice: formData.comparePrice,
-            images: finalImageUrls,
-            stock: formData.stock,
-        };
+            const productData = {
+                ...(mode === 'edit' && product?.id ? { id: product.id } : {}),
+                name: formData.name,
+                slug: formData.slug || generateSlug(formData.name),
+                category: formData.category,
+                description: formData.description,
+                initialPrice: formData.initialPrice,
+                price: formData.price,
+                comparePrice: formData.comparePrice,
+                images: finalImageUrls,
+                stock: formData.stock,
+            };
 
-        onSave(productData);
-    } catch (error) {
-        console.error('Error saving product:', error);
-        alert('Failed to save product. Please try again.');
-    } finally {
-        setUploading(false);
-    }
-};
+            onSave(productData);
+            onClose()
+        } catch (error) {
+            console.error('Error saving product:', error);
+            alert('Failed to save product. Please try again.');
+        } finally {
+            setUploading(false);
+        }
+    };
 
 
     return (
@@ -244,245 +245,255 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
             title={mode === 'add' ? 'Add New Product' : 'Edit Product'}
             maxWidth="2xl"
         >
-            <form onSubmit={handleSubmit} className="space-y-6 max-h-[75vh]">
-                {/* Basic Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col max-h-[75vh]">
+                {/* Scrollable Form Body */}
+                <div className="overflow-y-auto space-y-6 pr-2">
+
+                    {/* Basic Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Product Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+                                Product Name *
+                            </label>
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Enter product name"
+                                value={formData.name}
+                                onChange={handleNameChange}
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
+                            />
+                        </div>
+
+                        {/* Category */}
+                        <div>
+                            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+                                Category *
+                            </label>
+                            <select
+                                name="category"
+                                value={formData.category}
+                                onChange={handleInputChange}
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
+                            >
+                                <option value="">Select Category</option>
+                                {categories.map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Initial Price */}
+                        <div>
+                            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+                                Initial Price (Cost) *
+                            </label>
+                            <input
+                                type="number"
+                                name="initialPrice"
+                                value={formData.initialPrice || ''}
+                                onChange={handleInputChange}
+                                placeholder="0.00"
+                                min="0"
+                                step="0.01"
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
+                            />
+                        </div>
+
+                        {/* Selling Price */}
+                        <div>
+                            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+                                Selling Price *
+                            </label>
+                            <input
+                                type="number"
+                                name="price"
+                                value={formData.price || ''}
+                                onChange={handleInputChange}
+                                placeholder="0.00"
+                                min="0"
+                                step="0.01"
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
+                            />
+                        </div>
+
+                        {/* Compare Price */}
+                        <div>
+                            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+                                Compare Price
+                            </label>
+                            <input
+                                type="number"
+                                name="comparePrice"
+                                value={formData.comparePrice || ''}
+                                onChange={handleInputChange}
+                                placeholder="Original price"
+                                min="0"
+                                step="0.01"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
+                            />
+                        </div>
+
+                        {/* Slug */}
+                        <div>
+                            <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+                                Slug
+                            </label>
+                            <input
+                                type="text"
+                                name="slug"
+                                value={formData.slug}
+                                onChange={handleInputChange}
+                                placeholder="product-slug"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Description */}
                     <div>
                         <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                            Product Name *
+                            Description
                         </label>
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="Enter product name"
-                            value={formData.name}
-                            onChange={handleNameChange}
-                            required
+                        <textarea
+                            name="description"
+                            value={formData.description}
+                            onChange={handleInputChange}
+                            rows={3}
+                            placeholder="Product description..."
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                         />
                     </div>
 
+                    {/* Image Upload */}
                     <div>
                         <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                            Category *
+                            Product Images
                         </label>
-                        <select
-                            name="category"
-                            value={formData.category}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
-                        >
-                            <option value="">Select Category</option>
-                            {categories.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.name}</option>
-                            ))}
-                        </select>
-                    </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                            Initial Price (Cost) *
-                        </label>
-                        <input
-                            type="number"
-                            name="initialPrice"
-                            value={formData.initialPrice || ''}
-                            onChange={handleInputChange}
-                            placeholder="0.00"
-                            min="0"
-                            step="0.01"
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                            Selling Price *
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            value={formData.price || ''}
-                            onChange={handleInputChange}
-                            placeholder="0.00"
-                            min="0"
-                            step="0.01"
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                            Compare Price
-                        </label>
-                        <input
-                            type="number"
-                            name="comparePrice"
-                            value={formData.comparePrice || ''}
-                            onChange={handleInputChange}
-                            placeholder="Original price"
-                            min="0"
-                            step="0.01"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                            Slug
-                        </label>
-                        <input
-                            type="text"
-                            name="slug"
-                            value={formData.slug}
-                            onChange={handleInputChange}
-                            placeholder="product-slug"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
-                        />
-                    </div>
-                </div>
-
-                {/* Description */}
-                <div>
-                    <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                        Description
-                    </label>
-                    <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        rows={3}
-                        placeholder="Product description..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
-                    />
-                </div>
-
-                {/* Image Upload */}
-                <div>
-                    <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                        Product Images
-                    </label>
-
-                    {/* Drag and Drop Area */}
-                    <div
-                        ref={dragRef}
-                        onDragEnter={handleDrag}
-                        onDragLeave={handleDrag}
-                        onDragOver={handleDrag}
-                        onDrop={handleDrop}
-                        onClick={() => fileInputRef.current?.click()}
-                        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${dragActive
+                        {/* Drag and Drop Area */}
+                        <div
+                            ref={dragRef}
+                            onDragEnter={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDragOver={handleDrag}
+                            onDrop={handleDrop}
+                            onClick={() => fileInputRef.current?.click()}
+                            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${dragActive
                                 ? 'border-[#D4B896] bg-[#F2E9D8]'
                                 : 'border-gray-300 hover:border-[#D4B896] hover:bg-gray-50'
-                            }`}
-                    >
-                        <Upload className="h-8 w-8 text-[#5f3c2c] mx-auto mb-2" />
-                        <p className="text-sm text-[#5f3c2c]">
-                            Drag and drop images here, or <span className="text-[#D4B896]">click to browse</span>
-                        </p>
-                        <p className="text-xs text-[#D4B896] mt-1">
-                            Supports: JPG, PNG, GIF (Max 5MB each)
-                        </p>
+                                }`}
+                        >
+                            <Upload className="h-8 w-8 text-[#5f3c2c] mx-auto mb-2" />
+                            <p className="text-sm text-[#5f3c2c]">
+                                Drag and drop images here, or <span className="text-[#D4B896]">click to browse</span>
+                            </p>
+                            <p className="text-xs text-[#D4B896] mt-1">
+                                Supports: JPG, PNG, GIF (Max 5MB each)
+                            </p>
+                        </div>
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={handleFileInput}
+                            className="hidden"
+                        />
+
+                        {/* Image Previews */}
+                        {imageFiles.length > 0 && (
+                            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {imageFiles.map((imageFile, index) => (
+                                    <div key={imageFile.id} className="relative group">
+                                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                            <img
+                                                src={imageFile.preview}
+                                                alt={`Preview ${index + 1}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+
+                                        {/* Image Controls */}
+                                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center space-x-2">
+                                            {index > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => reorderImages(index, index - 1)}
+                                                    className="p-1 bg-white rounded-full hover:bg-gray-100"
+                                                    title="Move left"
+                                                >
+                                                    <Move className="h-3 w-3 rotate-180" />
+                                                </button>
+                                            )}
+
+                                            <button
+                                                type="button"
+                                                onClick={() => window.open(imageFile.preview, '_blank')}
+                                                className="p-1 bg-white rounded-full hover:bg-gray-100"
+                                                title="Preview"
+                                            >
+                                                <Eye className="h-3 w-3" />
+                                            </button>
+
+                                            {index < imageFiles.length - 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => reorderImages(index, index + 1)}
+                                                    className="p-1 bg-white rounded-full hover:bg-gray-100"
+                                                    title="Move right"
+                                                >
+                                                    <Move className="h-3 w-3" />
+                                                </button>
+                                            )}
+
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(imageFile.id)}
+                                                className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                                                title="Remove"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+
+                                        {/* Upload Status */}
+                                        <div className="absolute top-1 left-1">
+                                            {imageFile.uploaded ? (
+                                                <div className="w-2 h-2 bg-green-500 rounded-full" title="Uploaded" />
+                                            ) : (
+                                                <div className="w-2 h-2 bg-yellow-500 rounded-full" title="Pending upload" />
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleFileInput}
-                        className="hidden"
-                    />
-
-                    {/* Image Previews */}
-                    {imageFiles.length > 0 && (
-                        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {imageFiles.map((imageFile, index) => (
-                                <div key={imageFile.id} className="relative group">
-                                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                                        <img
-                                            src={imageFile.preview}
-                                            alt={`Preview ${index + 1}`}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-
-                                    {/* Image Controls */}
-                                    <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center space-x-2">
-                                        {index > 0 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => reorderImages(index, index - 1)}
-                                                className="p-1 bg-white rounded-full hover:bg-gray-100"
-                                                title="Move left"
-                                            >
-                                                <Move className="h-3 w-3 rotate-180" />
-                                            </button>
-                                        )}
-
-                                        <button
-                                            type="button"
-                                            onClick={() => window.open(imageFile.preview, '_blank')}
-                                            className="p-1 bg-white rounded-full hover:bg-gray-100"
-                                            title="Preview"
-                                        >
-                                            <Eye className="h-3 w-3" />
-                                        </button>
-
-                                        {index < imageFiles.length - 1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => reorderImages(index, index + 1)}
-                                                className="p-1 bg-white rounded-full hover:bg-gray-100"
-                                                title="Move right"
-                                            >
-                                                <Move className="h-3 w-3" />
-                                            </button>
-                                        )}
-
-                                        <button
-                                            type="button"
-                                            onClick={() => removeImage(imageFile.id)}
-                                            className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                                            title="Remove"
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
-                                    </div>
-
-                                    {/* Upload Status */}
-                                    <div className="absolute top-1 left-1">
-                                        {imageFile.uploaded ? (
-                                            <div className="w-2 h-2 bg-green-500 rounded-full" title="Uploaded" />
-                                        ) : (
-                                            <div className="w-2 h-2 bg-yellow-500 rounded-full" title="Pending upload" />
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    {/* Toggle Stock */}
+                    <div className="grid grid-cols-1 gap-4">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="stock"
+                                checked={formData.stock}
+                                onChange={handleCheckboxChange}
+                                className="rounded border-gray-300 text-[#D4B896] focus:ring-[#D4B896]"
+                            />
+                            <span className="text-sm text-[#5f3c2c]">In Stock</span>
+                        </label>
+                    </div>
                 </div>
 
-                {/* Toggle Switches */}
-                <div className="grid grid-cols-1 gap-4">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            name="stock"
-                            checked={formData.stock}
-                            onChange={handleCheckboxChange}
-                            className="rounded border-gray-300 text-[#D4B896] focus:ring-[#D4B896]"
-                        />
-                        <span className="text-sm text-[#5f3c2c]">In Stock</span>
-                    </label>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex space-x-3 pt-4 border-t">
+                {/* Action Buttons Footer (fixed) */}
+                <div className="flex space-x-3 pt-4 border-t mt-4">
                     <button
                         type="button"
                         onClick={onClose}
@@ -507,6 +518,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                     </button>
                 </div>
             </form>
+
         </Dialog>
 
     );

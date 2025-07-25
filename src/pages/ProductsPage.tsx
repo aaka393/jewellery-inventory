@@ -156,14 +156,14 @@ return (
             <div className="flex border border-[#4A3F36] rounded-md overflow-hidden w-full sm:w-auto">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`flex-1 sm:flex-none px-3 py-2 transition ${viewMode === 'grid' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                className={`flex-1 sm:flex-none px-3 py-2 transition focus:outline-none ${viewMode === 'grid' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
                 title="Grid view"
               >
                 <Grid className="h-4 w-4 mx-auto" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`flex-1 sm:flex-none px-3 py-2 transition ${viewMode === 'list' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
+                className={`flex-1 sm:flex-none px-3 py-2 transition focus:outline-none ${viewMode === 'list' ? 'bg-[#DEC9A3] text-[#4A3F36]' : 'text-[#4A3F36] hover:bg-[#EFE8DB]'}`}
                 title="List view"
               >
                 <List className="h-4 w-4 mx-auto" />

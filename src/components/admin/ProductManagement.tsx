@@ -279,12 +279,15 @@ const ProductManagement: React.FC = () => {
           isOpen={deleteDialog.isOpen}
           onClose={() => setDeleteDialog({ isOpen: false, type: 'product', item: null })}
           onConfirm={() => {
+            const closeDialog = () =>
+              setDeleteDialog({ isOpen: false, type: 'product', item: null });
+
             if (deleteDialog.type === 'product' && deleteDialog.productId) {
-              handleDeleteSingleProduct(deleteDialog.productId);
+              handleDeleteSingleProduct(deleteDialog.productId).then(closeDialog);
             } else if (deleteDialog.type === 'bulk' && selectedProducts.length > 0) {
-              handleBulkDelete();
+              handleBulkDelete().then(closeDialog);
             } else if (deleteDialog.type === 'bulk' && deleteDialog.item === null) {
-              handleDeleteAllProducts();
+              handleDeleteAllProducts().then(closeDialog);
             }
           }}
           title={
