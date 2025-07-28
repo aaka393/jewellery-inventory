@@ -18,6 +18,8 @@ const ProductDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [currentTab, setTab] = useState<'About' | 'Details'>('About');
   const [showLoginPrompt, setShowLoginPrompt] = useState(false); // ✅ Correct state
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [category, setCategory] = useState<any>(null);
 
   const {
     addItem,
@@ -33,6 +35,21 @@ const ProductDetailPage: React.FC = () => {
     if (slug) loadProduct();
   }, [slug]);
 
+  useEffect(() => {
+    const loadCategory = async () => {
+      if (product) {
+        try {
+          const categories = await apiService.getCategories();
+          const productCategory = categories.find(cat => cat.name === product.category);
+          setCategory(productCategory);
+          
+        } catch (error) {
+          console.error('Error loading category:', error);
+        }
+      }
+    };
+    loadCategory();
+  }, [product, selectedSize]);
   const loadProduct = async () => {
     try {
       const productData = await apiService.getProductBySlug(slug!);
@@ -45,8 +62,9 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
-  const productQuantity = product ? getProductQuantity(product.id) : 0;
-  const inCart = product ? isProductInCart(product.id) : false;
+  const productQuantity = product ? getProductQuantity(product.id, selectedSize) : 0;
+  const inCart = product ? isProductInCart(product.id, selectedSize) : false;
+  const hasSizeOptions = category?.sizeOptions?.length > 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -57,8 +75,14 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
 
+    // Check if size is required but not selected
+    if (hasSizeOptions && !selectedSize) {
+      alert('Please select a size before adding to cart');
+      return;
+    }
+
     if (product && product.stock) {
-      addItem(product, 1);
+      addItem(product, 1, selectedSize);
       const button = e.currentTarget as HTMLButtonElement;
       const originalText = button.textContent;
       button.textContent = 'ADDED!';
@@ -89,9 +113,19 @@ const ProductDetailPage: React.FC = () => {
     const newQuantity = productQuantity + change;
 
     if (newQuantity <= 0) {
-      removeItem(product.id);
+      const item = useCartStore.getState().items.find(item => 
+        item.productId === product.id && item.selectedSize === selectedSize
+      );
+      if (item) {
+        removeItem(item.id);
+      }
     } else {
-      updateQuantity(product.id, change);
+      const item = useCartStore.getState().items.find(item => 
+        item.productId === product.id && item.selectedSize === selectedSize
+      );
+      if (item) {
+        updateQuantity(item.id, newQuantity, selectedSize);
+      }
     }
   };
 
@@ -184,6 +218,29 @@ const ProductDetailPage: React.FC = () => {
                 )}
               </div>
 
+              {/* Size Selection */}
+              {hasSizeOptions && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Size {hasSizeOptions && <span className="text-red-500">*</span>}
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {category.sizeOptions.map((size: string) => (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`py-2 px-3 border rounded-md text-sm font-medium transition-colors ${
+                          selectedSize === size
+                            ? 'border-black bg-black text-white'
+                            : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {product.stock && inCart && (
                 <div className="flex items-center gap-2 mb-3">
                   <button

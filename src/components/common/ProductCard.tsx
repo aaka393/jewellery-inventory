@@ -6,6 +6,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { SITE_CONFIG, staticImageBaseUrl } from '../../constants/siteConfig';
 import LoginPromptModal from './LoginPromptModal';
+import { apiService } from '../../services/api';
 
 interface ProductCardProps {
   product: Product;
@@ -16,6 +17,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [showSizeSelector, setShowSizeSelector] = useState(false);
 
   const { addItem, updateQuantity, removeItem, getProductQuantity, isProductInCart } = useCartStore();
   const { isAuthenticated } = useAuthStore();
@@ -26,8 +29,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
     syncWithServer();
   }, []);
 
-  const productQuantity = getProductQuantity(product.id);
-  const inCart = isProductInCart(product.id);
+  // Get category to check for size options
+  const [category, setCategory] = useState<any>(null);
+  
+  useEffect(() => {
+    const loadCategory = async () => {
+      try {
+        const categories = await apiService.getCategories();
+        const productCategory = categories.find(cat => cat.name === product.category);
+        setCategory(productCategory);
+        
+      } catch (error) {
+        console.error('Error loading category:', error);
+      }
+    };
+    loadCategory();
+  }, [product.category, selectedSize]);
+
+  const productQuantity = getProductQuantity(product.id, selectedSize);
+  const inCart = isProductInCart(product.id, selectedSize);
+  const hasSizeOptions = category?.sizeOptions?.length > 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -38,8 +59,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
       return;
     }
 
+    // Check if size is required but not selected
+    if (hasSizeOptions && !selectedSize) {
+      setShowSizeSelector(true);
+      return;
+    }
+
     if (product.stock) {
-      addItem(product, 1);
+      addItem(product, 1, selectedSize);
       const button = e.currentTarget as HTMLButtonElement;
       const originalText = button.textContent;
       button.textContent = 'ADDED!';
@@ -49,6 +76,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
         button.style.backgroundColor = '';
       }, 1200);
     }
+  };
+
+  const handleSizeSelect = (size: string) => {
+    setSelectedSize(size);
+    setShowSizeSelector(false);
+    // Auto add to cart after size selection
+    addItem(product, 1, size);
   };
 
   const handleQuantityChange = (e: React.MouseEvent, change: number) => {
@@ -63,9 +97,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
     const newQuantity = productQuantity + change;
 
     if (newQuantity <= 0) {
-      removeItem(product.id);
+      const item = useCartStore.getState().items.find(item => 
+        item.productId === product.id && item.selectedSize === selectedSize
+      );
+      if (item) {
+        removeItem(item.id);
+      }
     } else {
-      updateQuantity(product.id, change);
+      const item = useCartStore.getState().items.find(item => 
+        item.productId === product.id && item.selectedSize === selectedSize
+      );
+      if (item) {
+        updateQuantity(item.id, newQuantity, selectedSize);
+      }
     }
   };
 
@@ -148,6 +192,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
 
             <hr className="my-3 border-t border-subtle-beige w-3/4 mx-auto" />
 
+            {/* Size Selection */}
+            {hasSizeOptions && (
+              <div className="mb-3">
+                <select
+                  value={selectedSize}
+                  onChange={(e) => setSelectedSize(e.target.value)}
+                  className="w-full text-xs border border-subtle-beige rounded-lg px-2 py-1 font-serif text-rich-brown focus:border-soft-gold focus:outline-none"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <option value="">Select Size</option>
+                  {category.sizeOptions.map((size: string) => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="flex items-center justify-center space-x-2 mt-2 mb-4">
               <span className="text-sm sm:text-base font-serif font-semibold text-rich-brown">
                 {SITE_CONFIG.currencySymbol} {(product.price || 0).toLocaleString()}
@@ -203,6 +263,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
         </div>
       </article>
 
+      {/* Size Selection Modal */}
+      {showSizeSelector && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full">
+            <h3 className="text-lg font-serif font-semibold italic text-rich-brown mb-4">Select Size</h3>
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {category?.sizeOptions?.map((size: string) => (
+                <button
+                  key={size}
+                  onClick={() => handleSizeSelect(size)}
+                  className="py-2 px-3 border border-subtle-beige rounded-lg text-sm font-serif text-rich-brown hover:bg-soft-gold hover:border-soft-gold transition-all duration-200"
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowSizeSelector(false)}
+              className="w-full py-2 text-sm text-mocha hover:text-rich-brown transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
       {/* Modal Popup for login prompt */}
       {showLoginPrompt && (
         <LoginPromptModal

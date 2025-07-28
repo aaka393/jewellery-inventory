@@ -55,6 +55,7 @@ export const API_ENDPOINTS = {
   UPDATE_CART: '/cart/update',
   REMOVE_FROM_CART: '/cart/remove',
   MERGE_CART: '/cart/merge',
+  UPDATE_CART_ITEM_SIZE: '/cart/update-size',
 
   // Wishlist endpoints
   ADD_TO_WISHLIST: '/user/wishlist',
@@ -123,6 +124,7 @@ export const RESPONSE_CODES = {
   TOKEN_VERIFIED: 1040,
   LOGIN_SUCCESS: 1003,
   REGISTER_SUCCESS: 1046,
+  INVALID_CREDENTIALS: 1004, 
   ERROR: 2000,
   UNAUTHORIZED: 2001,
   NOT_FOUND: 2004,
