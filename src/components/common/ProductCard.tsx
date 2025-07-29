@@ -1,139 +1,182 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, ChevronLeft, ChevronRight, Plus, Minus, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Minus } from 'lucide-react'; // X and Eye are not used, so removed from import
 import { Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { SITE_CONFIG, staticImageBaseUrl } from '../../constants/siteConfig';
 import LoginPromptModal from './LoginPromptModal';
 import { apiService } from '../../services/api';
+import StarRating from '../reviews/StarRating';
 
 interface ProductCardProps {
   product: Product;
   showQuickView?: boolean;
+  showRating?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true, showRating = true }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedSize, setSelectedSize] = useState<string>(''); // Holds selected size string
   const [showSizeSelector, setShowSizeSelector] = useState(false);
+  const [averageRating, setAverageRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [category, setCategory] = useState<any>(null);
 
   const { addItem, updateQuantity, removeItem, getProductQuantity, isProductInCart } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
+  // Load cart state and review stats on component mount
   useEffect(() => {
     const { syncWithServer } = useCartStore.getState();
-    syncWithServer();
-  }, []);
+    syncWithServer(); // Synchronize cart with server
 
-  // Get category to check for size options
-  const [category, setCategory] = useState<any>(null);
-  
+    if (showRating) {
+      loadReviewStats(); // Load review data if ratings are enabled
+    }
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Load category data for size options
   useEffect(() => {
     const loadCategory = async () => {
       try {
         const categories = await apiService.getCategories();
         const productCategory = categories.find(cat => cat.name === product.category);
         setCategory(productCategory);
-        
       } catch (error) {
         console.error('Error loading category:', error);
       }
     };
     loadCategory();
-  }, [product.category, selectedSize]);
+  }, [product.category]); // Rerun if product category changes
 
-  const productQuantity = getProductQuantity(product.id, selectedSize);
-  const inCart = isProductInCart(product.id, selectedSize);
-  const hasSizeOptions = category?.sizeOptions?.length > 0;
+  // Function to load review statistics for the product
+  const loadReviewStats = async () => {
+    try {
+      const reviews = await apiService.getProductReviews(product.id);
+      if (reviews.length > 0) {
+        const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+        setAverageRating(totalRating / reviews.length);
+        setReviewCount(reviews.length);
+      }
+    } catch (error) {
+      console.error('Error loading review stats:', error);
+    }
+  };
 
+  // Determine if the product has size options
+  const hasSizeOptions = category?.sizeOptions && Array.isArray(category.sizeOptions) && category.sizeOptions.length > 0;
+
+  // Determine the effective size to pass to cart functions:
+  // Use selectedSize if product has size options, otherwise use undefined for "no size"
+  const effectiveSelectedSize = hasSizeOptions ? selectedSize : undefined;
+
+  // Check product quantity and if it's in the cart using the effective size
+  const productQuantity = getProductQuantity(product.id, effectiveSelectedSize);
+  const inCart = isProductInCart(product.id, effectiveSelectedSize);
+
+  // Handle adding product to cart
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      setShowLoginPrompt(true);
+      setShowLoginPrompt(true); // Prompt user to log in if not authenticated
       return;
     }
 
-    // Check if size is required but not selected
+    // If product requires size but none is selected, show size selector modal
     if (hasSizeOptions && !selectedSize) {
       setShowSizeSelector(true);
       return;
     }
 
+    // Add item to cart if stock is available
     if (product.stock) {
-      addItem(product, 1, selectedSize);
+      addItem(product, 1, effectiveSelectedSize); // Use effectiveSelectedSize here
       const button = e.currentTarget as HTMLButtonElement;
       const originalText = button.textContent;
-      button.textContent = 'ADDED!';
-      button.style.backgroundColor = '#10b981';
+      button.textContent = 'ADDED!'; // Provide immediate feedback
+      button.style.backgroundColor = '#10b981'; // Green background
       setTimeout(() => {
         button.textContent = originalText!;
-        button.style.backgroundColor = '';
+        button.style.backgroundColor = ''; // Revert button style after a delay
       }, 1200);
     }
   };
 
+  // Handle size selection from the modal
   const handleSizeSelect = (size: string) => {
-    setSelectedSize(size);
-    setShowSizeSelector(false);
-    // Auto add to cart after size selection
-    addItem(product, 1, size);
+    setSelectedSize(size); // Set the chosen size
+    setShowSizeSelector(false); // Close the size selector modal
+    addItem(product, 1, size); // Add to cart with the selected size
   };
 
+  // Handle quantity changes for items already in cart
   const handleQuantityChange = (e: React.MouseEvent, change: number) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      setShowLoginPrompt(true);
+      setShowLoginPrompt(true); // Prompt user to log in if not authenticated
       return;
     }
 
     const newQuantity = productQuantity + change;
 
     if (newQuantity <= 0) {
-      const item = useCartStore.getState().items.find(item => 
-        item.productId === product.id && item.selectedSize === selectedSize
+      // If new quantity is 0 or less, remove the item from cart
+      const item = useCartStore.getState().items.find(item =>
+        item.productId === product.id && item.selectedSize === effectiveSelectedSize // Use effectiveSelectedSize here
       );
       if (item) {
         removeItem(item.id);
       }
     } else {
-      const item = useCartStore.getState().items.find(item => 
-        item.productId === product.id && item.selectedSize === selectedSize
+      // Otherwise, update the quantity of the item
+      const item = useCartStore.getState().items.find(item =>
+        item.productId === product.id && item.selectedSize === effectiveSelectedSize // Use effectiveSelectedSize here
       );
       if (item) {
-        updateQuantity(item.id, newQuantity, selectedSize);
+        updateQuantity(item.id, change, effectiveSelectedSize); // Use effectiveSelectedSize here
       }
     }
   };
 
-  // Image navigation functions omitted here for brevity (same as before)...
+  // Image navigation functions (next/previous)
+  const goToNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % productImages.length);
+  };
 
+  const goToPreviousImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length);
+  };
+
+  // Prepare product images, using a placeholder if no images are available
   const productImages = product.images?.length
     ? product.images.map((img) => (img.startsWith('http') ? img : staticImageBaseUrl + img))
     : ['https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'];
 
   return (
     <>
-      <article className="group relative bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-200 ease-in-out border border-subtle-beige overflow-hidden transform hover:scale-[1.02] w-full max-w-sm mx-auto">
-        {/* ...all your existing JSX unchanged, including Add to Cart button... */}
-
+      <article className="group relative bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 ease-in-out border border-subtle-beige overflow-hidden transform hover:scale-[1.02] w-full max-w-sm mx-auto">
         <Link to={`/product/${product.slug || product.id}`}>
           <div
-            className="relative overflow-hidden bg-gray-100 aspect-[3/4] sm:aspect-[4/5]"
+            className="relative overflow-hidden bg-gray-100 aspect-[3/4] sm:aspect-[4/5] rounded-xl"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
             <img
               src={productImages[currentImageIndex]}
               alt={product.name}
-              className="w-full h-full object-cover transition-all duration-200 ease-in-out group-hover:scale-110"
+              className="w-full h-full object-cover transition-all duration-200 ease-in-out"
               loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-rich-brown/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out" />
@@ -141,22 +184,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
             {productImages.length > 1 && isHovered && (
               <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out">
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
-                  }}
+                  onClick={goToPreviousImage}
                   className="p-1.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm hover:bg-white hover:shadow-md transition-all duration-200 ease-in-out"
                   aria-label="Previous"
                 >
                   <ChevronLeft className="w-3 h-3" />
                 </button>
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
-                  }}
+                  onClick={goToNextImage}
                   className="p-1.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm hover:bg-white hover:shadow-md transition-all duration-200 ease-in-out"
                   aria-label="Next"
                 >
@@ -192,22 +227,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
 
             <hr className="my-3 border-t border-subtle-beige w-3/4 mx-auto" />
 
-            {/* Size Selection */}
-            {hasSizeOptions && (
-              <div className="mb-3">
-                <select
-                  value={selectedSize}
-                  onChange={(e) => setSelectedSize(e.target.value)}
-                  className="w-full text-xs border border-subtle-beige rounded-lg px-2 py-1 font-serif text-rich-brown focus:border-soft-gold focus:outline-none"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <option value="">Select Size</option>
-                  {category.sizeOptions.map((size: string) => (
-                    <option key={size} value={size}>{size}</option>
-                  ))}
-                </select>
-              </div>
-            )}
             <div className="flex items-center justify-center space-x-2 mt-2 mb-4">
               <span className="text-sm sm:text-base font-serif font-semibold text-rich-brown">
                 {SITE_CONFIG.currencySymbol} {(product.price || 0).toLocaleString()}
@@ -218,58 +237,72 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showQuickView = true
                 </span>
               )}
             </div>
-          </div>
 
-          {!product.stock ? (
-            <button
-              disabled
-              className="w-full py-3 text-xs font-serif font-semibold italic border-2 border-gray-400 text-gray-400 rounded-xl cursor-not-allowed"
-            >
-              OUT OF STOCK
-            </button>
-          ) : inCart ? (
-            <div className="flex items-center justify-center space-x-4 py-3 relative">
-              <button
-                onClick={(e) => handleQuantityChange(e, -1)}
-                className="w-8 h-8 flex items-center justify-center border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
-                aria-label="Decrease quantity"
-                title="Decrease quantity"
-              >
-                <Minus className="w-3 h-3" />
-              </button>
-
-              <span className="text-base font-serif font-semibold text-rich-brown min-w-[2rem] text-center">
-                {productQuantity}
-              </span>
-
-              <button
-                onClick={(e) => handleQuantityChange(e, 1)}
-                className="w-8 h-8 flex items-center justify-center border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
-                aria-label="Increase quantity"
-                title="Increase quantity"
-              >
-                <Plus className="w-3 h-3" />
-              </button>
+            {/* Consistent space for Rating Display and improved responsiveness */}
+            <div className="flex items-center justify-center mb-2" style={{ minHeight: '1.5rem', maxHeight: '1.5rem' }}>
+              {showRating && reviewCount > 0 ? (
+                <div className="flex items-center justify-center space-x-1 sm:space-x-2 min-w-0">
+                  <StarRating rating={averageRating} size="sm" />
+                  <span className="text-xs sm:text-sm text-mocha font-serif italic flex-shrink">
+                    ({reviewCount})
+                  </span>
+                </div>
+              ) : (
+                <div className="w-full h-full"></div> // Placeholder to maintain layout
+              )}
             </div>
-          ) : (
-            <button
-              onClick={handleAddToCart}
-              className="w-full py-3 text-xs font-serif font-semibold italic border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
-              title="Add to Cart"
-            >
-              Preorder 
-            </button>
-          )}
+
+            {!product.stock ? (
+              <button
+                disabled
+                className="w-full py-3 text-xs font-serif font-semibold italic border-2 border-gray-400 text-gray-400 rounded-xl cursor-not-allowed"
+              >
+                OUT OF STOCK
+              </button>
+            ) : inCart ? (
+              <div className="flex items-center justify-center space-x-4 py-3 relative">
+                <button
+                  onClick={(e) => handleQuantityChange(e, -1)}
+                  className="w-8 h-8 flex items-center justify-center border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                  aria-label="Decrease quantity"
+                  title="Decrease quantity"
+                >
+                  <Minus className="w-3 h-3" />
+                </button>
+
+                <span className="text-base font-serif font-semibold text-rich-brown min-w-[2rem] text-center">
+                  {productQuantity}
+                </span>
+
+                <button
+                  onClick={(e) => handleQuantityChange(e, 1)}
+                  className="w-8 h-8 flex items-center justify-center border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                  aria-label="Increase quantity"
+                  title="Increase quantity"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleAddToCart}
+                className="w-full py-3 text-xs font-serif font-semibold italic border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                title="Add to Cart"
+              >
+                Preorder
+              </button>
+            )}
+          </div>
         </div>
       </article>
 
       {/* Size Selection Modal */}
-      {showSizeSelector && (
+      {showSizeSelector && category?.sizeOptions && category.sizeOptions.length > 0 && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl p-6 max-w-sm w-full">
             <h3 className="text-lg font-serif font-semibold italic text-rich-brown mb-4">Select Size</h3>
             <div className="grid grid-cols-2 gap-2 mb-4">
-              {category?.sizeOptions?.map((size: string) => (
+              {category.sizeOptions.map((size: string) => (
                 <button
                   key={size}
                   onClick={() => handleSizeSelect(size)}

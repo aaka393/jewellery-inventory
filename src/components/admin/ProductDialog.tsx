@@ -22,11 +22,13 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const dragRef = useRef<HTMLDivElement>(null);
 
+
     const [formData, setFormData] = useState<ProductFormData>({
         name: '',
         slug: '',
         category: '',
         description: '',
+        details: '',
         initialPrice: 0,
         price: 0,
         comparePrice: 0,
@@ -43,6 +45,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                     slug: '',
                     category: '',
                     description: '',
+                    details: '',
                     initialPrice: 0,
                     price: 0,
                     comparePrice: 0,
@@ -55,30 +58,40 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     }, [isOpen, mode]);
 
     useEffect(() => {
-        if (product && mode === 'edit') {
+        if (product && mode === 'edit' && categories.length > 0) {
+
             setFormData({
                 name: product.name || '',
                 slug: product.slug || '',
-                category: product.category || '',
+                category: (() => {
+                    if (typeof product.category === 'string') {
+                        const match = categories.find(cat => cat.name === product.category);
+                        return match?.id || '';
+                    } else {
+                        return (product.category as any)?.id || '';
+                    }
+                })(),
+
                 description: product.description || '',
                 initialPrice: product.initialPrice || 0,
+                details:product.details || '',
                 price: product.price || 0,
                 comparePrice: product.comparePrice || 0,
                 images: product.images || [],
                 stock: product.stock ?? true,
             });
 
-            // Convert existing images to ImageFile format for editing
             const existingImages: ImageFile[] = (product.images || []).map((url, index) => ({
                 id: `existing-${index}`,
-                file: null as any, // Existing images don't have files
+                file: null as any,
                 preview: url.startsWith('http') ? url : `${staticImageBaseUrl}/${url}`,
                 uploaded: true,
-                url: url
+                url: url,
             }));
             setImageFiles(existingImages);
         }
-    }, [product, mode]);
+    }, [product, mode, categories]);
+
 
     const handleDrag = (e: React.DragEvent) => {
         e.preventDefault();
@@ -119,15 +132,25 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
 
     const removeImage = (id: string) => {
         setImageFiles(prev => {
-            const updated = prev.filter(img => img.id !== id);
-            // Revoke object URLs to prevent memory leaks
             const removed = prev.find(img => img.id === id);
+            const updated = prev.filter(img => img.id !== id);
+
+            // If removed image was already uploaded, update formData.images too
+            if (removed?.uploaded && removed.url) {
+                setFormData(form => ({
+                    ...form,
+                    images: form.images.filter(url => url !== removed.url),
+                }));
+            }
+
             if (removed && !removed.uploaded) {
                 URL.revokeObjectURL(removed.preview);
             }
+
             return updated;
         });
     };
+
 
     const reorderImages = (fromIndex: number, toIndex: number) => {
         setImageFiles(prev => {
@@ -204,8 +227,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                 existingImageUrls: formData.images,
             };
 
-            console.log("formPayload", formPayload)
-            console.log("newImageFiles", newImageFiles)
 
             const uploadedImageUrls = await categoryService.uploadImage(newImageFiles, formPayload);
 
@@ -213,6 +234,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                 ...formData.images.filter(url => !newImageFiles.some(f => f.url === url)),
                 ...uploadedImageUrls,
             ];
+
 
             const productData = {
                 ...(mode === 'edit' && product?.id ? { id: product.id } : {}),
@@ -245,7 +267,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
             title={mode === 'add' ? 'Add New Product' : 'Edit Product'}
             maxWidth="2xl"
         >
-            <form onSubmit={handleSubmit} className="flex flex-col max-h-[75vh]">
+            <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
                 {/* Scrollable Form Body */}
                 <div className="overflow-y-auto space-y-6 pr-2">
 
@@ -281,7 +303,10 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             >
                                 <option value="">Select Category</option>
                                 {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    <option key={cat.id} value={cat.id}>
+                                        {cat.name}
+                                        {cat.sizeOptions && cat.sizeOptions.length > 0 && ` (Has sizes: ${cat.sizeOptions.join(', ')})`}
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -353,6 +378,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                             />
                         </div>
+
                     </div>
 
                     {/* Description */}
@@ -369,6 +395,21 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
                         />
                     </div>
+                    {/* Details */}
+                    <div>
+                        <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+                            Details
+                        </label>
+                        <textarea
+                            name="details"
+                            value={formData.details}
+                            onChange={handleInputChange}
+                            rows={4}
+                            placeholder="E.g., purity 92.5 silver, handcrafted with pure zari, made of cotton-silk blend"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4B896] focus:border-transparent"
+                        />
+                    </div>
+
 
                     {/* Image Upload */}
                     <div>

@@ -9,6 +9,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
 import { staticImageBaseUrl } from '../constants/siteConfig';
 import LoginPromptModal from '../components/common/LoginPromptModal';
+import ProductReviews from '../components/reviews/ProductReviews';
 
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -62,9 +63,14 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
-  const productQuantity = product ? getProductQuantity(product.id, selectedSize) : 0;
-  const inCart = product ? isProductInCart(product.id, selectedSize) : false;
-  const hasSizeOptions = category?.sizeOptions?.length > 0;
+  const hasSizeOptions = category?.sizeOptions && Array.isArray(category.sizeOptions) && category.sizeOptions.length > 0;
+  // Determine the effective size to pass to cart functions:
+  // Use selectedSize if product has size options, otherwise use undefined for "no size"
+  const effectiveSelectedSize = hasSizeOptions ? selectedSize : undefined;
+
+  const productQuantity = product ? getProductQuantity(product.id, effectiveSelectedSize) : 0;
+  const inCart = product ? isProductInCart(product.id, effectiveSelectedSize) : false;
+
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -81,7 +87,7 @@ const ProductDetailPage: React.FC = () => {
     }
 
     if (product && product.stock) {
-      addItem(product, 1, selectedSize);
+      addItem(product, 1, effectiveSelectedSize);
       const button = e.currentTarget as HTMLButtonElement;
       const originalText = button.textContent;
       button.textContent = 'ADDED!';
@@ -112,13 +118,13 @@ const ProductDetailPage: React.FC = () => {
     const newQuantity = productQuantity + change;
 
     const item = useCartStore.getState().items.find(item =>
-      item.productId === product.id && item.selectedSize === selectedSize
+      item.productId === product.id && item.selectedSize === effectiveSelectedSize
     );
 
     if (newQuantity <= 0 && item) {
       removeItem(item.id);
     } else if (item) {
-      updateQuantity(item.id, newQuantity, selectedSize);
+      updateQuantity(item.id, change, effectiveSelectedSize);
     }
   };
 
@@ -175,7 +181,7 @@ const ProductDetailPage: React.FC = () => {
         }}
       />
 
-      <div className="min-h-screen bg-subtle-beige text-rich-brown font-serif">
+      <div className="min-h-screen bg-[#FAF9F6] text-rich-brown font-serif">
         <div className="container mx-auto mt-[83px] px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="space-y-4">
@@ -216,8 +222,8 @@ const ProductDetailPage: React.FC = () => {
                         key={size}
                         onClick={() => setSelectedSize(size)}
                         className={`py-2 px-3 border rounded-md text-sm transition-colors italic ${selectedSize === size
-                            ? 'border-rich-brown bg-rich-brown text-white'
-                            : 'border-rich-brown/40 text-rich-brown hover:border-rich-brown'}`}
+                          ? 'border-rich-brown bg-rich-brown text-white'
+                          : 'border-rich-brown/40 text-rich-brown hover:border-rich-brown'}`}
                       >
                         {size}
                       </button>
@@ -225,39 +231,55 @@ const ProductDetailPage: React.FC = () => {
                   </div>
                 </div>
               )}
-              {product.stock && inCart && (
-                <div className="flex items-center gap-2 mb-3">
+
+              {!product.stock ? (
+                <button
+                  disabled
+                  className="w-full mt-4 py-3 text-xs font-serif font-semibold italic border-2 border-gray-400 text-gray-400 rounded-xl cursor-not-allowed"
+                >
+                  OUT OF STOCK
+                </button>
+              ) : inCart ? (
+                <div className="flex items-center justify-center space-x-4 py-3 relative">
                   <button
                     onClick={(e) => handleQuantityChange(e, -1)}
-                    className="w-8 h-8 border flex items-center justify-center"
+                    className="w-8 h-8 flex items-center justify-center border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                    aria-label="Decrease quantity"
+                    title="Decrease quantity"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="w-3 h-3" />
                   </button>
-                  <span className="w-8 text-center">{productQuantity}</span>
+
+                  <span className="text-base font-serif font-semibold text-rich-brown min-w-[2rem] text-center">
+                    {productQuantity}
+                  </span>
+
                   <button
                     onClick={(e) => handleQuantityChange(e, 1)}
-                    className="w-8 h-8 border flex items-center justify-center"
+                    className="w-8 h-8 flex items-center justify-center border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                    aria-label="Increase quantity"
+                    title="Increase quantity"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="w-3 h-3" />
                   </button>
                 </div>
+              ) : (
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full mt-4 py-3 text-xs font-serif font-semibold italic border-2 border-rich-brown text-rich-brown rounded-xl hover:bg-rich-brown hover:text-white transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                  title="Add to Cart"
+                >
+                  Preorder
+                </button>
               )}
 
-              <button
-                onClick={handleAddToCart}
-                disabled={!product.stock}
-                className="w-full mt-4 bg-rich-brown text-white py-3 px-6 font-medium hover:bg-opacity-90 transition-colors disabled:opacity-50"
-              >
-                {product.stock ? (inCart ? 'CONFIRM ADD TO CART' : 'ADD TO CART') : 'OUT OF STOCK'}
-              </button>
-
               <div className="pt-6 border-t border-rich-brown/20">
-                <div className="flex space-x-6 border-b border-rich-brown/20 mb-4">
+                <div className="flex space-x-6 border-b border-rich-brown/20 mb-4 ">
                   {['About', 'Details', 'Shipping', 'Reviews'].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setTab(tab as any)}
-                      className={`pb-2 italic font-semibold uppercase tracking-wide text-sm ${currentTab === tab ? 'border-b-2 border-rich-brown text-rich-brown' : 'text-rich-brown/70 hover:text-rich-brown'}`}
+                      className={`pb-2 italic font-semibold uppercase tracking-wide text-sm focus:outline-none ${currentTab === tab ? 'border-b-2 border-rich-brown text-rich-brown' : 'text-rich-brown/70 hover:text-rich-brown'}`}
                     >
                       {tab}
                     </button>
@@ -268,10 +290,7 @@ const ProductDetailPage: React.FC = () => {
                   {currentTab === 'About' && <p>{product.description}</p>}
                   {currentTab === 'Details' && (
                     <p>
-                      Net Weight: 16oz (1 lb) / 454g<br />
-                      Shelf Life: 12 months from manufacturing date<br />
-                      Storage: Keep in a cool, dry place<br />
-                      Allergen info: Contains wheat
+                     {product.details}
                     </p>
                   )}
                   {currentTab === 'Shipping' && (
@@ -280,10 +299,7 @@ const ProductDetailPage: React.FC = () => {
                     </p>
                   )}
                   {currentTab === 'Reviews' && (
-                    <p>
-                      ★★★★★<br />
-                      "Absolutely stunning piece! Quality and craftsmanship exceeded my expectations."
-                    </p>
+                    <ProductReviews productId={product.id} />
                   )}
                 </div>
               </div>

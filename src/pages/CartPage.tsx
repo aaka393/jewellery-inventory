@@ -42,7 +42,7 @@ const CartPage: React.FC = () => {
     if (newQty <= 0) {
       removeItem(cartItemId);
     } else {
-      updateQuantity(cartItemId, newQty, item.selectedSize); // IMPORTANT: use `item.id` here
+      updateQuantity(cartItemId, delta, item.selectedSize); // IMPORTANT: use `item.id` here
     }
   };
 
@@ -106,7 +106,7 @@ const CartPage: React.FC = () => {
                     />
                     <div className="flex-1 text-rich-brown">
                       <h3 className="text-base font-serif font-semibold italic mb-1 line-clamp-2">{item.product.name}</h3>
-                      {item.selectedSize && (
+                      {item.selectedSize && item.product.category && (
                         <p className="text-sm font-serif font-light text-mocha mb-1">Size: {item.selectedSize}</p>
                       )}
                       <div className="text-base font-serif font-light mb-3">
@@ -194,7 +194,7 @@ const CartPage: React.FC = () => {
                     </>
                   ) : (
                     <button
-                      onClick={() => setShowAddressSelector(true)}
+                      onClick={() => navigate('/addresses')}
                       className={`btn-primary w-full mt-4 ${!agreedToTerms ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                       disabled={!agreedToTerms}

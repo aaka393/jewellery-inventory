@@ -44,7 +44,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
     if (newQuantity <= 0) {
       removeItem(item.id);
     } else {
-      updateQuantity(item.id, newQuantity, item.selectedSize);
+      updateQuantity(item.id, delta, item.selectedSize);
     }
   };
 
@@ -129,7 +129,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
                     <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1 leading-tight">
                       {item.product.name}
                     </h3>
-                    {item.selectedSize && (
+                    {item.selectedSize && item.product.category && (
                       <p className="text-xs text-gray-500 mb-1">Size: {item.selectedSize}</p>
                     )}
                     <p className="text-sm font-semibold text-gray-900 mb-2">
@@ -187,13 +187,6 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ onClose }) => {
               title="Proceed to checkout"
             >
               PROCEED TO CHECKOUT
-            </button>
-            <button
-              onClick={onClose}
-              className="w-full text-center text-xs text-gray-600 hover:text-black py-2 transition-colors"
-              title="View full cart"
-            >
-              VIEW CART
             </button>
           </div>
         )}
