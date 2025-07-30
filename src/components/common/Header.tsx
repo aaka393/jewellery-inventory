@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ShoppingBag } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
@@ -13,9 +13,6 @@ import UserMenu from './UserMenu';
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCartSidebar, setShowCartSidebar] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [scrolled, setScrolled] = useState(false);
   const [showText, setShowText] = useState(false);
 
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -26,24 +23,11 @@ const Header: React.FC = () => {
 
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname.startsWith('/admin');
-
   const cartItemCount = getUniqueItemCount();
 
   useEffect(() => {
     loadCategories().catch(console.error);
   }, [loadCategories]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setScrolled(currentScrollY > 50);
-      setIsVisible(currentScrollY < lastScrollY || currentScrollY < 100);
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowText(true), 400);
@@ -55,120 +39,107 @@ const Header: React.FC = () => {
     navigate('/');
   };
 
-  const styles = {
-    background: 'transparent',
+  const headerStyles = {
+    backgroundColor: 'transparent',
     textColor: isHomePage ? '#FFFFFF' : '#4A3F36',
-    fontWeight: scrolled ? '500' : '700',
-    borderColor: '#DEC9A3',
+    fontWeight: '700',
   };
 
   return (
     <>
       <SEOHead />
       {!isAdminPage && (
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
-          isVisible ? 'translate-y-0' : '-translate-y-full'
-        }`}
-        style={{
-          backgroundColor: styles.background,
-          borderColor: 'transparent',
-          borderBottomWidth: '0px',
-        }}
-      >
-        <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
-          <div className="grid grid-cols-3 items-center h-8 sm:h-10 lg:h-12 gap-2 sm:gap-4">
-            {/* Left */}
-            <div className="flex items-center justify-start">
-              <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-6">
-                <button
-                  onClick={() => setIsMenuOpen(true)}
-                  style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                  className={`hover:opacity-70 transition-opacity flex items-center ${
+        <header
+          className="w-full bg-white shadow-md py-4 transition-all duration-500 ease-in-out"
+          style={{
+            backgroundColor: headerStyles.backgroundColor,
+            borderColor: 'transparent',
+            borderBottomWidth: '0px',
+          }}
+        >
+          <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
+            <div className="grid grid-cols-3 items-center h-8 sm:h-10 lg:h-12 gap-2 sm:gap-4">
+              {/* Left */}
+              <div className="flex items-center justify-start">
+                <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-6">
+                  <button
+                    onClick={() => setIsMenuOpen(true)}
+                    style={{ color: headerStyles.textColor, fontWeight: headerStyles.fontWeight }}
+                    className={`hover:opacity-70 transition-opacity flex items-center ${
+                      showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+                    }`}
+                    title="Open Menu"
+                  >
+                    <Menu className="h-6 w-6 sm:h-7 sm:w-7" />
+                  </button>
+                  <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 text-xs tracking-widest">
+                    <Link
+                      to="/products"
+                      style={{ color: headerStyles.textColor, fontWeight: headerStyles.fontWeight }}
+                      className="hover:opacity-70 transition-all duration-200 ease-in-out whitespace-nowrap font-serif italic"
+                      title="Shop Products"
+                    >
+                      SHOP
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Center - Logo */}
+              <div className="flex items-center justify-center">
+                <Link
+                  to="/"
+                  className={`flex items-center justify-center transition-all duration-200 ease-in-out ${
                     showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
                   }`}
-                  title="Open Menu"
+                  title={`${SITE_CONFIG.name} - Home`}
                 >
-                  <Menu className="h-6 w-6 sm:h-7 sm:w-7" />
-                </button>
-                <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 text-xs tracking-widest">
-                  <Link
-                    to="/products"
-                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                    className="hover:opacity-70 transition-all duration-200 ease-in-out whitespace-nowrap font-serif italic"
-                    title="Shop Products"
+                  {isHomePage ? null : (
+                    <div className="flex items-center justify-center h-8 sm:h-10 lg:h-10">
+                      <span
+                        className="text-lg sm:text-xl lg:text-xl xl:text-2xl font-serif italic font-semibold tracking-wide whitespace-nowrap"
+                        style={{ color: headerStyles.textColor, fontWeight: headerStyles.fontWeight }}
+                      >
+                        {SITE_CONFIG.shortName}
+                      </span>
+                    </div>
+                  )}
+                </Link>
+              </div>
+
+              {/* Right */}
+              <div className="flex items-center justify-end">
+                <div
+                  className={`flex items-center space-x-3 sm:space-x-4 lg:space-x-6 ${
+                    showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+                  }`}
+                >
+                  <UserMenu dropdownPosition="bottom" />
+                  <button
+                    onClick={() => setShowCartSidebar(true)}
+                    className="flex items-center gap-1 sm:gap-2 hover:opacity-70 transition-opacity relative h-8 sm:h-10 lg:h-12 min-w-0"
+                    title={`Shopping Cart (${cartItemCount} items)`}
                   >
-                    SHOP
-                  </Link>
-                  {/* <Link
-                    to="/about"
-                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                    className="hover:opacity-70 transition-all duration-200 ease-in-out whitespace-nowrap font-serif italic"
-                    title="About Us"
-                  >
-                    ABOUT
-                  </Link> */}
+                    <span
+                      className="hidden lg:inline text-xs tracking-widest whitespace-nowrap"
+                      style={{ color: headerStyles.textColor, fontWeight: headerStyles.fontWeight }}
+                    >
+                      CART
+                    </span>
+                    <div className="relative flex items-center">
+                      <ShoppingBag className="w-6 h-6 sm:w-6 sm:h-6 lg:w-6 lg:h-6" style={{ color: headerStyles.textColor }} />
+                      {cartItemCount > 0 && (
+                        <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-500 text-white text-[10px] sm:text-xs rounded-full h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex items-center justify-center font-medium">
+                          {cartItemCount > 99 ? '99+' : cartItemCount}
+                        </span>
+                      )}
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
-
-            {/* Center - Logo */}
-            <div className="flex items-center justify-center">
-              <Link
-                to="/"
-                className={`flex items-center justify-center transition-all duration-200 ease-in-out ${
-                  showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-                }`}
-                title={`${SITE_CONFIG.name} - Home`}
-              >
-                {isHomePage ? (
-                 <></>
-                ) : (
-                  <div className="flex items-center justify-center h-8 sm:h-10 lg:h-10">
-                    <span
-                      className="text-lg sm:text-xl lg:text-xl xl:text-2xl font-serif italic font-semibold tracking-wide whitespace-nowrap"
-                      style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                    >
-                      {SITE_CONFIG.shortName}
-                    </span>
-                  </div>
-                )}
-              </Link>
-            </div>
-
-            {/* Right */}
-            <div className="flex items-center justify-end">
-              <div
-                className={`flex items-center space-x-3 sm:space-x-4 lg:space-x-6 ${
-                  showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-                }`}
-              >
-                <UserMenu dropdownPosition="bottom"/>
-                <button
-                  onClick={() => setShowCartSidebar(true)}
-                  className="flex items-center gap-1 sm:gap-2 hover:opacity-70 transition-opacity relative h-8 sm:h-10 lg:h-12 min-w-0"
-                  title={`Shopping Cart (${cartItemCount} items)`}
-                >
-                  <span
-                    className="hidden lg:inline text-xs tracking-widest whitespace-nowrap"
-                    style={{ color: styles.textColor, fontWeight: styles.fontWeight }}
-                  >
-                    CART
-                  </span>
-                  <div className="relative flex items-center">
-                    <ShoppingBag className="w-6 h-6 sm:w-6 sm:h-6 lg:w-6 lg:h-6" style={{ color: styles.textColor }} />
-                    {cartItemCount > 0 && (
-                      <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-500 text-white text-[10px] sm:text-xs rounded-full h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex items-center justify-center font-medium">
-                        {cartItemCount > 99 ? '99+' : cartItemCount}
-                      </span>
-                    )}
-                  </div>
-                </button>
-              </div>
-            </div>
           </div>
-        </div>
-      </header>
+        </header>
       )}
 
       {/* Sidebar Menu */}
@@ -193,27 +164,27 @@ const Header: React.FC = () => {
               <div className="flex flex-col gap-4 sm:gap-6 text-left pl-2">
                 {isAuthenticated ? (
                   <>
-                    <Link 
-                      to="/profile" 
-                      onClick={() => setIsMenuOpen(false)} 
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsMenuOpen(false)}
                       className="block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-2 transition-opacity"
                       title="View Profile"
                     >
                       PROFILE
                     </Link>
                     <div className="border-t border-[#d4b896]/20" />
-                    <Link 
-                      to="/products" 
-                      onClick={() => setIsMenuOpen(false)} 
+                    <Link
+                      to="/products"
+                      onClick={() => setIsMenuOpen(false)}
                       className="block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-2 transition-opacity"
                       title="Shop Products"
                     >
                       SHOP
                     </Link>
                     <div className="border-t border-[#d4b896]/20" />
-                    <Link 
-                      to="/cart" 
-                      onClick={() => setIsMenuOpen(false)} 
+                    <Link
+                      to="/cart"
+                      onClick={() => setIsMenuOpen(false)}
                       className="flex items-center justify-between text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-2 transition-opacity"
                       title={`Shopping Cart (${cartItemCount} items)`}
                     >
@@ -225,9 +196,9 @@ const Header: React.FC = () => {
                       )}
                     </Link>
                     <div className="border-t border-[#d4b896]/20" />
-                    <Link 
-                      to="/addresses" 
-                      onClick={() => setIsMenuOpen(false)} 
+                    <Link
+                      to="/addresses"
+                      onClick={() => setIsMenuOpen(false)}
                       className="block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-2 transition-opacity"
                       title="Manage Addresses"
                     >
@@ -236,9 +207,9 @@ const Header: React.FC = () => {
                     <div className="border-t border-[#d4b896]/20" />
                     {user?.role === 'Admin' && (
                       <>
-                        <Link 
-                          to="/admin" 
-                          onClick={() => setIsMenuOpen(false)} 
+                        <Link
+                          to="/admin"
+                          onClick={() => setIsMenuOpen(false)}
                           className="block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-2 transition-opacity"
                           title="Admin Panel"
                         >
@@ -250,7 +221,7 @@ const Header: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    {['/', '/products', '/about'].map((path) => (
+                    {['/', '/products'].map((path) => (
                       <div key={path}>
                         <Link
                           to={path}
@@ -263,9 +234,9 @@ const Header: React.FC = () => {
                         <div className="border-t border-[#d4b896]/20" />
                       </div>
                     ))}
-                    <Link 
-                      to="/cart" 
-                      onClick={() => setIsMenuOpen(false)} 
+                    <Link
+                      to="/cart"
+                      onClick={() => setIsMenuOpen(false)}
                       className="flex items-center justify-between text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-2 transition-opacity"
                       title={`Shopping Cart (${cartItemCount} items)`}
                     >
@@ -277,9 +248,9 @@ const Header: React.FC = () => {
                       )}
                     </Link>
                     <div className="border-t border-[#d4b896]/20" />
-                    <Link 
-                      to="/login" 
-                      onClick={() => setIsMenuOpen(false)} 
+                    <Link
+                      to="/login"
+                      onClick={() => setIsMenuOpen(false)}
                       className="block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-2 transition-opacity"
                       title="Login to Account"
                     >

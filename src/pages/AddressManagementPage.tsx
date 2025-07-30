@@ -8,7 +8,6 @@ import { SITE_CONFIG } from '../constants/siteConfig';
 import Header from '../components/common/Header';
 import { AddressFormData, Address } from '../types/address';
 import { useAddressStore } from '../store/addressStore';
-import Footer from '../components/common/Footer';
 
 const AddressManagementPage: React.FC = () => {
   const navigate = useNavigate();
@@ -105,10 +104,6 @@ const AddressManagementPage: React.FC = () => {
         loading={formLoading}
         address={editingAddress}
       />
-
-      <div className="py-3 sm:py-4 md:py-6 px-3 sm:px-4 border-t border-bronze text-center bg-subtle-beige text-[10px] sm:text-xs text-espresso">
-        <Footer />
-      </div>
     </>
   );
 };
