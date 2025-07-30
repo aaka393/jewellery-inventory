@@ -5,6 +5,7 @@ import { apiService } from '../services/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
 import { SITE_CONFIG, staticImageBaseUrl } from '../constants/siteConfig';
+import Footer from '../components/common/Footer';
 import Neckless from '../assets/Neckless.jpg';
 import Header from '../components/common/Header'; // Make sure this import is correct
 import { motion } from 'framer-motion';

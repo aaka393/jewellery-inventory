@@ -56,7 +56,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-subtle-beige font-serif">
+    <div className="min-h-screen flex flex-col bg-linen font-serif">
       {/* Main Content */}
       <div className="flex-grow flex items-center sm:mt-24 lg:mt-5 justify-center px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-xs sm:max-w-sm lg:max-w-md">
@@ -126,7 +126,7 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div className="text-right text-xs sm:text-sm uppercase tracking-widest text-rich-brown font-serif font-semibold italic mt-2">
-              <Link to="/forgot-password">Forgot your password?</Link>
+              <Link to="/forgot-password" className="hover:text-mocha transition-colors">Forgot your password?</Link>
             </div>
 
             <div className="pt-4 sm:pt-6">
