@@ -1,3 +1,4 @@
+// Header.tsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ShoppingBag } from 'lucide-react';
@@ -6,7 +7,6 @@ import { useCategoryStore } from '../../store/categoryStore';
 import { useCartStore } from '../../store/cartStore';
 import SEOHead from '../seo/SEOHead';
 import { SITE_CONFIG } from '../../constants/siteConfig';
-import Taanira from '../../assets/Taanira-logo.png';
 import CartSidebar from './CartSidebar';
 import UserMenu from './UserMenu';
 
@@ -50,7 +50,7 @@ const Header: React.FC = () => {
       <SEOHead />
       {!isAdminPage && (
         <header
-          className="w-full bg-white shadow-md py-4 transition-all duration-500 ease-in-out"
+          className="absolute top-0 left-0 w-full z-30 transition-all duration-500 ease-in-out animate-fadeInSlow" // Added absolute, top-0, left-0, w-full, z-30
           style={{
             backgroundColor: headerStyles.backgroundColor,
             borderColor: 'transparent',
@@ -94,7 +94,10 @@ const Header: React.FC = () => {
                   }`}
                   title={`${SITE_CONFIG.name} - Home`}
                 >
-                  {isHomePage ? null : (
+                  {/* On homepage, you probably want to display the full logo image instead of text */}
+                  {isHomePage ? (
+                    <></>
+                  ) : (
                     <div className="flex items-center justify-center h-8 sm:h-10 lg:h-10">
                       <span
                         className="text-lg sm:text-xl lg:text-xl xl:text-2xl font-serif italic font-semibold tracking-wide whitespace-nowrap"
