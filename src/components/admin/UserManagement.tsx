@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Crown, Mail, Phone, Send, Package } from 'lucide-react';
+import { Users, Crown, Mail, Phone} from 'lucide-react';
 import { RoleChangeDialog, TrackingConfirmDialog } from '../../types/admin';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ConfirmDialog from '../common/ConfirmDialog';
@@ -16,8 +16,6 @@ const UserManagement: React.FC = () => {
   const {
     users,
     loading,
-    trackingLoading,
-    userOrderCounts,
     notification,
     setNotification,
     sendTrackingId,
@@ -77,7 +75,7 @@ const UserManagement: React.FC = () => {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
-            className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] transition"
+            className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-[#DEC9A3] transition"
           >
             <option value="all">All Users ({stats.total})</option>
             <option value="admin">Admins ({stats.admins})</option>
@@ -115,7 +113,7 @@ const UserManagement: React.FC = () => {
                           {user.avatar ? (
                             <img
                               src={user.avatar}
-                              alt={`${user.firstname} ${user.lastname}`}
+                              alt={`${user.username}`}
                               className="h-full w-full object-cover"
                             />
                           ) : (
@@ -124,7 +122,7 @@ const UserManagement: React.FC = () => {
                         </div>
                         <div className="ml-2 sm:ml-4"> {/* Removed min-w-0 flex-1 as it wasn't in your original */}
                           <div className="text-xs sm:text-sm font-medium text-[#4A3F36] truncate">
-                            {user.firstname} {user.lastname}
+                            {user.username}
                           </div>
                           <div className="text-xs text-gray-500 truncate">@{user.username}</div>
                         </div>
@@ -152,7 +150,7 @@ const UserManagement: React.FC = () => {
                       <select
                         value={user.role || 'User'}
                         onChange={(e) => confirmRoleChange(user.id, e.target.value)}
-                        className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] transition w-full"
+                        className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-0 focus:border-[#DEC9A3] transition w-full"
                       >
                         <option value="User">User</option>
                         <option value="Admin">Admin</option>
@@ -201,7 +199,7 @@ const UserManagement: React.FC = () => {
                         <select
                           value={user.role || 'User'}
                           onChange={(e) => confirmRoleChange(user.id, e.target.value)}
-                          className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] w-full"
+                         className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-0 focus:border-[#DEC9A3] w-full"
                         >
                           <option value="User">User</option>
                           <option value="Admin">Admin</option>
@@ -241,7 +239,7 @@ const UserManagement: React.FC = () => {
               value={customTrackingNumber}
               onChange={(e) => setCustomTrackingNumber(e.target.value)}
               placeholder="Tracking Number"
-              className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#DEC9A3] transition"
+              className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-0 focus:border-[#DEC9A3] transition"
             />
           </>
         }

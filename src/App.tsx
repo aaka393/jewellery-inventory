@@ -21,7 +21,10 @@ import NotificationToast from './components/common/NotificationToast';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import SitemapPage from './pages/SitemapPage';
+import NotFoundPage from './pages/NotFoundPage';
 import Footer from './components/common/Footer';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import VerifyResetPage from './pages/VerifyResetPage';
 
 function AppContent() {
   const location = useLocation();
@@ -39,7 +42,7 @@ function AppContent() {
 
   return (
     <RouteGuard>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-theme-background flex flex-col">
         {shouldShowHeader && <Header />}
         <main className="flex-1">
           <Routes>
@@ -53,6 +56,8 @@ function AppContent() {
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/sitemap" element={<SitemapPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/verify-reset" element={<VerifyResetPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
 
@@ -91,7 +96,7 @@ function AppContent() {
             />
 
             {/* Fallback */}
-            <Route path="*" element={<HomePage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
 

@@ -24,6 +24,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
   const { getTotalPrice, clearCart, items } = useCartStore();
   const { user } = useAuthStore();
   const { selectedAddress } = useAddressStore();
+  const baseFocusClasses = "focus:outline-none focus:ring-0";
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -122,10 +123,12 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
               razorpay_signature: response.razorpay_signature,
             });
 
-            if (verificationResult && verificationResult.status === 'success') {
-              clearCart();
+            if (verificationResult?.status === 'success') {
+              const cartIdsToRemove = items.map(item => item.id); // assuming `item.cartId` exists
+              await clearCart(cartIdsToRemove);
               onSuccess(orderData.id);
-            } else {
+            }
+            else {
               onError('Payment verification failed');
             }
           } catch (error) {
@@ -134,7 +137,6 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
           }
         },
         prefill: {
-          name: `${user?.firstname || ''} ${user?.lastname || ''}`,
           email: user?.email || '',
           contact: user?.contact || '',
         },
@@ -143,7 +145,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
           user_id: user?.id || '',
         },
         theme: {
-          color: '#000000',
+          color: 'var(--color-theme-primary)',
         },
         modal: {
           ondismiss: () => {
@@ -163,7 +165,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
   return (
     <button
       onClick={handlePayment}
-      className={`btn-primary w-full ${!isTermsAccepted ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`btn-primary rounded-md p-2 text-theme-light bg-theme-primary hover:bg-theme-dark w-full ${!isTermsAccepted ? 'opacity-50 cursor-not-allowed' : ''} ${baseFocusClasses}`}
       title="Proceed to secure payment"
       disabled={!isTermsAccepted}
     >

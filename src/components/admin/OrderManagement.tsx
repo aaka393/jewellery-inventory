@@ -19,11 +19,9 @@ import {
   Search,
   RefreshCw,
   FileDown,
-  User,
   Calendar,
   MapPin,
   Send,
-  Truck,
   Pencil,
   Copy, // Added Copy icon
   Check // Added Check icon
@@ -145,17 +143,21 @@ const OrderItemsCellRenderer = (params: any) => {
 
 
 const AmountCellRenderer = (params: any) => {
-  const amount = params.value;
+  const amount = params.value ?? 0;
 
   return (
     <div className="text-right">
       <div className="text-lg font-bold text-gray-900">
-        {SITE_CONFIG.currencySymbol}{amount.toLocaleString()}
+        {`${SITE_CONFIG.currencySymbol}${(amount / 100).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
       </div>
       <div className="text-xs text-gray-500">Total Amount</div>
     </div>
   );
 };
+
 
 const DateCellRenderer = (params: any) => {
   const date = formatReadableDate(params.value);
@@ -467,7 +469,10 @@ const OrderManagement: React.FC = () => {
           <Card
             icon={() => <Download className="h-5 w-5 sm:h-6 sm:w-6 text-[#5f3c2c]" />}
             title="Revenue"
-            value={`${SITE_CONFIG.currencySymbol}${(stats?.totalRevenue ?? 0).toLocaleString()}`}
+            value={`${SITE_CONFIG.currencySymbol}${((stats?.totalRevenue ?? 0) / 100).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`}
           />
         </div>
 
