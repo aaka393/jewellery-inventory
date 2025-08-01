@@ -240,13 +240,37 @@ const ProductDetailPage: React.FC = () => {
                   {product.name}
                 </h1>
                 <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-medium">₹ {product.price.toLocaleString()}</div>
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-medium">
+                    {product.isHalfPaymentAvailable ? (
+                      <div className="space-y-1">
+                        <div className="text-green-600">₹ {(product.halfPaymentAmount || 0).toLocaleString()}</div>
+                        <div className="text-sm text-theme-muted">Pay first • Total: ₹{product.price.toLocaleString()}</div>
+                      </div>
+                    ) : (
+                      <>₹ {product.price.toLocaleString()}</>
+                    )}
+                  </div>
                   {product.comparePrice && product.comparePrice > product.price && (
                     <div className="text-lg sm:text-xl lg:text-2xl line-through text-theme-primary/60">
                       ₹ {product.comparePrice.toLocaleString()}
                     </div>
                   )}
                 </div>
+
+                {product.isHalfPaymentAvailable && (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 sm:p-6">
+                    <h3 className="text-lg font-serif font-semibold italic text-green-800 mb-2">
+                      Half Payment Option Available
+                    </h3>
+                    <p className="text-green-700 font-serif italic text-sm sm:text-base leading-relaxed">
+                      This product supports partial payment. You only need to pay{' '}
+                      <span className="font-semibold">₹{(product.halfPaymentAmount || 0).toLocaleString()}</span> now.
+                      The remaining{' '}
+                      <span className="font-semibold">₹{((product.price || 0) - (product.halfPaymentAmount || 0)).toLocaleString()}</span>{' '}
+                      will be paid after your order is delivered.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {hasSizeOptions && (

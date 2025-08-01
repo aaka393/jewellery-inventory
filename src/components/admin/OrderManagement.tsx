@@ -203,6 +203,7 @@ const ActionsCellRenderer = (params: any) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [sendingRemaining, setSendingRemaining] = useState(false);
 
   // Sync tracking number if order changes
   useEffect(() => {
@@ -225,8 +226,20 @@ const ActionsCellRenderer = (params: any) => {
     }
   };
 
+  const handleSendRemainingPaymentLink = async () => {
+    setSendingRemaining(true);
+    try {
+      await adminService.sendRemainingPaymentNotification(order.id);
+      alert('Remaining payment notification sent successfully!');
+    } catch (error) {
+      console.error('Failed to send remaining payment notification:', error);
+      alert('Failed to send notification');
+    } finally {
+      setSendingRemaining(false);
+    }
+  };
   return (
-    <div className="py-2">
+    <div className="py-2 space-y-2">
       {order.status === 'paid' && (
         <div className="flex flex-col items-center justify-center space-y-3">
           {!isEditing && trackingId ? (
@@ -272,6 +285,20 @@ const ActionsCellRenderer = (params: any) => {
               </div>
             </>
           )}
+        </div>
+      )}
+
+      {/* Half Payment Remaining Button */}
+      {order.isHalfPayment && order.halfPaymentStatus === 'pending' && (
+        <div className="flex justify-center">
+          <button
+            onClick={handleSendRemainingPaymentLink}
+            disabled={sendingRemaining}
+            className="flex items-center space-x-1 bg-yellow-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+          >
+            <Send className="h-3 w-3" />
+            <span>{sendingRemaining ? 'Sending...' : 'Send Remaining Payment Link'}</span>
+          </button>
         </div>
       )}
     </div>
@@ -375,6 +402,30 @@ const OrderManagement: React.FC = () => {
       field: 'status',
       width: 140,
       cellRenderer: StatusCellRenderer,
+      filter: 'agSetColumnFilter',
+      sortable: true,
+    },
+    {
+      headerName: 'Payment Type',
+      field: 'isHalfPayment',
+      width: 120,
+      cellRenderer: (params: any) => {
+        const isHalf = params.value;
+        const halfStatus = params.data.halfPaymentStatus;
+        
+        if (!isHalf) {
+          return <span className="text-xs text-gray-500">Full Payment</span>;
+        }
+        
+        return (
+          <div className="text-center">
+            <div className="text-xs font-medium text-blue-600">Half Payment</div>
+            <div className={`text-xs ${halfStatus === 'pending' ? 'text-yellow-600' : 'text-green-600'}`}>
+              {halfStatus === 'pending' ? 'Remaining Due' : 'Completed'}
+            </div>
+          </div>
+        );
+      },
       filter: 'agSetColumnFilter',
       sortable: true,
     },
@@ -721,6 +772,31 @@ const OrderDetailModal: React.FC<{
                         })}
                       </span>
                     </div>
+                    
+                    {order.isHalfPayment && (
+                      <>
+                        <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
+                          <span className="font-light italic">Payment Type:</span>
+                          <span className="font-semibold text-blue-600">Half Payment</span>
+                        </div>
+                        <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
+                          <span className="font-light italic">Remaining Amount:</span>
+                          <span className="font-semibold text-yellow-600">
+                            {SITE_CONFIG.currencySymbol}
+                            {((order.remainingAmount || 0) / 100).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-2">
+                          <span className="font-light italic">Remaining Status:</span>
+                          <span className={`font-semibold ${order.halfPaymentStatus === 'pending' ? 'text-yellow-600' : 'text-green-600'}`}>
+                            {order.halfPaymentStatus === 'pending' ? 'Pending' : 'Paid'}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 

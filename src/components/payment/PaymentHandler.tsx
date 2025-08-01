@@ -77,8 +77,23 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
         return;
       }
 
+      // Calculate half payment amount if applicable
+      const halfPaymentItems = items.filter(item => item.product.isHalfPaymentAvailable);
+      const fullPaymentItems = items.filter(item => !item.product.isHalfPaymentAvailable);
+      
+      const halfPaymentAmount = halfPaymentItems.reduce((sum, item) => 
+        sum + ((item.product.halfPaymentAmount || 0) * item.quantity), 0
+      );
+      
+      const fullPaymentAmount = fullPaymentItems.reduce((sum, item) => 
+        sum + (item.product.price * item.quantity), 0
+      );
+      
+      const actualPaymentAmount = halfPaymentAmount + fullPaymentAmount;
+      const isHalfPayment = halfPaymentItems.length > 0;
+
       const orderResponse = await apiService.createOrder({
-        amount: Math.round(totalAmount * 100),
+        amount: Math.round(actualPaymentAmount * 100),
         currency: 'INR',
         receipt: `receipt_${Date.now()}`,
         items: items.map(item => ({
@@ -90,6 +105,8 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
           image: item.product.images[0] || ''
         })),
         shippingAddress: selectedAddress as AddressFormData,
+        isHalfPayment,
+        remainingAmount: isHalfPayment ? Math.round((totalAmount - actualPaymentAmount) * 100) : 0,
         notes: {
           userId: user?.id || '',
           userEmail: user?.email || '',

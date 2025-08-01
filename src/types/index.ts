@@ -42,6 +42,8 @@ export interface Product {
   details:string;
   review: string;
   isLatest?:boolean;
+  isHalfPaymentAvailable?: boolean;
+  halfPaymentAmount?: number;
 }
 
 export interface Category {
@@ -106,6 +108,9 @@ export interface Order {
   items: OrderItem[];
   trackingNumber:string | null;
   shippingAddress: AddressFormData;
+  isHalfPayment?: boolean;
+  remainingAmount?: number;
+  halfPaymentStatus?: 'pending' | 'paid' | 'not_applicable';
 }
 
 
@@ -123,6 +128,8 @@ export interface OrderRequest {
   receipt?: string;
   items: OrderItem[]; 
   shippingAddress: AddressFormData; // Define this below
+  isHalfPayment?: boolean;
+  remainingAmount?: number;
   notes?: {
     userId: string;
     userEmail: string;
@@ -168,6 +175,8 @@ export interface ProductImport {
   id?: string; 
   review?:string;
   isLatest?:boolean;
+  isHalfPaymentAvailable?: boolean;
+  halfPaymentAmount?: number;
 }
 
 

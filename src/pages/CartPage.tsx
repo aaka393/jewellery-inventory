@@ -209,10 +209,49 @@ React.useEffect(() => {
                   <h2 className="text-lg sm:text-xl font-semibold italic mb-4 sm:mb-6">Order Summary</h2>
 
                   <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+                    {/* Half Payment Info */}
+                    {activeItems.some(item => item.product.isHalfPaymentAvailable) && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4">
+                        <h3 className="text-sm font-serif font-semibold italic text-green-800 mb-2">
+                          Half Payment Available
+                        </h3>
+                        {activeItems.map(item => 
+                          item.product.isHalfPaymentAvailable ? (
+                            <div key={item.id} className="text-xs sm:text-sm text-green-700 font-serif italic">
+                              {item.product.name}: Pay ₹{((item.product.halfPaymentAmount || 0) * item.quantity).toLocaleString()} now,
+                              ₹{(((item.product.price - (item.product.halfPaymentAmount || 0)) * item.quantity)).toLocaleString()} after delivery
+                            </div>
+                          ) : null
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex justify-between">
                       <span className="text-sm sm:text-base italic">SUBTOTAL:</span>
-                      <span className="text-sm sm:text-base font-semibold">Rs. {getTotalPrice().toLocaleString()}</span>
+                      <span className="text-sm sm:text-base font-semibold">
+                        Rs. {(() => {
+                          const halfPaymentItems = activeItems.filter(item => item.product.isHalfPaymentAvailable);
+                          const fullPaymentItems = activeItems.filter(item => !item.product.isHalfPaymentAvailable);
+                          
+                          const halfPaymentAmount = halfPaymentItems.reduce((sum, item) => 
+                            sum + ((item.product.halfPaymentAmount || 0) * item.quantity), 0
+                          );
+                          
+                          const fullPaymentAmount = fullPaymentItems.reduce((sum, item) => 
+                            sum + (item.product.price * item.quantity), 0
+                          );
+                          
+                          return (halfPaymentAmount + fullPaymentAmount).toLocaleString();
+                        })()}
+                      </span>
                     </div>
+                    
+                    {activeItems.some(item => item.product.isHalfPaymentAvailable) && (
+                      <div className="text-xs sm:text-sm italic text-green-600 bg-green-50 p-2 rounded">
+                        You're paying only the first installment now. Remaining amount will be collected after delivery.
+                      </div>
+                    )}
+                    
                     <div className="text-xs sm:text-sm italic text-theme-muted">
                       Taxes and shipping will be calculated at checkout.
                     </div>

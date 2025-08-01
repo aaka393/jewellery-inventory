@@ -35,6 +35,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     images: [],
     stock: true,
     isLatest: false,
+    isHalfPaymentAvailable: false,
+    halfPaymentAmount: 0,
   });
 
   useEffect(() => {
@@ -53,6 +55,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
           images: [],
           stock: true,
           isLatest: false,
+          isHalfPaymentAvailable: false,
+          halfPaymentAmount: 0,
         });
         setImageFiles([]);
       }
@@ -81,6 +85,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         images: product.images || [],
         stock: product.stock ?? true,
         isLatest: product.isLatest ?? false,
+        isHalfPaymentAvailable: product.isHalfPaymentAvailable ?? false,
+        halfPaymentAmount: product.halfPaymentAmount || 0,
       });
 
       const existingImages: ImageFile[] = (product.images || []).map((url, index) => ({
@@ -244,6 +250,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         images: finalImageUrls,
         stock: formData.stock,
         isLatest: formData.isLatest,
+        isHalfPaymentAvailable: formData.isHalfPaymentAvailable,
+        halfPaymentAmount: formData.halfPaymentAmount,
       };
 
       onSave(productData);
@@ -522,6 +530,40 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
               />
               <span className="text-sm text-[#5f3c2c]">Mark as Latest Product</span>
             </label>
+
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isHalfPaymentAvailable"
+                checked={formData.isHalfPaymentAvailable}
+                onChange={handleCheckboxChange}
+                className="rounded border-gray-300 text-[#D4B896] focus:ring-[#D4B896]"
+              />
+              <span className="text-sm text-[#5f3c2c]">Enable Half Payment</span>
+            </label>
+
+            {formData.isHalfPaymentAvailable && (
+              <div>
+                <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
+                  Half Payment Amount *
+                </label>
+                <input
+                  type="number"
+                  name="halfPaymentAmount"
+                  value={formData.halfPaymentAmount || ''}
+                  onChange={handleInputChange}
+                  placeholder="Amount to pay first"
+                  min="0"
+                  max={formData.price}
+                  step="0.01"
+                  required={formData.isHalfPaymentAvailable}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-[#D4B896]"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Customer will pay this amount first. Remaining: ₹{((formData.price || 0) - (formData.halfPaymentAmount || 0)).toFixed(2)}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

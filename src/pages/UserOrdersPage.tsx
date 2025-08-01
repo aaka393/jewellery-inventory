@@ -16,6 +16,22 @@ import { SITE_CONFIG, staticImageBaseUrl } from '../constants/siteConfig';
 import { Order } from '../types';
 import { formatReadableDate } from '../utils/dateUtils';
 
+// Add Razorpay script loading function
+const loadRazorpayScript = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const UserOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +42,73 @@ const UserOrdersPage: React.FC = () => {
 
   const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
   const { isAuthenticated } = useAuthStore();
+
+  const handlePayRemaining = async (orderId: string, remainingAmount: number) => {
+    try {
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        alert('Failed to load payment gateway');
+        return;
+      }
+
+      // Create a new payment order for the remaining amount
+      const orderResponse = await apiService.createOrder({
+        amount: remainingAmount,
+        currency: 'INR',
+        receipt: `remaining_${orderId}_${Date.now()}`,
+        items: [], // Empty items for remaining payment
+        shippingAddress: {} as any, // Empty address for remaining payment
+        isHalfPayment: false,
+        remainingAmount: 0,
+        notes: {
+          userId: useAuthStore.getState().user?.id || '',
+          userEmail: useAuthStore.getState().user?.email || '',
+          itemCount: '0',
+          originalOrderId: orderId,
+          paymentType: 'remaining',
+        },
+      });
+
+      // Initialize Razorpay for remaining payment
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_key',
+        amount: remainingAmount,
+        currency: 'INR',
+        name: SITE_CONFIG.name,
+        description: 'Remaining Payment',
+        order_id: orderResponse.id,
+        handler: async (response: any) => {
+          try {
+            await apiService.verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            
+            // Reload orders to show updated status
+            loadOrders();
+            alert('Remaining payment completed successfully!');
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            alert('Payment verification failed');
+          }
+        },
+        prefill: {
+          email: useAuthStore.getState().user?.email || '',
+          contact: useAuthStore.getState().user?.contact || '',
+        },
+        theme: {
+          color: 'var(--color-theme-primary)',
+        },
+      };
+
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error('Error initiating remaining payment:', error);
+      alert('Failed to initiate remaining payment');
+    }
+  };
 
   useEffect(() => {
     if (isAuthenticated) loadOrders();
@@ -229,6 +312,26 @@ const UserOrdersPage: React.FC = () => {
                         </>
                       )}
                     </div>
+
+                    {/* Half Payment Status */}
+                    {order.isHalfPayment && order.halfPaymentStatus === 'pending' && (
+                      <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-yellow-800">Payment Pending</p>
+                            <p className="text-xs text-yellow-700">
+                              ₹{((order.remainingAmount || 0) / 100).toLocaleString()} is due
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handlePayRemaining(order.id, order.remainingAmount || 0)}
+                            className="bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-yellow-700 transition-colors"
+                          >
+                            Pay Remaining
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
 
 

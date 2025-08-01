@@ -141,7 +141,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
           <div className={`flex items-center gap-2 sm:gap-3 ${viewMode === 'list' ? 'justify-start' : 'justify-center'}`}>
             <span className={`font-serif text-theme-primary font-medium ${viewMode === 'list' ? 'text-lg sm:text-xl' : 'text-sm sm:text-base'
               }`}>
-              {SITE_CONFIG.currencySymbol}{(product.price || 0).toLocaleString()}
+              {product.isHalfPaymentAvailable ? (
+                <>
+                  <span className="text-green-600 font-semibold">
+                    {SITE_CONFIG.currencySymbol}{(product.halfPaymentAmount || 0).toLocaleString()}
+                  </span>
+                  <span className="text-xs text-theme-muted ml-1">first</span>
+                </>
+              ) : (
+                SITE_CONFIG.currencySymbol + (product.price || 0).toLocaleString()
+              )}
             </span>
             {typeof product.comparePrice === 'number' &&
               product.comparePrice > 0 &&
@@ -154,6 +163,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
 
 
           </div>
+
+          {product.isHalfPaymentAvailable && (
+            <div className={`${viewMode === 'list' ? 'pt-2' : 'pt-1'}`}>
+              <div className="bg-green-50 border border-green-200 rounded-lg px-2 py-1">
+                <p className={`text-green-700 font-serif italic text-center ${viewMode === 'list' ? 'text-sm' : 'text-xs'}`}>
+                  Half Payment Available
+                </p>
+                <p className={`text-green-600 font-serif text-center ${viewMode === 'list' ? 'text-xs' : 'text-[10px]'}`}>
+                  Pay ₹{(product.halfPaymentAmount || 0).toLocaleString()} now, ₹{((product.price || 0) - (product.halfPaymentAmount || 0)).toLocaleString()} after delivery
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className={`${viewMode === 'list' ? 'pt-3 sm:pt-4' : 'pt-2 sm:pt-3'}`}>
             {!product.stock ? (
