@@ -216,31 +216,33 @@ const Header: React.FC = () => {
                   </Link>
                 )}
 
-                {/* CART - always visible */}
-                <button
-                  onClick={() => setShowCartSidebar(true)}
-                  className={`flex items-center ${baseFocusClasses} gap-1 sm:gap-2 hover:opacity-70 transition-opacity relative p-2 min-w-0`}
-                  title={`Shopping Cart (${cartItemCount} items)`}
-                >
-                  <span
-                    className="hidden md:inline text-xs sm:text-sm tracking-widest whitespace-nowrap"
-                    style={{ color: headerStyles.textColor, fontWeight: headerStyles.fontWeight }}
+                {/* CART - only visible for non-admin users */}
+                {user?.role !== 'Admin' && (
+                  <button
+                    onClick={() => setShowCartSidebar(true)}
+                    className={`flex items-center ${baseFocusClasses} gap-1 sm:gap-2 hover:opacity-70 transition-opacity relative p-2 min-w-0`}
+                    title={`Shopping Cart (${cartItemCount} items)`}
                   >
-                    CART
-                  </span>
-                  <div className="relative flex items-center">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 -mt-1 sm:-mt-1">
-  <BagIcon stroke={isHomePage ? '#F8F6F3' : '#4A3F36'} />
-</div>
+                    <span
+                      className="hidden md:inline text-xs sm:text-sm tracking-widest whitespace-nowrap"
+                      style={{ color: headerStyles.textColor, fontWeight: headerStyles.fontWeight }}
+                    >
+                      CART
+                    </span>
+                    <div className="relative flex items-center">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 -mt-1 sm:-mt-1">
+                        <BagIcon stroke={isHomePage ? '#F8F6F3' : '#4A3F36'} />
+                      </div>
 
-                    {cartItemCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-theme-light text-[10px] sm:text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-medium">
-                        {cartItemCount > 99 ? '99+' : cartItemCount}
-                      </span>
-                    )}
-                  </div>
+                      {cartItemCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-theme-light text-[10px] sm:text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-medium">
+                          {cartItemCount > 99 ? '99+' : cartItemCount}
+                        </span>
+                      )}
+                    </div>
 
-                </button>
+                  </button>
+                )}
               </div>
 
 
@@ -273,56 +275,60 @@ const Header: React.FC = () => {
               <div className="flex flex-col gap-4 sm:gap-5 text-left">
                 {isAuthenticated ? (
                   <>
-                    <Link
-                      to="/profile"
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
-                      title="View Profile"
-                    >
-                      PROFILE
-                    </Link>
+                    {user?.role === 'Admin' ? (
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          navigate('/admin');
+                        }}
+                        className={`block w-full text-left text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
+                        title="Admin Panel"
+                      >
+                        ADMIN PANEL
+                      </button>
+                    ) : (
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
+                        title="View Profile"
+                      >
+                        PROFILE
+                      </Link>
+                    )}
                     <div className="border-t border-theme-secondary/30" />
-                    <Link
-                      to="/products"
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
-                      title="Shop Products"
-                    >
-                      SHOP
-                    </Link>
-                    <div className="border-t border-theme-secondary/30" />
-                    <Link
-                      to="/cart"
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center justify-between text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
-                      title={`Shopping Cart (${cartItemCount} items)`}
-                    >
-                      <span>CART</span>
-                      {cartItemCount > 0 && (
-                        <span className="bg-red-500 text-theme-light text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-                          {cartItemCount > 99 ? '99+' : cartItemCount}
-                        </span>
-                      )}
-                    </Link>
-                    <div className="border-t border-theme-secondary/30" />
-                    <Link
-                      to="/addresses"
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
-                      title="Manage Addresses"
-                    >
-                      ADDRESSES
-                    </Link>
-                    <div className="border-t border-theme-secondary/30" />
-                    {user?.role === 'Admin' && (
+                    {user?.role !== 'Admin' && (
                       <>
                         <Link
-                          to="/admin"
+                          to="/products"
                           onClick={() => setIsMenuOpen(false)}
                           className={`block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
-                          title="Admin Panel"
+                          title="Shop Products"
                         >
-                          ADMIN PANEL
+                          SHOP
+                        </Link>
+                        <div className="border-t border-theme-secondary/30" />
+                        <Link
+                          to="/cart"
+                          onClick={() => setIsMenuOpen(false)}
+                          className={`flex items-center justify-between text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
+                          title={`Shopping Cart (${cartItemCount} items)`}
+                        >
+                          <span>CART</span>
+                          {cartItemCount > 0 && (
+                            <span className="bg-red-500 text-theme-light text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                              {cartItemCount > 99 ? '99+' : cartItemCount}
+                            </span>
+                          )}
+                        </Link>
+                        <div className="border-t border-theme-secondary/30" />
+                        <Link
+                          to="/addresses"
+                          onClick={() => setIsMenuOpen(false)}
+                          className={`block text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
+                          title="Manage Addresses"
+                        >
+                          ADDRESSES
                         </Link>
                         <div className="border-t border-theme-secondary/30" />
                       </>
@@ -343,19 +349,21 @@ const Header: React.FC = () => {
                         <div className="border-t border-theme-secondary/30" />
                       </div>
                     ))}
-                    <Link
-                      to="/cart"
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center justify-between text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
-                      title={`Shopping Cart (${cartItemCount} items)`}
-                    >
-                      <span>CART</span>
-                      {cartItemCount > 0 && (
-                        <span className="bg-red-500 text-theme-light text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-                          {cartItemCount > 99 ? '99+' : cartItemCount}
-                        </span>
-                      )}
-                    </Link>
+                    <div>
+                      <Link
+                        to="/cart"
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`flex items-center justify-between text-sm sm:text-base tracking-[0.15em] font-light hover:opacity-80 py-3 transition-opacity ${baseFocusClasses}`}
+                        title={`Shopping Cart (${cartItemCount} items)`}
+                      >
+                        <span>CART</span>
+                        {cartItemCount > 0 && (
+                          <span className="bg-red-500 text-theme-light text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                            {cartItemCount > 99 ? '99+' : cartItemCount}
+                          </span>
+                        )}
+                      </Link>
+                    </div>
                     <div className="border-t border-theme-secondary/30" />
                     <Link
                       to="/login"
@@ -389,7 +397,7 @@ const Header: React.FC = () => {
         </>
       )}
 
-      {showCartSidebar && <CartSidebar onClose={() => setShowCartSidebar(false)} />}
+      {showCartSidebar && user?.role !== 'Admin' && <CartSidebar onClose={() => setShowCartSidebar(false)} />}
     </>
   );
 };
