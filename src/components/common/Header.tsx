@@ -45,9 +45,9 @@ const Header: React.FC = () => {
       if (isAuthenticated && user) {
         try {
           const orders = await apiService.getUserOrders();
-          const pending = orders.filter(order => 
-            order.isHalfPaid && 
-            order.halfPaymentStatus === 'pending' && 
+          const pending = orders.filter(order =>
+            order.isHalfPaid &&
+            order.halfPaymentStatus === 'pending' &&
             order.enableRemainingPayment
           );
           setPendingPayments(pending);
@@ -90,9 +90,8 @@ const Header: React.FC = () => {
                   <button
                     onClick={() => setIsMenuOpen(true)}
                     style={{ color: headerStyles.textColor, fontWeight: headerStyles.fontWeight }}
-                    className={`hover:opacity-70 transition-opacity p-2 ${baseFocusClasses} ${
-                      showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-                    }`}
+                    className={`hover:opacity-70 transition-opacity p-2 ${baseFocusClasses} ${showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+                      }`}
                     title="Open Menu"
                   >
                     <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -114,9 +113,8 @@ const Header: React.FC = () => {
               <div className="flex-1 flex items-center justify-center mx-4">
                 <Link
                   to="/"
-                  className={`flex items-center justify-center transition-all duration-200 ease-in-out ${baseFocusClasses} ${
-                    showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
-                  }`}
+                  className={`flex items-center justify-center transition-all duration-200 ease-in-out ${baseFocusClasses} ${showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
+                    }`}
                   title={`${SITE_CONFIG.name} - Home`}
                 >
                   {/* On homepage, you probably want to display the full logo image instead of text */}
@@ -141,25 +139,22 @@ const Header: React.FC = () => {
                   }`}
               >
                 {/* Notification Bell - only for authenticated users */}
-                {isAuthenticated && (
+                {isAuthenticated && pendingPayments.length > 0 && (
                   <div className="relative">
                     <button
                       onClick={() => setShowNotifications(!showNotifications)}
                       className={`flex items-center ${baseFocusClasses} p-2 hover:opacity-70 transition-opacity relative`}
                       title={`Notifications (${pendingPayments.length} pending payments)`}
                     >
-                      <Bell 
-                        className="h-5 w-5 sm:h-6 sm:w-6" 
+                      <Bell
+                        className="h-5 w-5 sm:h-6 sm:w-6"
                         style={{ color: headerStyles.textColor }}
                       />
-                      {pendingPayments.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-theme-light text-[10px] sm:text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-medium">
-                          {pendingPayments.length > 9 ? '9+' : pendingPayments.length}
-                        </span>
-                      )}
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-theme-light text-[10px] sm:text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-medium">
+                        {pendingPayments.length > 9 ? '9+' : pendingPayments.length}
+                      </span>
                     </button>
 
-                    {/* Notification Dropdown */}
                     {showNotifications && (
                       <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
                         <div className="px-4 py-3 border-b border-gray-200">
@@ -167,40 +162,34 @@ const Header: React.FC = () => {
                             Pending Payments ({pendingPayments.length})
                           </h3>
                         </div>
-                        
-                        {pendingPayments.length === 0 ? (
-                          <div className="px-4 py-6 text-center text-gray-500 text-sm font-serif italic">
-                            No pending payments
-                          </div>
-                        ) : (
-                          <div className="max-h-64 overflow-y-auto">
-                            {pendingPayments.map((order) => (
-                              <div key={order.id} className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex-1">
-                                    <p className="text-sm font-serif font-medium text-gray-800">
-                                      Order #{order.id.slice(-8)}
-                                    </p>
-                                    <p className="text-xs text-gray-500 font-serif italic">
-                                      ₹{((order.remainingAmount || 0) / 100).toLocaleString()} remaining
-                                    </p>
-                                  </div>
-                                  <Link
-                                    to="/user/orders"
-                                    onClick={() => setShowNotifications(false)}
-                                    className="text-xs bg-yellow-600 text-white px-2 py-1 rounded font-serif italic hover:bg-yellow-700 transition-colors"
-                                  >
-                                    Pay Now
-                                  </Link>
+                        <div className="max-h-64 overflow-y-auto">
+                          {pendingPayments.map((order) => (
+                            <div key={order.id} className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <p className="text-sm font-serif font-medium text-gray-800">
+                                    Order #{order.id.slice(-8)}
+                                  </p>
+                                  <p className="text-xs text-gray-500 font-serif italic">
+                                    ₹{((order.remainingAmount || 0) / 100).toLocaleString()} remaining
+                                  </p>
                                 </div>
+                                <Link
+                                  to="/user/orders"
+                                  onClick={() => setShowNotifications(false)}
+                                  className="text-xs bg-yellow-600 text-white px-2 py-1 rounded font-serif italic hover:bg-yellow-700 transition-colors"
+                                >
+                                  Pay Now
+                                </Link>
                               </div>
-                            ))}
-                          </div>
-                        )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
                 )}
+
                 {/* Show LOGIN only when not authenticated */}
                 {!isAuthenticated && (
                   <Link
