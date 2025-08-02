@@ -89,10 +89,21 @@ const StatusCellRenderer = (params: any) => {
 };
 
 const OrderIdCellRenderer = (params: any) => {
+  const order = params.data;
   return (
     <div className="flex items-center space-x-2">
       <div>
         <div className="font-semibold text-gray-900 text-sm">{params.value}</div>
+        {order.orderId && order.orderId !== order.id && (
+          <div className="text-xs text-gray-500 font-mono">
+            RZP: {order.orderId.slice(-8)}
+          </div>
+        )}
+        {order.secondOrderId && order.isHalfPaid && (
+          <div className="text-xs text-blue-600 font-mono">
+            2nd: {order.secondOrderId.slice(-8)}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -225,8 +236,14 @@ const ActionsCellRenderer = (params: any) => {
       setIsSubmitted(true);
       setIsEditing(false);
       setTimeout(() => setIsSubmitted(false), 3000);
+      
+      // Refresh the grid data to show updated tracking info
+      if (params.api) {
+        params.api.refreshCells({ force: true });
+      }
     } catch (error) {
       console.error('Failed to update tracking ID', error);
+      alert('Failed to send tracking ID. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -237,7 +254,12 @@ const ActionsCellRenderer = (params: any) => {
     try {
       // Enable remaining payment for this order
       await adminService.enableRemainingPayment(order.id);
-      alert('Remaining payment notification sent successfully!');
+      alert('Remaining payment enabled successfully! Customer can now complete payment.');
+      
+      // Refresh the grid data
+      if (params.api) {
+        params.api.refreshCells({ force: true });
+      }
     } catch (error) {
       console.error('Failed to send remaining payment notification:', error);
       alert('Failed to send notification');
@@ -306,6 +328,16 @@ const ActionsCellRenderer = (params: any) => {
             <Send className="h-3 w-3" />
             <span>{sendingRemaining ? 'Enabling...' : 'Enable Remaining Payment'}</span>
           </button>
+        </div>
+      )}
+      
+      {/* Show status when remaining payment is enabled */}
+      {order.isHalfPaid && order.halfPaymentStatus === 'pending' && order.enableRemainingPayment && order.secondOrderId && (
+        <div className="flex justify-center">
+          <div className="flex items-center space-x-1 bg-green-100 text-green-800 text-xs px-3 py-1.5 rounded-lg font-medium">
+            <CheckCircle className="h-3 w-3" />
+            <span>Remaining Payment Enabled</span>
+          </div>
         </div>
       )}
     </div>
@@ -419,6 +451,7 @@ const OrderManagement: React.FC = () => {
       cellRenderer: (params: any) => {
         const isHalf = params.value;
         const halfStatus = params.data.halfPaymentStatus;
+        const hasSecondOrder = params.data.secondOrderId;
         
         if (!isHalf) {
           return <span className="text-xs text-gray-500">Full Payment</span>;
@@ -430,6 +463,9 @@ const OrderManagement: React.FC = () => {
             <div className={`text-xs ${halfStatus === 'pending' ? 'text-yellow-600' : 'text-green-600'}`}>
               {halfStatus === 'pending' ? 'Remaining Due' : 'Completed'}
             </div>
+            {hasSecondOrder && (
+              <div className="text-xs text-gray-500">2nd Order Ready</div>
+            )}
           </div>
         );
       },
@@ -755,6 +791,18 @@ const OrderDetailModal: React.FC<{
                       <span className="font-light italic">Order ID:</span>
                       <span className="font-semibold">{order.id}</span>
                     </div>
+                    {order.orderId && (
+                      <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
+                        <span className="font-light italic">Razorpay Order ID:</span>
+                        <span className="font-mono text-xs break-all">{order.orderId}</span>
+                      </div>
+                    )}
+                    {order.secondOrderId && (
+                      <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
+                        <span className="font-light italic">Second Payment ID:</span>
+                        <span className="font-mono text-xs break-all">{order.secondOrderId}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
                       <span className="font-light italic">Tracking Number:</span>
                       <span className="font-semibold">

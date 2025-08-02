@@ -118,6 +118,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({
         shippingAddress: selectedAddress as AddressFormData,
         isHalfPaid,
         remainingAmount: isHalfPayment ? Math.round((totalAmount - actualPaymentAmount) * 100) : 0,
+        paymentType,
         notes: {
           userId: user?.id || '',
           userEmail: user?.email || '',
@@ -127,7 +128,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({
       });
 
       const orderData = orderResponse;
-      if (!orderData || !orderData.id) {
+      if (!orderData || !orderData.id || !orderData.orderId) {
         onError('Failed to create order');
         return;
       }
@@ -138,7 +139,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({
         currency: orderData.currency,
         name: SITE_CONFIG.name,
         description: 'Jewelry Purchase',
-        order_id: orderData.id,
+        order_id: orderData.orderId, // Use the Razorpay orderId for first payment
         handler: async (response: any) => {
           try {
             if (!response || !response.razorpay_order_id) {
@@ -155,7 +156,8 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({
             if (verificationResult?.status === 'success') {
               const cartIdsToRemove = items.map(item => item.id); // assuming `item.cartId` exists
               await clearCart(cartIdsToRemove);
-              onSuccess(orderData.id);
+              // Use the internal order ID, not the Razorpay order ID
+              onSuccess(orderData.internalOrderId || orderData.id);
             }
             else {
               onError('Payment verification failed');
@@ -172,13 +174,16 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({
         notes: {
           address_id: selectedAddress?.id || '',
           user_id: user?.id || '',
+          payment_type: paymentType,
+          is_half_payment: isHalfPayment.toString(),
         },
         theme: {
           color: 'var(--color-theme-primary)',
         },
         modal: {
           ondismiss: () => {
-            onError('Payment cancelled');
+            console.log('Payment cancelled by user');
+            // Don't show error for user cancellation
           },
         },
       };

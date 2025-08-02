@@ -90,6 +90,8 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  orderId: string; // Razorpay ID for full or first half payment
+  secondOrderId?: string; // Razorpay ID for second half payment (if applicable)
   amount: number;
   amount_due: number;
   amount_paid: number;
@@ -138,7 +140,7 @@ export interface OrderRequest {
     paymentType?: string;
     [key: string]: string | undefined;
   };
-
+  paymentType?: 'full' | 'half';
 }
 
 export interface Payment {

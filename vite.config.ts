@@ -28,6 +28,8 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_API_BASE_URL || 'https://taanira.aiyensi.com/api',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, ''),
+          secure: true, // Enable for HTTPS backends
+          ws: true, // Enable WebSocket proxying
         },
       },
     },
