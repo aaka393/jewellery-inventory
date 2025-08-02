@@ -229,7 +229,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({
           </div>
           {paymentType === 'half' && (
             <p className="text-xs text-blue-600 mt-2 font-serif italic">
-              Remaining ₹{Math.round(getTotalPrice() * 0.5).toLocaleString()} will be collected after delivery
+              Remaining ₹{Math.round(getTotalPrice() * 0.5).toLocaleString()} will be collected after shipment
             </p>
           )}
         </div>

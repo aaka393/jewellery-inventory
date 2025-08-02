@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
@@ -12,7 +12,7 @@ interface ProductCardProps {
   viewMode?: 'grid' | 'list';
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [showSizeSelector, setShowSizeSelector] = useState(false);
@@ -22,7 +22,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
   const { addItem, items, guestItems, removeItem } = useCartStore();
 
   const { isAuthenticated } = useAuthStore();
-  const navigate = useNavigate();
   const baseFocusClasses = "focus:outline-none focus:ring-0";
 
   useEffect(() => {
@@ -39,10 +38,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
   }, [product.category]);
 
   const hasSizeOptions = category?.sizeOptions?.length > 0;
-  
+
   // Get active items based on authentication status
   const activeItems = isAuthenticated ? items : guestItems;
-  
+
   const existingCartItem = activeItems.find(
     item => item.productId === product.id
   );
@@ -122,11 +121,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
                 loading="lazy"
               />
             )}
-            {!product.stock && (
-              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-theme-dark text-theme-light text-xs px-2 py-1 sm:px-3 sm:py-1.5 rounded-full font-medium">
-                SOLD OUT
+            {product.isHalfPaymentAvailable && (
+              <div className="absolute top-1 left-1 sm:top-3 sm:left-3 bg-theme-dark text-theme-light text-[8px] px-1 py-[2px] sm:text-xs sm:px-3 sm:py-1.5 rounded-full font-normal">
+                Easy Half
               </div>
             )}
+
+
           </div>
         </Link>
 
@@ -139,40 +140,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
           </Link>
 
           <div className={`flex items-center gap-2 sm:gap-3 ${viewMode === 'list' ? 'justify-start' : 'justify-center'}`}>
-            <span className={`font-serif text-theme-primary font-medium ${viewMode === 'list' ? 'text-lg sm:text-xl' : 'text-sm sm:text-base'
-              }`}>
-              {product.isHalfPaymentAvailable ? (
-                <>
-                  <span className="text-blue-600 font-semibold">
-                    {SITE_CONFIG.currencySymbol}{Math.round((product.price || 0) / 2).toLocaleString()}
-                  </span>
-                  <span className="text-xs text-theme-muted ml-1">50% option</span>
-                </>
-              ) : (
-                SITE_CONFIG.currencySymbol + (product.price || 0).toLocaleString()
-              )}
+            <span className={`font-serif text-theme-primary font-medium ${viewMode === 'list' ? 'text-lg sm:text-xl' : 'text-sm sm:text-base'}`}>
+              {SITE_CONFIG.currencySymbol}{(product.price || 0).toLocaleString()}
             </span>
+
             {typeof product.comparePrice === 'number' &&
               product.comparePrice > 0 &&
               product.comparePrice > product.price && (
-                <span className={`text-theme-muted line-through font-serif ${viewMode === 'list' ? 'text-base sm:text-lg' : 'text-xs sm:text-sm'
-                  }`}>
+                <span className={`text-theme-muted line-through font-serif ${viewMode === 'list' ? 'text-base sm:text-lg' : 'text-xs sm:text-sm'}`}>
                   {SITE_CONFIG.currencySymbol}{product.comparePrice.toLocaleString()}
                 </span>
               )}
-
-
           </div>
 
-          {product.isHalfPaymentAvailable && (
-            <div className={`${viewMode === 'list' ? 'pt-2' : 'pt-1'}`}>
-              <div className="bg-green-50 border border-green-200 rounded-lg px-2 py-1">
-                <p className={`text-green-700 font-serif italic text-center ${viewMode === 'list' ? 'text-sm' : 'text-xs'}`}>
-                  Half Payment Available
-                </p>
-              </div>
-            </div>
-          )}
+
 
           <div className={`${viewMode === 'list' ? 'pt-3 sm:pt-4' : 'pt-2 sm:pt-3'}`}>
             {!product.stock ? (
@@ -186,7 +167,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
               <div className="flex gap-2 w-full">
                 <Link
                   to="/cart"
-               className={`flex-[2] px-2 sm:px-3 py-2.5 sm:py-3 text-xs sm:text-sm font-serif font-semibold italic border-2 border-theme-primary text-theme-primary rounded-lg sm:rounded-xl hover:bg-theme-primary hover:text-theme-light transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md text-center ${baseFocusClasses}`}
+                  className={`flex-[2] px-2 sm:px-3 py-2.5 sm:py-3 text-xs sm:text-sm font-serif font-semibold italic border-2 border-theme-primary text-theme-primary rounded-lg sm:rounded-xl hover:bg-theme-primary hover:text-theme-light transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md text-center ${baseFocusClasses}`}
                   title="Go to Cart"
                 >
                   Go To Cart

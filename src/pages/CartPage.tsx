@@ -28,24 +28,24 @@ const CartPage: React.FC = () => {
   const hasHalfPaymentItems = activeItems.some(item => item.product.isHalfPaymentAvailable);
 
   // Get active items based on authentication status
-React.useEffect(() => {
-  if (!isAuthenticated) return; // Skip address loading for guest users
-  
-  (async () => {
-    try {
-      const fetchedAddresses = await loadAddresses();
+  React.useEffect(() => {
+    if (!isAuthenticated) return; // Skip address loading for guest users
 
-      const defaultAddress = fetchedAddresses.find(addr => addr.isDefault);
-      const fallback = fetchedAddresses[0];
+    (async () => {
+      try {
+        const fetchedAddresses = await loadAddresses();
 
-      if (defaultAddress || fallback) {
-        useAddressStore.getState().setSelectedAddress(defaultAddress || fallback);
+        const defaultAddress = fetchedAddresses.find(addr => addr.isDefault);
+        const fallback = fetchedAddresses[0];
+
+        if (defaultAddress || fallback) {
+          useAddressStore.getState().setSelectedAddress(defaultAddress || fallback);
+        }
+      } catch (err) {
+        console.error('Error loading addresses:', err);
       }
-    } catch (err) {
-      console.error('Error loading addresses:', err);
-    }
-  })();
-}, [isAuthenticated]);
+    })();
+  }, [isAuthenticated]);
 
 
 
@@ -209,72 +209,28 @@ React.useEffect(() => {
 
               {/* Order Summary */}
               <div className="lg:col-span-1">
-                <div className="card-elegant sticky top-24 rounded-xl p-5 sm:p-6 lg:p-8 bg-theme-surface">
-                  <h2 className="text-lg sm:text-xl font-semibold italic mb-4 sm:mb-6">Order Summary</h2>
+                <div className="card-elegant sticky top-24 rounded-xl p-4 sm:p-5 lg:p-8 bg-theme-surface">
+                  <h2 className="text-base sm:text-lg italic mb-4 sm:mb-6">Order Summary</h2>
 
                   <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                     {/* Payment Type Selection */}
-                    {hasHalfPaymentItems && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <h3 className="text-sm font-serif font-semibold italic text-blue-800 mb-3">
-                          Choose Payment Option
-                        </h3>
-                        <div className="space-y-2">
-                          <label className="flex items-center space-x-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="paymentType"
-                              value="full"
-                              checked={paymentType === 'full'}
-                              onChange={() => setPaymentType('full')}
-                              className="text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm font-serif italic text-blue-700">
-                              Pay Full Amount (₹{getTotalPrice().toLocaleString()})
-                            </span>
-                          </label>
-                          <label className="flex items-center space-x-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="paymentType"
-                              value="half"
-                              checked={paymentType === 'half'}
-                              onChange={() => setPaymentType('half')}
-                              className="text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm font-serif italic text-blue-700">
-                              Pay 50% Now (₹{Math.round(getTotalPrice() * 0.5).toLocaleString()})
-                            </span>
-                          </label>
-                        </div>
-                        {paymentType === 'half' && (
-                          <div className="mt-2 text-xs text-blue-600 font-serif italic">
-                            Remaining ₹{Math.round(getTotalPrice() * 0.5).toLocaleString()} will be collected after delivery
-                          </div>
-                        )}
-                      </div>
-                    )}
+
 
                     <div className="flex justify-between">
-                      <span className="text-sm sm:text-base italic">SUBTOTAL:</span>
-                      <span className="text-sm sm:text-base font-semibold">
-                        Rs. {paymentType === 'half' 
+                      <span className="text-xs sm:text-sm italic">SUBTOTAL:</span>
+                      <span className="text-xs sm:text-sm">
+                        Rs. {paymentType === 'half'
                           ? Math.round(getTotalPrice() * 0.5).toLocaleString()
                           : getTotalPrice().toLocaleString()
                         }
                       </span>
                     </div>
-                    
-                    {paymentType === 'half' && (
-                      <div className="text-xs sm:text-sm italic text-green-600 bg-green-50 p-2 rounded">
-                        You're paying 50% now. Remaining amount will be collected after delivery.
-                      </div>
-                    )}
-                    
-                    <div className="text-xs sm:text-sm italic text-theme-muted">
+
+                    <div className="text-xs italic text-theme-muted">
                       Taxes and shipping will be calculated at checkout.
                     </div>
-                    <div className="flex items-start text-xs sm:text-sm italic text-theme-primary space-x-2 sm:space-x-3">
+
+                    <div className="flex items-start text-xs italic text-theme-primary space-x-2 sm:space-x-3">
                       <input
                         type="checkbox"
                         id="terms"
@@ -288,9 +244,9 @@ React.useEffect(() => {
 
                   {selectedAddress ? (
                     <>
-                      <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 text-sm sm:text-base text-theme-primary">
-                        <div>
-                          <div className="font-semibold italic">{selectedAddress.addressType}</div>
+                      <div className="rounded-xl border border-theme-secondary bg-theme-surface p-4 sm:p-5 lg:p-6 shadow-sm mb-4 sm:mb-6 transition-all duration-300">
+                        <div className="text-xs sm:text-sm text-theme-primary space-y-1 sm:space-y-1.5">
+                          <div className="text-sm sm:text-base font-semibold italic text-theme-primary">{selectedAddress.addressType}</div>
                           <div>{selectedAddress.fullName}</div>
                           <div>{selectedAddress.mobileNumber}</div>
                           <div>
@@ -298,13 +254,15 @@ React.useEffect(() => {
                           </div>
                           <div>{selectedAddress.state}</div>
                         </div>
+
                         <button
                           onClick={() => setShowAddressSelector(true)}
-                          className="text-theme-muted underline text-xs sm:text-sm hover:text-theme-primary transition-colors"
+                          className="mt-3 inline-block text-xs sm:text-sm text-theme-muted underline hover:text-theme-primary transition-colors"
                         >
                           Change Address
                         </button>
                       </div>
+
                       <PaymentHandler
                         onSuccess={(orderId) => navigate(`/order-confirmation/${orderId}`)}
                         onError={(error) => alert(`Payment failed: ${error}`)}
@@ -316,7 +274,7 @@ React.useEffect(() => {
                   ) : (
                     <button
                       onClick={() => setShowAddressSelector(true)}
-                      className={`bg-theme-primary text-theme-light  py-3 sm:py-4 rounded-lg w-full text-sm sm:text-base font-semibold ${!agreedToTerms ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`bg-theme-primary text-theme-light py-2.5 sm:py-3 rounded-lg w-full text-xs sm:text-sm ${!agreedToTerms ? 'opacity-50 cursor-not-allowed' : ''}`}
                       disabled={!agreedToTerms}
                     >
                       SELECT DELIVERY ADDRESS
@@ -324,6 +282,7 @@ React.useEffect(() => {
                   )}
                 </div>
               </div>
+
             </div>
           </>
         ) : (

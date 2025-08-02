@@ -5,7 +5,6 @@ import { Menu, X, Bell } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useCategoryStore } from '../../store/categoryStore';
 import { useCartStore } from '../../store/cartStore';
-import { useNotificationStore } from '../../store/notificationStore';
 import SEOHead from '../seo/SEOHead';
 import { SITE_CONFIG } from '../../constants/siteConfig';
 import CartSidebar from './CartSidebar';
@@ -22,7 +21,6 @@ const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
   const { loadCategories } = useCategoryStore();
   const { getUniqueItemCount } = useCartStore();
-  const { addNotification } = useNotificationStore();
   const navigate = useNavigate();
   const location = useLocation();
 

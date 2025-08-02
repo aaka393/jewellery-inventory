@@ -50,12 +50,14 @@ const UserOrdersPage: React.FC = () => {
         alert('Failed to load payment gateway');
         return;
       }
+      const orderIdShort = orderId.slice(0, 10); 
+      const timestamp = Date.now().toString().slice(-8);
 
-      // Create a new payment order for the remaining amount
+      const receipt = `rem_${orderIdShort}_${timestamp}`;
       const orderResponse = await apiService.createOrder({
         amount: remainingAmount,
         currency: 'INR',
-        receipt: `remaining_${orderId}_${Date.now()}`,
+        receipt,
         items: [], // Empty items for remaining payment
         shippingAddress: {} as any, // Empty address for remaining payment
         isHalfPaid: false,
@@ -84,7 +86,7 @@ const UserOrdersPage: React.FC = () => {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
-            
+
             // Reload orders to show updated status
             loadOrders();
             alert('Remaining payment completed successfully!');

@@ -236,41 +236,41 @@ const ProductDetailPage: React.FC = () => {
             {/* Product Info Section */}
             <div className="space-y-4 sm:space-y-6 lg:space-y-8">
               <div className="space-y-3 sm:space-y-4">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl italic font-semibold text-theme-primary leading-tight">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl italic font-serif text-theme-primary leading-tight">
                   {product.name}
                 </h1>
                 <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-medium">
-                    {product.isHalfPaymentAvailable ? (
-                      <div className="space-y-1">
-                        <div className="text-green-600">₹ {(product.halfPaymentAmount || 0).toLocaleString()}</div>
-                        <div className="text-sm text-theme-muted">Pay first • Total: ₹{product.price.toLocaleString()}</div>
-                      </div>
-                    ) : (
-                      <>₹ {product.price.toLocaleString()}</>
-                    )}
+                  <div className="text-lg sm:text-xl lg:text-2xl text-theme-dark">
+                    ₹ {(product.price || 0).toLocaleString()}
                   </div>
                   {product.comparePrice && product.comparePrice > product.price && (
-                    <div className="text-lg sm:text-xl lg:text-2xl line-through text-theme-primary/60">
+                    <div className="text-lg sm:text-xl lg:text-2xl line-through text-theme-muted">
                       ₹ {product.comparePrice.toLocaleString()}
                     </div>
                   )}
                 </div>
 
+
+
                 {product.isHalfPaymentAvailable && (
-                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 sm:p-6">
-                    <h3 className="text-lg font-serif font-semibold italic text-green-800 mb-2">
+                  <div className="bg-theme-surface border border-theme-accent rounded-xl p-4 sm:p-6">
+                    <h3 className="text-lg font-serif italic text-theme-primary mb-2">
                       Half Payment Option Available
                     </h3>
-                    <p className="text-green-700 font-serif italic text-sm sm:text-base leading-relaxed">
+                    <p className="text-theme-muted font-serif italic text-sm sm:text-base leading-relaxed">
                       This product supports 50% payment option. You can choose to pay{' '}
-                      <span className="font-semibold">₹{Math.round((product.price || 0) / 2).toLocaleString()}</span> now
-                      and the remaining{' '}
-                      <span className="font-semibold">₹{Math.round((product.price || 0) / 2).toLocaleString()}</span>{' '}
-                      after delivery.
+                      <span className="text-theme-dark">
+                        ₹{Math.round((product.price || 0) / 2).toLocaleString()}
+                      </span>{' '}
+                      now and the remaining{' '}
+                      <span className="text-theme-dark">
+                        ₹{Math.round((product.price || 0) / 2).toLocaleString()}
+                      </span>{' '}
+                      after shipment.
                     </p>
                   </div>
                 )}
+
               </div>
 
               {hasSizeOptions && (
@@ -308,12 +308,12 @@ const ProductDetailPage: React.FC = () => {
                     <Link
                       to="/cart"
                       className={`w-full sm:flex-[2] text-center py-3 sm:py-4 text-sm sm:text-base font-serif font-semibold italic border-2 border-theme-primary text-theme-primary rounded-xl hover:bg-theme-primary hover:text-theme-light transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md ${baseFocusClasses}`}
-                   >
+                    >
                       Go to Cart
                     </Link>
                     <button
-                      onClick={handleRemoveFromCart} 
-                      disabled={isUpdatingCart} 
+                      onClick={handleRemoveFromCart}
+                      disabled={isUpdatingCart}
                       className={`w-full sm:flex-1 py-3 sm:py-4 text-sm sm:text-base font-serif font-semibold italic border-2 border-red-500 text-red-500 rounded-xl hover:bg-red-500 hover:text-theme-light transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md ${baseFocusClasses} ${isUpdatingCart ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {isUpdatingCart ? 'Removing...' : 'Remove'}

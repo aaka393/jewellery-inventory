@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, ChevronUp, UserCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import LogoutButton from './LogoutButton';
 
 interface UserMenuProps {
   dropdownPosition?: 'top' | 'bottom';

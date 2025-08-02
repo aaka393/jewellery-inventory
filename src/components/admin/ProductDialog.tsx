@@ -569,7 +569,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                   • First payment: ₹{(formData.halfPaymentAmount || 0).toLocaleString()}
                 </div>
                 <div className="text-xs text-blue-700">
-                  • Remaining after delivery: ₹{((formData.price || 0) - (formData.halfPaymentAmount || 0)).toLocaleString()}
+                  • Remaining after shipment: ₹{((formData.price || 0) - (formData.halfPaymentAmount || 0)).toLocaleString()}
                 </div>
               </div>
             )}
