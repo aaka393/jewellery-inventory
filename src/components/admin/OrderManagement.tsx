@@ -482,15 +482,6 @@ const OrderManagement: React.FC = () => {
       sort: 'desc',
     },
     {
-      headerName: 'Shipping Address',
-      field: 'shippingAddress',
-      width: 300,
-      cellRenderer: AddressCellRenderer,
-      sortable: false,
-      filter: false,
-      autoHeight: true,
-    },
-    {
       headerName: 'Actions',
       field: 'actions',
       width: 200,

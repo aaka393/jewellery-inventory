@@ -73,6 +73,7 @@ export const API_ENDPOINTS = {
 
   // Order endpoints
   CREATE_ORDER: '/order',
+  CREATE_SECOND_ORDER:'/order/createSecond',
   UPDATE_ORDER_STATUS: '/admin/orders',
   GET_ORDER: '/orders',
   GET_ORDER_PAYMENTS: '/orders',

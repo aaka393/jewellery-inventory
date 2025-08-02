@@ -161,6 +161,10 @@ class ApiService {
     const response = await orderService.createOrder(orderData);
     return response.result;
   }
+async createSecondOrder(orderData: OrderRequest) {
+    const response = await orderService.createSecondOrder(orderData);
+    return response.result;
+  }
 
 
   async getOrder(orderId: string) {

@@ -23,6 +23,9 @@ class OrderService extends BaseService {
       internalOrderId?: string;
     }>(API_ENDPOINTS.CREATE_ORDER, orderData, true);
   }
+  async createSecondOrder(orderData: OrderRequest): Promise<ApiResponse<{ id: string; amount: number; currency: string }>> {
+    return this.post<{ id: string; amount: number; currency: string }>(API_ENDPOINTS.CREATE_SECOND_ORDER, orderData, true);
+  }
 
   async getOrder(orderId: string): Promise<ApiResponse<Order>> {
     return this.get<Order>(`${API_ENDPOINTS.GET_ORDER}/${orderId}`, true);

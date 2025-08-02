@@ -20,14 +20,12 @@ const ProductDetailPage: React.FC = () => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [category, setCategory] = useState<any>(null);
-  const [isUpdatingCart, setIsUpdatingCart] = useState(false); // New state to manage loading for cart actions
+  const [isUpdatingCart, setIsUpdatingCart] = useState(false);
 
-
-  // Destructure the state (items) and actions from useCartStore using a selector
   const addItem = useCartStore(state => state.addItem);
   const removeItem = useCartStore(state => state.removeItem);
-  const items = useCartStore(state => state.items); // Select 'items' here
-  const guestItems = useCartStore(state => state.guestItems); // Select 'guestItems' for guest users
+  const items = useCartStore(state => state.items);
+  const guestItems = useCartStore(state => state.guestItems);
 
   const { isAuthenticated } = useAuthStore();
   const baseFocusClasses = "focus:outline-none focus:ring-0";
@@ -55,7 +53,7 @@ const ProductDetailPage: React.FC = () => {
     try {
       const productData = await apiService.getProductBySlug(slug!);
       setProduct(productData);
-      setSelectedSize(''); // Reset selected size when a new product is loaded
+      setSelectedSize('');
     } catch (error) {
       console.error('Error loading product:', error);
       setProduct(null);
@@ -66,7 +64,6 @@ const ProductDetailPage: React.FC = () => {
 
   const hasSizeOptions = category?.sizeOptions && Array.isArray(category.sizeOptions) && category.sizeOptions.length > 0;
 
-  // Get active items based on authentication status
   const activeItems = isAuthenticated ? items : guestItems;
 
   const existingCartItem = product ? activeItems.find(
@@ -95,28 +92,26 @@ const ProductDetailPage: React.FC = () => {
 
     if (!product || !product.stock || isUpdatingCart) return;
 
-    setIsUpdatingCart(true); // Set loading state
+    setIsUpdatingCart(true);
     try {
       await addItem(product, 1, effectiveSelectedSize);
     } catch (error) {
       console.error("Failed to add item to cart:", error);
-      // Optionally, show a user-friendly error message
     } finally {
-      setIsUpdatingCart(false); // Reset loading state
+      setIsUpdatingCart(false);
     }
   };
 
   const handleRemoveFromCart = async () => {
     if (!cartItem || isUpdatingCart) return;
 
-    setIsUpdatingCart(true); // Set loading state
+    setIsUpdatingCart(true);
     try {
       await removeItem(cartItem.id);
     } catch (error) {
       console.error("Failed to remove item from cart:", error);
-      // Optionally, show a user-friendly error message
     } finally {
-      setIsUpdatingCart(false); // Reset loading state
+      setIsUpdatingCart(false);
     }
   };
 
@@ -143,11 +138,11 @@ const ProductDetailPage: React.FC = () => {
     return (
       <>
         <SEOHead title="Product Not Found - JI Jewelry" description="The product you're looking for doesn't exist." />
-        <div className="min-h-screen bg-theme-background text-theme-primary font-serif flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold italic mb-2">Product Not Found</h2>
+        <div className="min-h-screen bg-theme-background text-theme-primary font-serif flex items-center justify-center px-4">
+          <div className="text-center w-full max-w-md mx-auto">
+            <h2 className="text-xl sm:text-2xl font-bold italic mb-2">Product Not Found</h2>
             <p className="italic mb-8">The product you're looking for doesn't exist.</p>
-            <Link to="/products" className={`bg-theme-primary text-theme-light px-8 py-3 rounded font-semibold italic hover:bg-theme-dark transition-colors ${baseFocusClasses}`}>
+            <Link to="/products" className={`bg-theme-primary text-theme-light px-6 sm:px-8 py-3 rounded font-semibold italic hover:bg-theme-dark transition-colors ${baseFocusClasses}`}>
               Continue Shopping
             </Link>
           </div>
@@ -182,8 +177,9 @@ const ProductDetailPage: React.FC = () => {
       />
 
       <div className="min-h-screen bg-theme-background text-theme-primary font-serif">
-        <div className="container mx-auto pt-20 sm:pt-24 lg:pt-28 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 xl:gap-10">
+        {/* Centered container with max-width */}
+        <div className="w-full max-w-7xl mx-auto pt-20 sm:pt-24 lg:pt-28 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
             {/* Image Section */}
             <div className="space-y-4 sm:space-y-6">
               <div className="relative bg-theme-surface rounded-xl sm:rounded-2xl overflow-hidden">
@@ -191,20 +187,20 @@ const ProductDetailPage: React.FC = () => {
                   <img
                     src={productImages[currentImageIndex]}
                     alt={product.name}
-                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 {productImages.length > 1 && (
                   <>
                     <button
                       onClick={prevImage}
-                      className={`absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-theme-light rounded-full p-2 sm:p-3 shadow-md hover:shadow-lg ${baseFocusClasses}`}
+                      className={`absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-theme-light rounded-full p-2 sm:p-3 shadow-md hover:shadow-lg transition-all ${baseFocusClasses}`}
                     >
                       <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                     </button>
                     <button
                       onClick={nextImage}
-                      className={`absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-theme-light rounded-full p-2 sm:p-3 shadow-md hover:shadow-lg ${baseFocusClasses}`}
+                      className={`absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-theme-light rounded-full p-2 sm:p-3 shadow-md hover:shadow-lg transition-all ${baseFocusClasses}`}
                     >
                       <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
                     </button>
@@ -212,14 +208,14 @@ const ProductDetailPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Thumbnail Images for larger screens */}
+              {/* Thumbnail Images */}
               {productImages.length > 1 && (
-                <div className="hidden sm:flex gap-2 lg:gap-3 overflow-x-auto">
+                <div className="flex gap-2 lg:gap-3 overflow-x-auto pb-2">
                   {productImages.map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden border-2 transition-all ${currentImageIndex === index ? 'border-theme-primary' : 'border-theme-surface hover:border-theme-secondary'
+                      className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-lg overflow-hidden border-2 transition-all ${currentImageIndex === index ? 'border-theme-primary' : 'border-theme-surface hover:border-theme-secondary'
                         }`}
                     >
                       <img
@@ -234,13 +230,13 @@ const ProductDetailPage: React.FC = () => {
             </div>
 
             {/* Product Info Section */}
-            <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-              <div className="space-y-3 sm:space-y-4">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif text-theme-primary">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-4 sm:space-y-6">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-theme-primary leading-tight">
                   {product.name}
                 </h1>
-                <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="text-base sm:text-lg text-theme-dark">
+                <div className="flex items-center space-x-4">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-semibold text-theme-dark">
                     ₹ {(product.price || 0).toLocaleString()}
                   </div>
                   {product.comparePrice && product.comparePrice > product.price && (
@@ -250,31 +246,28 @@ const ProductDetailPage: React.FC = () => {
                   )}
                 </div>
 
-
-
                 {product.isHalfPaymentAvailable && (
                   <div className="bg-theme-surface border border-theme-accent rounded-xl p-4 sm:p-6">
-                    <h3 className="text-lg font-serif italic text-theme-primary mb-2">
+                    <h3 className="text-lg sm:text-xl font-serif italic text-theme-primary mb-3">
                       Half Payment Option Available
                     </h3>
                     <p className="text-theme-muted font-serif italic text-sm sm:text-base leading-relaxed">
                       This product supports 50% payment option. You can choose to pay{' '}
-                      <span className="text-theme-dark">
+                      <span className="text-theme-dark font-semibold">
                         ₹{Math.round((product.price || 0) / 2).toLocaleString()}
                       </span>{' '}
                       now and the remaining{' '}
-                      <span className="text-theme-dark">
+                      <span className="text-theme-dark font-semibold">
                         ₹{Math.round((product.price || 0) / 2).toLocaleString()}
                       </span>{' '}
                       after shipment.
                     </p>
                   </div>
                 )}
-
               </div>
 
               {hasSizeOptions && (
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-4">
                   <label className="block text-sm sm:text-base italic font-medium">
                     Size <span className="text-red-500">*</span>
                   </label>
@@ -295,7 +288,7 @@ const ProductDetailPage: React.FC = () => {
               )}
 
               {/* Action Buttons */}
-              <div className="space-y-3 sm:space-y-4">
+              <div className="space-y-4">
                 {!product.stock ? (
                   <button
                     disabled
@@ -322,7 +315,7 @@ const ProductDetailPage: React.FC = () => {
                 ) : (
                   <button
                     onClick={handleAddToCart}
-                    disabled={isUpdatingCart} // Disable during update
+                    disabled={isUpdatingCart}
                     className={`w-full py-3 sm:py-4 text-sm sm:text-base font-serif font-semibold italic border-2 border-theme-primary text-theme-primary rounded-xl hover:bg-theme-primary hover:text-theme-light transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md ${baseFocusClasses} ${isUpdatingCart ? 'opacity-50 cursor-not-allowed' : ''}`}
                     title="Add to Cart"
                   >
@@ -333,12 +326,12 @@ const ProductDetailPage: React.FC = () => {
 
               {/* Product Details Tabs */}
               <div className="pt-6 sm:pt-8 border-t border-theme-primary/20">
-                <div className="flex border-b text-sm">
+                <div className="flex border-b text-sm sm:text-base overflow-x-auto">
                   {['About', 'Details', 'Shipping', 'Reviews'].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setTab(tab as any)}
-                      className={`pb-2 px-2 border-b-2 transition ${currentTab === tab ? 'border-theme-primary text-theme-primary' : 'border-transparent text-theme-muted hover:text-theme-primary'
+                      className={`pb-3 px-3 sm:px-4 border-b-2 transition whitespace-nowrap ${currentTab === tab ? 'border-theme-primary text-theme-primary' : 'border-transparent text-theme-muted hover:text-theme-primary'
                         }`}
                     >
                       {tab}
@@ -346,8 +339,7 @@ const ProductDetailPage: React.FC = () => {
                   ))}
                 </div>
 
-
-                <div className="text-sm sm:text-base leading-relaxed italic text-theme-primary/90">
+                <div className="pt-4 sm:pt-6 text-sm sm:text-base leading-relaxed italic text-theme-primary/90">
                   {currentTab === 'About' && <p>{product.description}</p>}
                   {currentTab === 'Details' && (
                     <p>
