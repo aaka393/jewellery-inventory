@@ -18,13 +18,45 @@ interface PaymentHandlerProps {
   onSuccess: (orderId: string) => void;
   onError: (error: string) => void;
   isTermsAccepted: boolean; // Add this line
+  paymentType?: 'full' | 'half';
+  onPaymentTypeChange?: (type: 'full' | 'half') => void;
 }
 
-const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isTermsAccepted }) => {
+const PaymentHandler: React.FC<PaymentHandlerProps> = ({ 
+  onSuccess, 
+  onError, 
+  isTermsAccepted, 
+  paymentType = 'full',
+  onPaymentTypeChange 
+}) => {
   const { getTotalPrice, clearCart, items } = useCartStore();
   const { user } = useAuthStore();
   const { selectedAddress } = useAddressStore();
   const baseFocusClasses = "focus:outline-none focus:ring-0";
+
+  // Check if any item supports half payment
+  const hasHalfPaymentItems = items.some(item => item.product.isHalfPaymentAvailable);
+
+  const calculatePaymentAmount = () => {
+    if (paymentType === 'half') {
+      // Calculate 50% of total amount
+      return Math.round(getTotalPrice() * 0.5);
+    }
+    
+    // Original calculation for full payment or mixed items
+    const halfPaymentItems = items.filter(item => item.product.isHalfPaymentAvailable);
+    const fullPaymentItems = items.filter(item => !item.product.isHalfPaymentAvailable);
+    
+    const halfPaymentAmount = halfPaymentItems.reduce((sum, item) => 
+      sum + ((item.product.halfPaymentAmount || 0) * item.quantity), 0
+    );
+    
+    const fullPaymentAmount = fullPaymentItems.reduce((sum, item) => 
+      sum + (item.product.price * item.quantity), 0
+    );
+    
+    return halfPaymentAmount + fullPaymentAmount;
+  };
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -78,19 +110,9 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
       }
 
       // Calculate half payment amount if applicable
-      const halfPaymentItems = items.filter(item => item.product.isHalfPaymentAvailable);
-      const fullPaymentItems = items.filter(item => !item.product.isHalfPaymentAvailable);
-      
-      const halfPaymentAmount = halfPaymentItems.reduce((sum, item) => 
-        sum + ((item.product.halfPaymentAmount || 0) * item.quantity), 0
-      );
-      
-      const fullPaymentAmount = fullPaymentItems.reduce((sum, item) => 
-        sum + (item.product.price * item.quantity), 0
-      );
-      
-      const actualPaymentAmount = halfPaymentAmount + fullPaymentAmount;
-      const isHalfPayment = halfPaymentItems.length > 0;
+      const actualPaymentAmount = calculatePaymentAmount();
+      const isHalfPayment = paymentType === 'half' || items.some(item => item.product.isHalfPaymentAvailable);
+      const isHalfPaid = paymentType === 'half';
 
       const orderResponse = await apiService.createOrder({
         amount: Math.round(actualPaymentAmount * 100),
@@ -106,11 +128,13 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
         })),
         shippingAddress: selectedAddress as AddressFormData,
         isHalfPayment,
+        isHalfPaid,
         remainingAmount: isHalfPayment ? Math.round((totalAmount - actualPaymentAmount) * 100) : 0,
         notes: {
           userId: user?.id || '',
           userEmail: user?.email || '',
           itemCount: items.length.toString(),
+          paymentType: paymentType,
         },
       });
 
@@ -180,14 +204,61 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({ onSuccess, onError, isT
   };
 
   return (
-    <button
-      onClick={handlePayment}
-      className={`btn-primary rounded-md p-2 text-theme-light bg-theme-primary hover:bg-theme-dark w-full ${!isTermsAccepted ? 'opacity-50 cursor-not-allowed' : ''} ${baseFocusClasses}`}
-      title="Proceed to secure payment"
-      disabled={!isTermsAccepted}
-    >
-      PROCEED TO CHECKOUT
-    </button>
+    <div className="space-y-4">
+      {/* Payment Type Selection */}
+      {hasHalfPaymentItems && onPaymentTypeChange && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="text-sm font-serif font-semibold italic text-blue-800 mb-3">
+            Payment Options
+          </h3>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="paymentType"
+                value="full"
+                checked={paymentType === 'full'}
+                onChange={() => onPaymentTypeChange('full')}
+                className="text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-serif italic text-blue-700">
+                Pay Full Amount (₹{getTotalPrice().toLocaleString()})
+              </span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="paymentType"
+                value="half"
+                checked={paymentType === 'half'}
+                onChange={() => onPaymentTypeChange('half')}
+                className="text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-serif italic text-blue-700">
+                Pay 50% Now (₹{Math.round(getTotalPrice() * 0.5).toLocaleString()})
+              </span>
+            </label>
+          </div>
+          {paymentType === 'half' && (
+            <p className="text-xs text-blue-600 mt-2 font-serif italic">
+              Remaining ₹{Math.round(getTotalPrice() * 0.5).toLocaleString()} will be collected after delivery
+            </p>
+          )}
+        </div>
+      )}
+
+      <button
+        onClick={handlePayment}
+        className={`btn-primary rounded-md p-2 text-theme-light bg-theme-primary hover:bg-theme-dark w-full ${!isTermsAccepted ? 'opacity-50 cursor-not-allowed' : ''} ${baseFocusClasses}`}
+        title="Proceed to secure payment"
+        disabled={!isTermsAccepted}
+      >
+        {paymentType === 'half' 
+          ? `PAY 50% NOW (₹${Math.round(getTotalPrice() * 0.5).toLocaleString()})`
+          : 'PROCEED TO CHECKOUT'
+        }
+      </button>
+    </div>
   );
 };
 

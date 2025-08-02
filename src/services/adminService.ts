@@ -99,6 +99,16 @@ class AdminService extends BaseService {
   async sendTrackingId(trackingNumber: string, orderId: string): Promise<ApiResponse<any>> {
     return this.post<any>(`${API_ENDPOINTS.ADMIN_SEND_TRACKING}`, {trackingNumber, orderId }, true);
   }
+
+  // Enable remaining payment for half-paid orders
+  async enableRemainingPayment(orderId: string): Promise<ApiResponse<any>> {
+    return this.post<any>(`/admin/orders/${orderId}/enable-remaining-payment`, {}, true);
+  }
+
+  // Send remaining payment notification
+  async sendRemainingPaymentNotification(orderId: string): Promise<ApiResponse<any>> {
+    return this.post<any>(`/admin/orders/${orderId}/send-remaining-payment-notification`, {}, true);
+  }
 }
 
 export const adminService = new AdminService();

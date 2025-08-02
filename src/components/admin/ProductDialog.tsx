@@ -37,6 +37,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     isLatest: false,
     isHalfPaymentAvailable: false,
     halfPaymentAmount: 0,
+    isHalfPayment: false,
   });
 
   useEffect(() => {
@@ -57,6 +58,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
           isLatest: false,
           isHalfPaymentAvailable: false,
           halfPaymentAmount: 0,
+          isHalfPayment: false,
         });
         setImageFiles([]);
       }
@@ -87,6 +89,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         isLatest: product.isLatest ?? false,
         isHalfPaymentAvailable: product.isHalfPaymentAvailable ?? false,
         halfPaymentAmount: product.halfPaymentAmount || 0,
+        isHalfPayment: (product as any).isHalfPayment ?? false,
       });
 
       const existingImages: ImageFile[] = (product.images || []).map((url, index) => ({
@@ -252,6 +255,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         isLatest: formData.isLatest,
         isHalfPaymentAvailable: formData.isHalfPaymentAvailable,
         halfPaymentAmount: formData.halfPaymentAmount,
+        isHalfPayment: formData.isHalfPayment,
       };
 
       onSave(productData);
@@ -542,6 +546,16 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
               <span className="text-sm text-[#5f3c2c]">Enable Half Payment</span>
             </label>
 
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isHalfPayment"
+                checked={formData.isHalfPayment || false}
+                onChange={handleCheckboxChange}
+                className="rounded border-gray-300 text-[#D4B896] focus:ring-[#D4B896]"
+              />
+              <span className="text-sm text-[#5f3c2c]">Allow Half Payment (50% option)</span>
+            </label>
             {formData.isHalfPaymentAvailable && (
               <div>
                 <label className="block text-sm font-medium text-[#5f3c2c] mb-2">

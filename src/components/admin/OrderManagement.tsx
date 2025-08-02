@@ -229,7 +229,8 @@ const ActionsCellRenderer = (params: any) => {
   const handleSendRemainingPaymentLink = async () => {
     setSendingRemaining(true);
     try {
-      await adminService.sendRemainingPaymentNotification(order.id);
+      // Enable remaining payment for this order
+      await adminService.enableRemainingPayment(order.id);
       alert('Remaining payment notification sent successfully!');
     } catch (error) {
       console.error('Failed to send remaining payment notification:', error);
@@ -289,7 +290,7 @@ const ActionsCellRenderer = (params: any) => {
       )}
 
       {/* Half Payment Remaining Button */}
-      {order.isHalfPayment && order.halfPaymentStatus === 'pending' && (
+      {(order.isHalfPayment || order.isHalfPaid) && order.halfPaymentStatus === 'pending' && (
         <div className="flex justify-center">
           <button
             onClick={handleSendRemainingPaymentLink}
@@ -297,7 +298,7 @@ const ActionsCellRenderer = (params: any) => {
             className="flex items-center space-x-1 bg-yellow-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
           >
             <Send className="h-3 w-3" />
-            <span>{sendingRemaining ? 'Sending...' : 'Send Remaining Payment Link'}</span>
+            <span>{sendingRemaining ? 'Enabling...' : 'Enable Remaining Payment'}</span>
           </button>
         </div>
       )}
@@ -410,7 +411,7 @@ const OrderManagement: React.FC = () => {
       field: 'isHalfPayment',
       width: 120,
       cellRenderer: (params: any) => {
-        const isHalf = params.value;
+        const isHalf = params.value || params.data.isHalfPaid;
         const halfStatus = params.data.halfPaymentStatus;
         
         if (!isHalf) {
@@ -773,7 +774,7 @@ const OrderDetailModal: React.FC<{
                       </span>
                     </div>
                     
-                    {order.isHalfPayment && (
+                    {(order.isHalfPayment || order.isHalfPaid) && (
                       <>
                         <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
                           <span className="font-light italic">Payment Type:</span>
@@ -793,6 +794,12 @@ const OrderDetailModal: React.FC<{
                           <span className="font-light italic">Remaining Status:</span>
                           <span className={`font-semibold ${order.halfPaymentStatus === 'pending' ? 'text-yellow-600' : 'text-green-600'}`}>
                             {order.halfPaymentStatus === 'pending' ? 'Pending' : 'Paid'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-2">
+                          <span className="font-light italic">Remaining Payment:</span>
+                          <span className={`font-semibold ${order.enableRemainingPayment ? 'text-green-600' : 'text-gray-600'}`}>
+                            {order.enableRemainingPayment ? 'Enabled' : 'Disabled'}
                           </span>
                         </div>
                       </>

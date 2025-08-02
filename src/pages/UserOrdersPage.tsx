@@ -314,7 +314,7 @@ const UserOrdersPage: React.FC = () => {
                     </div>
 
                     {/* Half Payment Status */}
-                    {order.isHalfPayment && order.halfPaymentStatus === 'pending' && (
+                    {(order.isHalfPayment || order.isHalfPaid) && order.halfPaymentStatus === 'pending' && (
                       <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <div className="flex items-center justify-between">
                           <div>
@@ -322,13 +322,20 @@ const UserOrdersPage: React.FC = () => {
                             <p className="text-xs text-yellow-700">
                               ₹{((order.remainingAmount || 0) / 100).toLocaleString()} is due
                             </p>
+                            {!order.enableRemainingPayment && (
+                              <p className="text-xs text-gray-600 mt-1">
+                                Payment will be enabled after tracking ID is sent
+                              </p>
+                            )}
                           </div>
-                          <button
-                            onClick={() => handlePayRemaining(order.id, order.remainingAmount || 0)}
-                            className="bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-yellow-700 transition-colors"
-                          >
-                            Pay Remaining
-                          </button>
+                          {order.enableRemainingPayment && (
+                            <button
+                              onClick={() => handlePayRemaining(order.id, order.remainingAmount || 0)}
+                              className="bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-yellow-700 transition-colors"
+                            >
+                              Pay Remaining
+                            </button>
+                          )}
                         </div>
                       </div>
                     )}

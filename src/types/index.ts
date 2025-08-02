@@ -44,6 +44,7 @@ export interface Product {
   isLatest?:boolean;
   isHalfPaymentAvailable?: boolean;
   halfPaymentAmount?: number;
+  isHalfPayment?: boolean; // Legacy field for backward compatibility
 }
 
 export interface Category {
@@ -111,6 +112,8 @@ export interface Order {
   isHalfPayment?: boolean;
   remainingAmount?: number;
   halfPaymentStatus?: 'pending' | 'paid' | 'not_applicable';
+  enableRemainingPayment?: boolean;
+  isHalfPaid?: boolean; // Alternative naming for clarity
 }
 
 
@@ -129,11 +132,13 @@ export interface OrderRequest {
   items: OrderItem[]; 
   shippingAddress: AddressFormData; // Define this below
   isHalfPayment?: boolean;
+  isHalfPaid?: boolean;
   remainingAmount?: number;
   notes?: {
     userId: string;
     userEmail: string;
     itemCount: string;
+    paymentType?: string;
     [key: string]: string; // Allow additional note fields
   };
 }

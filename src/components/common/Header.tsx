@@ -1,23 +1,28 @@
 // Header.tsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Bell } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useCategoryStore } from '../../store/categoryStore';
 import { useCartStore } from '../../store/cartStore';
+import { useNotificationStore } from '../../store/notificationStore';
 import SEOHead from '../seo/SEOHead';
 import { SITE_CONFIG } from '../../constants/siteConfig';
 import CartSidebar from './CartSidebar';
 import BagIcon from '../icons/BagIcon';
+import { apiService } from '../../services/api';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCartSidebar, setShowCartSidebar] = useState(false);
   const [showText, setShowText] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [pendingPayments, setPendingPayments] = useState<any[]>([]);
 
   const { user, isAuthenticated, logout } = useAuthStore();
   const { loadCategories } = useCategoryStore();
   const { getUniqueItemCount } = useCartStore();
+  const { addNotification } = useNotificationStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,6 +41,26 @@ const Header: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Load pending payments for authenticated users
+  useEffect(() => {
+    const loadPendingPayments = async () => {
+      if (isAuthenticated && user) {
+        try {
+          const orders = await apiService.getUserOrders();
+          const pending = orders.filter(order => 
+            (order.isHalfPayment || order.isHalfPaid) && 
+            order.halfPaymentStatus === 'pending' && 
+            order.enableRemainingPayment
+          );
+          setPendingPayments(pending);
+        } catch (error) {
+          console.error('Error loading pending payments:', error);
+        }
+      }
+    };
+
+    loadPendingPayments();
+  }, [isAuthenticated, user]);
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -117,6 +142,67 @@ const Header: React.FC = () => {
                 className={`flex items-center space-x-2 sm:space-x-3 ${showText ? 'opacity-100 animate-fadeInSlow' : 'opacity-0'
                   }`}
               >
+                {/* Notification Bell - only for authenticated users */}
+                {isAuthenticated && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowNotifications(!showNotifications)}
+                      className={`flex items-center ${baseFocusClasses} p-2 hover:opacity-70 transition-opacity relative`}
+                      title={`Notifications (${pendingPayments.length} pending payments)`}
+                    >
+                      <Bell 
+                        className="h-5 w-5 sm:h-6 sm:w-6" 
+                        style={{ color: headerStyles.textColor }}
+                      />
+                      {pendingPayments.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-theme-light text-[10px] sm:text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-medium">
+                          {pendingPayments.length > 9 ? '9+' : pendingPayments.length}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Notification Dropdown */}
+                    {showNotifications && (
+                      <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                        <div className="px-4 py-3 border-b border-gray-200">
+                          <h3 className="text-sm font-serif font-semibold italic text-gray-800">
+                            Pending Payments ({pendingPayments.length})
+                          </h3>
+                        </div>
+                        
+                        {pendingPayments.length === 0 ? (
+                          <div className="px-4 py-6 text-center text-gray-500 text-sm font-serif italic">
+                            No pending payments
+                          </div>
+                        ) : (
+                          <div className="max-h-64 overflow-y-auto">
+                            {pendingPayments.map((order) => (
+                              <div key={order.id} className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <p className="text-sm font-serif font-medium text-gray-800">
+                                      Order #{order.id.slice(-8)}
+                                    </p>
+                                    <p className="text-xs text-gray-500 font-serif italic">
+                                      ₹{((order.remainingAmount || 0) / 100).toLocaleString()} remaining
+                                    </p>
+                                  </div>
+                                  <Link
+                                    to="/user/orders"
+                                    onClick={() => setShowNotifications(false)}
+                                    className="text-xs bg-yellow-600 text-white px-2 py-1 rounded font-serif italic hover:bg-yellow-700 transition-colors"
+                                  >
+                                    Pay Now
+                                  </Link>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
                 {/* Show LOGIN only when not authenticated */}
                 {!isAuthenticated && (
                   <Link
@@ -170,6 +256,7 @@ const Header: React.FC = () => {
           <div
             className="fixed inset-0 bg-theme-dark bg-opacity-40 z-40"
             onClick={() => setIsMenuOpen(false)}
+            onClickCapture={() => setShowNotifications(false)}
           />
           <div className="fixed top-0 left-0 h-screen w-[85vw] sm:w-80 md:w-96 max-w-[400px] bg-theme-dark z-50 shadow-2xl px-4 sm:px-6 py-6 sm:py-8 flex flex-col justify-between text-theme-secondary transition-all duration-300 ease-in-out overflow-y-auto">
             <div>

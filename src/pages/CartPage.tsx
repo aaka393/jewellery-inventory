@@ -21,6 +21,10 @@ const CartPage: React.FC = () => {
   const [isAddressFormOpen, setIsAddressFormOpen] = React.useState(false);
   const [editingAddress, setEditingAddress] = React.useState<Address | null>(null);
   const [formLoading, setFormLoading] = React.useState(false);
+  const [paymentType, setPaymentType] = React.useState<'full' | 'half'>('full');
+
+  // Check if any item supports half payment
+  const hasHalfPaymentItems = activeItems.some(item => item.product.isHalfPaymentAvailable);
 
   // Get active items based on authentication status
   const activeItems = isAuthenticated ? items : guestItems;
@@ -290,6 +294,8 @@ React.useEffect(() => {
                         onSuccess={(orderId) => navigate(`/order-confirmation/${orderId}`)}
                         onError={(error) => alert(`Payment failed: ${error}`)}
                         isTermsAccepted={agreedToTerms}
+                        paymentType={paymentType}
+                        onPaymentTypeChange={hasHalfPaymentItems ? setPaymentType : undefined}
                       />
                     </>
                   ) : (

@@ -108,6 +108,8 @@ export const API_ENDPOINTS = {
   BULK_CREATE_PRODUCTS: '/admin/products/bulk',
   UPDATE_PRODUCT_VISIBILITY: '/admin/products',
   BULK_UPDATE_TAGS: '/admin/products/tags/bulk',
+  ENABLE_REMAINING_PAYMENT: '/admin/orders',
+  SEND_REMAINING_PAYMENT_NOTIFICATION: '/admin/orders',
 
   // Stock endpoints
   UPDATE_STOCK: '/products',
