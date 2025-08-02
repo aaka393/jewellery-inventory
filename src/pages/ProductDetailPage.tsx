@@ -7,7 +7,7 @@ import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SEOHead from '../components/seo/SEOHead';
-import { SITE_CONFIG, staticImageBaseUrl } from '../constants/siteConfig';
+import { SITE_CONFIG, staticOriginalImageBaseUrl } from '../constants/siteConfig';
 import LoginPromptModal from '../components/common/LoginPromptModal';
 
 const ProductDetailPage: React.FC = () => {
@@ -157,7 +157,7 @@ const ProductDetailPage: React.FC = () => {
   }
 
   const productImages = product.images && product.images.length > 0
-    ? product.images.map(img => img.startsWith('http') ? img : `${staticImageBaseUrl}/${img}`)
+    ? product.images.map(img => img.startsWith('http') ? img : `${staticOriginalImageBaseUrl}/${img}`)
     : ['https://www.macsjewelry.com/cdn/shop/files/IMG_4360_594x.progressive.jpg?v=1701478772'];
 
   return (
@@ -183,7 +183,7 @@ const ProductDetailPage: React.FC = () => {
 
       <div className="min-h-screen bg-theme-background text-theme-primary font-serif">
         <div className="container mx-auto pt-20 sm:pt-24 lg:pt-28 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 xl:gap-10">
             {/* Image Section */}
             <div className="space-y-4 sm:space-y-6">
               <div className="relative bg-theme-surface rounded-xl sm:rounded-2xl overflow-hidden">
@@ -236,11 +236,11 @@ const ProductDetailPage: React.FC = () => {
             {/* Product Info Section */}
             <div className="space-y-4 sm:space-y-6 lg:space-y-8">
               <div className="space-y-3 sm:space-y-4">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl italic font-serif text-theme-primary leading-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif text-theme-primary">
                   {product.name}
                 </h1>
                 <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="text-lg sm:text-xl lg:text-2xl text-theme-dark">
+                  <div className="text-base sm:text-lg text-theme-dark">
                     ₹ {(product.price || 0).toLocaleString()}
                   </div>
                   {product.comparePrice && product.comparePrice > product.price && (
@@ -333,20 +333,19 @@ const ProductDetailPage: React.FC = () => {
 
               {/* Product Details Tabs */}
               <div className="pt-6 sm:pt-8 border-t border-theme-primary/20">
-                <div className="flex flex-wrap gap-2 sm:gap-4 lg:gap-6 border-b border-theme-primary/20 mb-4 sm:mb-6">
+                <div className="flex border-b text-sm">
                   {['About', 'Details', 'Shipping', 'Reviews'].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setTab(tab as any)}
-                      className={`pb-2 sm:pb-3 italic font-semibold uppercase tracking-wide text-xs sm:text-sm lg:text-base ${baseFocusClasses} ${currentTab === tab
-                        ? 'border-b-2 border-theme-primary text-theme-primary'
-                        : 'text-theme-primary/70 hover:text-theme-primary'
+                      className={`pb-2 px-2 border-b-2 transition ${currentTab === tab ? 'border-theme-primary text-theme-primary' : 'border-transparent text-theme-muted hover:text-theme-primary'
                         }`}
                     >
                       {tab}
                     </button>
                   ))}
                 </div>
+
 
                 <div className="text-sm sm:text-base leading-relaxed italic text-theme-primary/90">
                   {currentTab === 'About' && <p>{product.description}</p>}
