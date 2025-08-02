@@ -263,11 +263,11 @@ const ProductDetailPage: React.FC = () => {
                       Half Payment Option Available
                     </h3>
                     <p className="text-green-700 font-serif italic text-sm sm:text-base leading-relaxed">
-                      This product supports partial payment. You only need to pay{' '}
-                      <span className="font-semibold">₹{(product.halfPaymentAmount || 0).toLocaleString()}</span> now.
-                      The remaining{' '}
-                      <span className="font-semibold">₹{((product.price || 0) - (product.halfPaymentAmount || 0)).toLocaleString()}</span>{' '}
-                      will be paid after your order is delivered.
+                      This product supports 50% payment option. You can choose to pay{' '}
+                      <span className="font-semibold">₹{Math.round((product.price || 0) / 2).toLocaleString()}</span> now
+                      and the remaining{' '}
+                      <span className="font-semibold">₹{Math.round((product.price || 0) / 2).toLocaleString()}</span>{' '}
+                      after delivery.
                     </p>
                   </div>
                 )}

@@ -24,10 +24,10 @@ const CartPage: React.FC = () => {
   const [paymentType, setPaymentType] = React.useState<'full' | 'half'>('full');
 
   // Check if any item supports half payment
+  const activeItems = isAuthenticated ? items : guestItems;
   const hasHalfPaymentItems = activeItems.some(item => item.product.isHalfPaymentAvailable);
 
   // Get active items based on authentication status
-  const activeItems = isAuthenticated ? items : guestItems;
 React.useEffect(() => {
   if (!isAuthenticated) return; // Skip address loading for guest users
   
@@ -213,19 +213,44 @@ React.useEffect(() => {
                   <h2 className="text-lg sm:text-xl font-semibold italic mb-4 sm:mb-6">Order Summary</h2>
 
                   <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                    {/* Half Payment Info */}
-                    {activeItems.some(item => item.product.isHalfPaymentAvailable) && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4">
-                        <h3 className="text-sm font-serif font-semibold italic text-green-800 mb-2">
-                          Half Payment Available
+                    {/* Payment Type Selection */}
+                    {hasHalfPaymentItems && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 className="text-sm font-serif font-semibold italic text-blue-800 mb-3">
+                          Choose Payment Option
                         </h3>
-                        {activeItems.map(item => 
-                          item.product.isHalfPaymentAvailable ? (
-                            <div key={item.id} className="text-xs sm:text-sm text-green-700 font-serif italic">
-                              {item.product.name}: Pay ₹{((item.product.halfPaymentAmount || 0) * item.quantity).toLocaleString()} now,
-                              ₹{(((item.product.price - (item.product.halfPaymentAmount || 0)) * item.quantity)).toLocaleString()} after delivery
-                            </div>
-                          ) : null
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="paymentType"
+                              value="full"
+                              checked={paymentType === 'full'}
+                              onChange={() => setPaymentType('full')}
+                              className="text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm font-serif italic text-blue-700">
+                              Pay Full Amount (₹{getTotalPrice().toLocaleString()})
+                            </span>
+                          </label>
+                          <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="paymentType"
+                              value="half"
+                              checked={paymentType === 'half'}
+                              onChange={() => setPaymentType('half')}
+                              className="text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm font-serif italic text-blue-700">
+                              Pay 50% Now (₹{Math.round(getTotalPrice() * 0.5).toLocaleString()})
+                            </span>
+                          </label>
+                        </div>
+                        {paymentType === 'half' && (
+                          <div className="mt-2 text-xs text-blue-600 font-serif italic">
+                            Remaining ₹{Math.round(getTotalPrice() * 0.5).toLocaleString()} will be collected after delivery
+                          </div>
                         )}
                       </div>
                     )}
@@ -233,26 +258,16 @@ React.useEffect(() => {
                     <div className="flex justify-between">
                       <span className="text-sm sm:text-base italic">SUBTOTAL:</span>
                       <span className="text-sm sm:text-base font-semibold">
-                        Rs. {(() => {
-                          const halfPaymentItems = activeItems.filter(item => item.product.isHalfPaymentAvailable);
-                          const fullPaymentItems = activeItems.filter(item => !item.product.isHalfPaymentAvailable);
-                          
-                          const halfPaymentAmount = halfPaymentItems.reduce((sum, item) => 
-                            sum + ((item.product.halfPaymentAmount || 0) * item.quantity), 0
-                          );
-                          
-                          const fullPaymentAmount = fullPaymentItems.reduce((sum, item) => 
-                            sum + (item.product.price * item.quantity), 0
-                          );
-                          
-                          return (halfPaymentAmount + fullPaymentAmount).toLocaleString();
-                        })()}
+                        Rs. {paymentType === 'half' 
+                          ? Math.round(getTotalPrice() * 0.5).toLocaleString()
+                          : getTotalPrice().toLocaleString()
+                        }
                       </span>
                     </div>
                     
-                    {activeItems.some(item => item.product.isHalfPaymentAvailable) && (
+                    {paymentType === 'half' && (
                       <div className="text-xs sm:text-sm italic text-green-600 bg-green-50 p-2 rounded">
-                        You're paying only the first installment now. Remaining amount will be collected after delivery.
+                        You're paying 50% now. Remaining amount will be collected after delivery.
                       </div>
                     )}
                     

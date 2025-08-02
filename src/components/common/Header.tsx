@@ -48,7 +48,7 @@ const Header: React.FC = () => {
         try {
           const orders = await apiService.getUserOrders();
           const pending = orders.filter(order => 
-            (order.isHalfPayment || order.isHalfPaid) && 
+            order.isHalfPaid && 
             order.halfPaymentStatus === 'pending' && 
             order.enableRemainingPayment
           );

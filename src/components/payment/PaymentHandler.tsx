@@ -43,19 +43,8 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({
       return Math.round(getTotalPrice() * 0.5);
     }
     
-    // Original calculation for full payment or mixed items
-    const halfPaymentItems = items.filter(item => item.product.isHalfPaymentAvailable);
-    const fullPaymentItems = items.filter(item => !item.product.isHalfPaymentAvailable);
-    
-    const halfPaymentAmount = halfPaymentItems.reduce((sum, item) => 
-      sum + ((item.product.halfPaymentAmount || 0) * item.quantity), 0
-    );
-    
-    const fullPaymentAmount = fullPaymentItems.reduce((sum, item) => 
-      sum + (item.product.price * item.quantity), 0
-    );
-    
-    return halfPaymentAmount + fullPaymentAmount;
+    // Full payment - return total amount
+    return getTotalPrice();
   };
 
   const loadRazorpayScript = (): Promise<boolean> => {
@@ -111,7 +100,7 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({
 
       // Calculate half payment amount if applicable
       const actualPaymentAmount = calculatePaymentAmount();
-      const isHalfPayment = paymentType === 'half' || items.some(item => item.product.isHalfPaymentAvailable);
+      const isHalfPayment = paymentType === 'half';
       const isHalfPaid = paymentType === 'half';
 
       const orderResponse = await apiService.createOrder({
@@ -127,7 +116,6 @@ const PaymentHandler: React.FC<PaymentHandlerProps> = ({
           image: item.product.images[0] || ''
         })),
         shippingAddress: selectedAddress as AddressFormData,
-        isHalfPayment,
         isHalfPaid,
         remainingAmount: isHalfPayment ? Math.round((totalAmount - actualPaymentAmount) * 100) : 0,
         notes: {

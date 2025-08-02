@@ -37,7 +37,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     isLatest: false,
     isHalfPaymentAvailable: false,
     halfPaymentAmount: 0,
-    isHalfPayment: false,
   });
 
   useEffect(() => {
@@ -58,7 +57,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
           isLatest: false,
           isHalfPaymentAvailable: false,
           halfPaymentAmount: 0,
-          isHalfPayment: false,
         });
         setImageFiles([]);
       }
@@ -89,7 +87,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         isLatest: product.isLatest ?? false,
         isHalfPaymentAvailable: product.isHalfPaymentAvailable ?? false,
         halfPaymentAmount: product.halfPaymentAmount || 0,
-        isHalfPayment: (product as any).isHalfPayment ?? false,
       });
 
       const existingImages: ImageFile[] = (product.images || []).map((url, index) => ({
@@ -171,6 +168,17 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+
+    // Auto-calculate halfPaymentAmount when price changes and half payment is enabled
+    if (name === 'price' && formData.isHalfPaymentAvailable) {
+      const newPrice = parseFloat(value) || 0;
+      setFormData(prev => ({
+        ...prev,
+        price: newPrice,
+        halfPaymentAmount: Math.round(newPrice / 2)
+      }));
+      return;
+    }
 
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
@@ -255,7 +263,6 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         isLatest: formData.isLatest,
         isHalfPaymentAvailable: formData.isHalfPaymentAvailable,
         halfPaymentAmount: formData.halfPaymentAmount,
-        isHalfPayment: formData.isHalfPayment,
       };
 
       onSave(productData);
@@ -540,42 +547,30 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                 type="checkbox"
                 name="isHalfPaymentAvailable"
                 checked={formData.isHalfPaymentAvailable}
-                onChange={handleCheckboxChange}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setFormData(prev => ({
+                    ...prev,
+                    isHalfPaymentAvailable: checked,
+                    halfPaymentAmount: checked ? Math.round(prev.price / 2) : 0
+                  }));
+                }}
                 className="rounded border-gray-300 text-[#D4B896] focus:ring-[#D4B896]"
               />
-              <span className="text-sm text-[#5f3c2c]">Enable Half Payment</span>
+              <span className="text-sm text-[#5f3c2c]">Allow Half Payment (50%)</span>
             </label>
 
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="isHalfPayment"
-                checked={formData.isHalfPayment || false}
-                onChange={handleCheckboxChange}
-                className="rounded border-gray-300 text-[#D4B896] focus:ring-[#D4B896]"
-              />
-              <span className="text-sm text-[#5f3c2c]">Allow Half Payment (50% option)</span>
-            </label>
             {formData.isHalfPaymentAvailable && (
-              <div>
-                <label className="block text-sm font-medium text-[#5f3c2c] mb-2">
-                  Half Payment Amount *
-                </label>
-                <input
-                  type="number"
-                  name="halfPaymentAmount"
-                  value={formData.halfPaymentAmount || ''}
-                  onChange={handleInputChange}
-                  placeholder="Amount to pay first"
-                  min="0"
-                  max={formData.price}
-                  step="0.01"
-                  required={formData.isHalfPaymentAvailable}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-[#D4B896]"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Customer will pay this amount first. Remaining: ₹{((formData.price || 0) - (formData.halfPaymentAmount || 0)).toFixed(2)}
-                </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="text-sm text-blue-800 font-medium">
+                  Half Payment Details:
+                </div>
+                <div className="text-xs text-blue-700 mt-1">
+                  • First payment: ₹{(formData.halfPaymentAmount || 0).toLocaleString()}
+                </div>
+                <div className="text-xs text-blue-700">
+                  • Remaining after delivery: ₹{((formData.price || 0) - (formData.halfPaymentAmount || 0)).toLocaleString()}
+                </div>
               </div>
             )}
           </div>

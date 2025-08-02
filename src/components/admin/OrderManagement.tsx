@@ -216,6 +216,12 @@ const ActionsCellRenderer = (params: any) => {
     setIsSubmitting(true);
     try {
       await adminService.sendTrackingId(trackingId, order.id);
+      
+      // If this is a half payment order, enable remaining payment
+      if (order.isHalfPaid && order.halfPaymentStatus === 'pending') {
+        await adminService.enableRemainingPayment(order.id);
+      }
+      
       setIsSubmitted(true);
       setIsEditing(false);
       setTimeout(() => setIsSubmitted(false), 3000);
@@ -290,7 +296,7 @@ const ActionsCellRenderer = (params: any) => {
       )}
 
       {/* Half Payment Remaining Button */}
-      {(order.isHalfPayment || order.isHalfPaid) && order.halfPaymentStatus === 'pending' && (
+      {order.isHalfPaid && order.halfPaymentStatus === 'pending' && order.trackingNumber && !order.enableRemainingPayment && (
         <div className="flex justify-center">
           <button
             onClick={handleSendRemainingPaymentLink}
@@ -408,10 +414,10 @@ const OrderManagement: React.FC = () => {
     },
     {
       headerName: 'Payment Type',
-      field: 'isHalfPayment',
+      field: 'isHalfPaid',
       width: 120,
       cellRenderer: (params: any) => {
-        const isHalf = params.value || params.data.isHalfPaid;
+        const isHalf = params.value;
         const halfStatus = params.data.halfPaymentStatus;
         
         if (!isHalf) {
@@ -774,7 +780,7 @@ const OrderDetailModal: React.FC<{
                       </span>
                     </div>
                     
-                    {(order.isHalfPayment || order.isHalfPaid) && (
+                    {order.isHalfPaid && (
                       <>
                         <div className="flex justify-between py-2 border-b border-[#DEC9A3]">
                           <span className="font-light italic">Payment Type:</span>

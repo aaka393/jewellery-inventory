@@ -58,7 +58,7 @@ const UserOrdersPage: React.FC = () => {
         receipt: `remaining_${orderId}_${Date.now()}`,
         items: [], // Empty items for remaining payment
         shippingAddress: {} as any, // Empty address for remaining payment
-        isHalfPayment: false,
+        isHalfPaid: false,
         remainingAmount: 0,
         notes: {
           userId: useAuthStore.getState().user?.id || '',
@@ -314,7 +314,7 @@ const UserOrdersPage: React.FC = () => {
                     </div>
 
                     {/* Half Payment Status */}
-                    {(order.isHalfPayment || order.isHalfPaid) && order.halfPaymentStatus === 'pending' && (
+                    {order.isHalfPaid && order.halfPaymentStatus === 'pending' && (
                       <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <div className="flex items-center justify-between">
                           <div>

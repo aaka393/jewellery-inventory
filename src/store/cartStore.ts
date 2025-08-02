@@ -346,12 +346,9 @@ export const useCartStore = create<CartState>()(
         
         const activeItems = isAuthenticated ? items : guestItems;
         
-        // Calculate payment amount considering half payments
+        // Calculate full total price (not considering payment type here)
         return activeItems.reduce((total, item) => {
           const product = item.product;
-          if (product?.isHalfPaymentAvailable && product.halfPaymentAmount) {
-            return total + (product.halfPaymentAmount * item.quantity);
-          }
           return total + ((product?.price || 0) * item.quantity);
         }, 0);
       },

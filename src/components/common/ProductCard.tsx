@@ -143,10 +143,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
               }`}>
               {product.isHalfPaymentAvailable ? (
                 <>
-                  <span className="text-green-600 font-semibold">
-                    {SITE_CONFIG.currencySymbol}{(product.halfPaymentAmount || 0).toLocaleString()}
+                  <span className="text-blue-600 font-semibold">
+                    {SITE_CONFIG.currencySymbol}{Math.round((product.price || 0) / 2).toLocaleString()}
                   </span>
-                  <span className="text-xs text-theme-muted ml-1">first</span>
+                  <span className="text-xs text-theme-muted ml-1">50% option</span>
                 </>
               ) : (
                 SITE_CONFIG.currencySymbol + (product.price || 0).toLocaleString()
@@ -169,9 +169,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode}) => {
               <div className="bg-green-50 border border-green-200 rounded-lg px-2 py-1">
                 <p className={`text-green-700 font-serif italic text-center ${viewMode === 'list' ? 'text-sm' : 'text-xs'}`}>
                   Half Payment Available
-                </p>
-                <p className={`text-green-600 font-serif text-center ${viewMode === 'list' ? 'text-xs' : 'text-[10px]'}`}>
-                  Pay ₹{(product.halfPaymentAmount || 0).toLocaleString()} now, ₹{((product.price || 0) - (product.halfPaymentAmount || 0)).toLocaleString()} after delivery
                 </p>
               </div>
             </div>

@@ -13,7 +13,6 @@ export interface ProductFormData {
   review: string;
   isHalfPaymentAvailable?: boolean;
   halfPaymentAmount?: number;
-  isHalfPayment?: boolean;
 }
 export interface CategoryFormData {
   name: string;

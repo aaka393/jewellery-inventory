@@ -30,21 +30,20 @@ export interface Product {
   hoverImage: string | undefined;
   id: string;
   name: string;
-  slug?: string; 
-  category: string; 
+  slug?: string;
+  category: string;
   description?: string;
-  initialPrice: number; 
-  price: number; 
-  comparePrice?: number; 
+  initialPrice: number;
+  price: number;
+  comparePrice?: number;
   images: string[];
   stock: boolean;
   createdAt: string;
-  details:string;
+  details: string;
   review: string;
-  isLatest?:boolean;
+  isLatest?: boolean;
   isHalfPaymentAvailable?: boolean;
   halfPaymentAmount?: number;
-  isHalfPayment?: boolean; // Legacy field for backward compatibility
 }
 
 export interface Category {
@@ -53,7 +52,7 @@ export interface Category {
   slug: string;
   image?: string;
   sizeOptions?: string[];
-  categoryType: 'handmade' | 'handloom'; 
+  categoryType: 'handmade' | 'handloom';
 }
 
 
@@ -67,7 +66,7 @@ export interface CartItem {
   product: Product;
 }
 export interface GuestCartItem {
-  id:string,
+  id: string,
   productId: string;
   quantity: number;
   selectedSize?: string;
@@ -86,17 +85,17 @@ export interface OrderItem {
   quantity: number;
   selectedSize?: string;
   image: string;
-  description?: string; 
+  description?: string;
 }
 
 export interface Order {
-  id: string; 
-  amount: number; 
+  id: string;
+  amount: number;
   amount_due: number;
   amount_paid: number;
   attempts: number;
   currency: string;
-  entity: string; 
+  entity: string;
   status: 'created' | 'attempted' | 'paid';
   notes: {
     itemCount: string;
@@ -105,15 +104,14 @@ export interface Order {
   };
   receipt: string;
   offer_id: string | null;
-  createdAt: string; 
+  createdAt: string;
   items: OrderItem[];
-  trackingNumber:string | null;
+  trackingNumber: string | null;
   shippingAddress: AddressFormData;
-  isHalfPayment?: boolean;
+  isHalfPaid?: boolean;
   remainingAmount?: number;
   halfPaymentStatus?: 'pending' | 'paid' | 'not_applicable';
   enableRemainingPayment?: boolean;
-  isHalfPaid?: boolean; // Alternative naming for clarity
 }
 
 
@@ -129,18 +127,18 @@ export interface OrderRequest {
   amount: number; // In paise (i.e., smallest currency unit)
   currency: 'INR'; // Could be generalized if needed
   receipt?: string;
-  items: OrderItem[]; 
+  items: OrderItem[];
   shippingAddress: AddressFormData; // Define this below
-  isHalfPayment?: boolean;
   isHalfPaid?: boolean;
   remainingAmount?: number;
   notes?: {
-    userId: string;
-    userEmail: string;
-    itemCount: string;
+    userId?: string;
+    userEmail?: string;
+    itemCount?: string;
     paymentType?: string;
-    [key: string]: string; // Allow additional note fields
+    [key: string]: string | undefined;
   };
+
 }
 
 export interface Payment {
@@ -177,18 +175,18 @@ export interface ProductImport {
   details?: string;
   images?: string[];
   stock?: boolean;
-  id?: string; 
-  review?:string;
-  isLatest?:boolean;
+  id?: string;
+  review?: string;
+  isLatest?: boolean;
   isHalfPaymentAvailable?: boolean;
   halfPaymentAmount?: number;
 }
 
 
 export interface ImageFile {
-    id: string;
-    file: File;
-    preview: string;
-    uploaded?: boolean;
-    url?: string;
+  id: string;
+  file: File;
+  preview: string;
+  uploaded?: boolean;
+  url?: string;
 }
